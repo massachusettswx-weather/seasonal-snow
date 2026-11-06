@@ -1,0 +1,27 @@
+# CDS credentials - NEVER COMMIT
+.cdsapirc
+
+# raw / bulky data (re-fetchable with the scripts in this repo)
+data/*.grib
+data/*.nc
+data/arco_chunks/
+data/seas5_*_snow.npz
+*.grib
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# local preview scratch
+site_preview.png
+
+# editors / os
+.DS_Store
+*.swp
+
+# transient logs and scratch
+data/*.log
+_*.log
+_*.sh
+_*.py

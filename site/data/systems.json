@@ -1,0 +1,146 @@
+[
+ {
+  "id": "seasonal-monthly-pressure-levels",
+  "title": "Seasonal forecast monthly statistics on pressure levels",
+  "description": "This entry covers pressure-level data aggregated on a monthly time resolution. \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typically vary slowly, on timescales of weeks or months; as the ocean has an impa",
+  "snow_variables": [],
+  "n_variables": 5,
+  "systems": [],
+  "centres": [],
+  "product_types": [
+   "ensemble_mean",
+   "hindcast_climate_mean",
+   "monthly_mean"
+  ],
+  "has_snow": false
+ },
+ {
+  "id": "seasonal-monthly-ocean",
+  "title": "Seasonal forecast monthly averages of ocean variables",
+  "description": "This entry covers global ocean data aggregated to a monthly time resolution. The catalogue entry includes temperature and salinity characteristics of the upper oceans and complements the other seasonal forecast catalogue entries for the land and atmospheric variables. \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result ",
+  "snow_variables": [],
+  "n_variables": 12,
+  "systems": [],
+  "centres": [],
+  "product_types": [],
+  "has_snow": false
+ },
+ {
+  "id": "seasonal-postprocessed-pressure-levels",
+  "title": "Seasonal forecast anomalies on pressure levels",
+  "description": "This entry covers pressure-level data post-processed for bias adjustment on a monthly time resolution. \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typically vary slowly, on timescales of weeks or months; ",
+  "snow_variables": [],
+  "n_variables": 5,
+  "systems": [],
+  "centres": [],
+  "product_types": [
+   "ensemble_mean",
+   "monthly_mean"
+  ],
+  "has_snow": false
+ },
+ {
+  "id": "seasonal-monthly-single-levels",
+  "title": "Seasonal forecast monthly statistics on single levels",
+  "description": "This entry covers single-level data aggregated on a monthly time resolution. \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typically vary slowly, on timescales of weeks or months; as the ocean has an impact",
+  "snow_variables": [
+   "snow_depth",
+   "snowfall"
+  ],
+  "n_variables": 38,
+  "systems": [],
+  "centres": [],
+  "product_types": [
+   "ensemble_mean",
+   "hindcast_climate_mean",
+   "monthly_maximum",
+   "monthly_mean",
+   "monthly_minimum",
+   "monthly_standard_deviation"
+  ],
+  "has_snow": true
+ },
+ {
+  "id": "seasonal-postprocessed-single-levels",
+  "title": "Seasonal forecast anomalies on single levels",
+  "description": "This entry covers single-level data post-processed for bias adjustment on a monthly time resolution. \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typically vary slowly, on timescales of weeks or months; as",
+  "snow_variables": [
+   "snow_depth_anomaly",
+   "snowfall_anomalous_rate_of_accumulation"
+  ],
+  "n_variables": 38,
+  "systems": [],
+  "centres": [],
+  "product_types": [
+   "ensemble_mean",
+   "monthly_mean"
+  ],
+  "has_snow": true
+ },
+ {
+  "id": "seasonal-original-single-levels",
+  "title": "Seasonal forecast daily and subdaily data on single levels",
+  "description": "This entry covers single-level data and soil-level data at the original time resolution (once a day, or once every 6 hours, depending on the variable). \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typicall",
+  "snow_variables": [
+   "snow_cover",
+   "snow_depth",
+   "snowfall"
+  ],
+  "n_variables": 40,
+  "systems": [],
+  "centres": [],
+  "product_types": [],
+  "has_snow": true
+ },
+ {
+  "id": "seasonal-original-pressure-levels",
+  "title": "Seasonal forecast subdaily data on pressure levels",
+  "description": "This entry covers pressure-level data at the original time resolution (once every 12 hours). \nSeasonal forecasts provide a long-range outlook of changes in the Earth system over periods of a few weeks or months, as a result of predictable changes in some of the slow-varying components of the system. For example, ocean temperatures typically vary slowly, on timescales of weeks or months; as the oce",
+  "snow_variables": [],
+  "n_variables": 5,
+  "systems": [],
+  "centres": [],
+  "product_types": [],
+  "has_snow": false
+ },
+ {
+  "id": "sis-hydrology-europe-seasonal-reforecast",
+  "title": "Multi-model hydrological seasonal reforecasts for Europe",
+  "description": "This dataset provides ensemble reforecasts of hydrological simulations for Europe from the Copernicus Climate Change Service (C3S) Water Service. Ensemble reforecasts facilitate the assessment of forecast skill and post-processing techniques and support the Water Service's operational hydrological seasonal forecasts available in the Climate Data Store.\nThe dataset includes ensemble reforecasts gen",
+  "snow_variables": [
+   "snow_depth_water_equivalent"
+  ],
+  "n_variables": 6,
+  "systems": [],
+  "centres": [],
+  "product_types": [],
+  "has_snow": true
+ },
+ {
+  "id": "sis-hydrology-europe-seasonal",
+  "title": "Multi-model hydrological seasonal forecasts and historical simulations for Europe",
+  "description": "This dataset provides operational seasonal hydrological forecasts as well as historical simulations and meteorological forcings for Europe from the Copernicus Climate Change Service (C3S) Water Service. It offers users freely available and timely information on past, present and future seasonal hydrological conditions. The dataset supports monitoring of current European hydrological conditions and",
+  "snow_variables": [
+   "snow_depth_water_equivalent"
+  ],
+  "n_variables": 6,
+  "systems": [],
+  "centres": [],
+  "product_types": [
+   "forecast",
+   "historical"
+  ],
+  "has_snow": true
+ },
+ {
+  "id": "sis-health-vector",
+  "title": "Climatic suitability for the presence and seasonal activity of the Aedes albopictus mosquito for Europe derived from climate projections",
+  "description": "This dataset contains climatic suitability indicators for the Aedes albopictus (tiger mosquito) for Europe produced within the C3S European Health service. The provided indicators are the climatic suitability for the presence of Aedes albopictus and the season length of presence of Aedes albopictus. This mosquito transmits vector-borne diseases, such as dengue and chikungunya.\nEnvironmental factor",
+  "snow_variables": [],
+  "n_variables": 2,
+  "systems": [],
+  "centres": [],
+  "product_types": [],
+  "has_snow": false
+ }
+]

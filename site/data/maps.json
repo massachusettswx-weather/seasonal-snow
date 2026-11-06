@@ -1,0 +1,112 @@
+[
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_DJF_in.png",
+  "init": "202611",
+  "label": "DJF 2026/27",
+  "kind": "3-month mean",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "DJF",
+  "month": "",
+  "year": 0
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_FMA_in.png",
+  "init": "202611",
+  "label": "FMA 2027",
+  "kind": "3-month mean",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "FMA",
+  "month": "",
+  "year": 0
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_JFM_in.png",
+  "init": "202611",
+  "label": "JFM 2027",
+  "kind": "3-month mean",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "JFM",
+  "month": "",
+  "year": 0
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_NDJ_in.png",
+  "init": "202611",
+  "label": "NDJ 2026/27",
+  "kind": "3-month mean",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "NDJ",
+  "month": "",
+  "year": 0
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Apr2027_in.png",
+  "init": "202611",
+  "label": "Apr 2027",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Apr",
+  "year": 2027
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Dec2026_in.png",
+  "init": "202611",
+  "label": "Dec 2026",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Dec",
+  "year": 2026
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Feb2027_in.png",
+  "init": "202611",
+  "label": "Feb 2027",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Feb",
+  "year": 2027
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Jan2027_in.png",
+  "init": "202611",
+  "label": "Jan 2027",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Jan",
+  "year": 2027
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Mar2027_in.png",
+  "init": "202611",
+  "label": "Mar 2027",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Mar",
+  "year": 2027
+ },
+ {
+  "file": "assets/maps/SEAS5_202611_snow_anomaly_Nov2026_in.png",
+  "init": "202611",
+  "label": "Nov 2026",
+  "kind": "monthly",
+  "unit": "in w.e.",
+  "baseline": "ECMWF SEAS5 hindcast climatology",
+  "window": "",
+  "month": "Nov",
+  "year": 2026
+ }
+]
