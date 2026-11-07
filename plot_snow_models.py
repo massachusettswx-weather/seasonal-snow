@@ -45,8 +45,16 @@ def anom_cmap():
 
 
 def read_grib(path):
-    """-> list of (step_hours, lat, lon, values) using eccodes."""
+    """-> list of (step_hours, valid_datetime, lat, lon, values).
+
+    The valid time is dataDate + step.  A "monthly mean" covers the period
+    [dataDate, valid), so the month it represents is the month containing
+    (valid - 1 day).  This is what lets one reader cope with centres that
+    initialise their members on different days (UKMO perturbs the start
+    date, so each member has a different step for the same valid month).
+    """
     import eccodes
+    from datetime import datetime as _dt, timedelta as _td
     out = []
     with open(path, "rb") as f:
         while True:
@@ -58,11 +66,16 @@ def read_grib(path):
                 break
             try:
                 step = int(eccodes.codes_get(gid, "step"))
+                dd = int(eccodes.codes_get(gid, "dataDate"))
                 vals = eccodes.codes_get_array(gid, "values")
                 lats = eccodes.codes_get_array(gid, "latitudes")
                 lons = eccodes.codes_get_array(gid, "longitudes")
-                out.append((step, np.asarray(lats, float),
-                            np.asarray(lons, float), np.asarray(vals, float)))
+                d0 = _dt(dd // 10000, (dd // 100) % 100, dd % 100)
+                valid = d0 + _td(hours=step)
+                month = (valid - _td(days=1))
+                out.append((step, (month.year, month.month),
+                            np.asarray(lats, float), np.asarray(lons, float),
+                            np.asarray(vals, float)))
             except Exception:
                 pass
             eccodes.codes_release(gid)
@@ -77,13 +90,13 @@ def latlon_to_ij(lat, lon, lats, lons):
 
 
 def read_snowfall(path):
-    """-> dict step -> list of (lat, lon, values) records."""
+    """-> dict (year, month) -> list of (lat, lon, values) records."""
     recs = read_grib(path)
     if not recs:
         return None
     out = {}
-    for step, la, lo, v in recs:
-        out.setdefault(step, []).append((la, lo, v.astype(float)))
+    for step, ym, la, lo, v in recs:
+        out.setdefault(ym, []).append((la, lo, v.astype(float)))
     return out
 
 
@@ -138,6 +151,7 @@ def load_relief_mask(X, Y):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
+    manifest = {}
     state_p = os.path.join(DATA, "models_fetched.json")
     state = json.load(open(state_p)) if os.path.exists(state_p) else {}
     countries, states, provs = load_geo()
@@ -174,23 +188,22 @@ def main():
         if not by_step:
             print("skip %s (unreadable grib)" % tag)
             continue
-        steps = sorted(by_step)
-        lats, lons, order = grid_axes(by_step[steps[0]][0])
+        yms = sorted(by_step)
+        lats, lons, order = grid_axes(by_step[yms[0]][0])
         clim = {}
         if os.path.exists(cg):
-            for step, la0, lo0, v in read_grib(cg):
-                clim.setdefault(step, []).append((la0, lo0, v))
+            for step, ym, la0, lo0, v in read_grib(cg):
+                clim.setdefault(ym, []).append((la0, lo0, v))
 
         # ensemble mean per lead month, in inches
         monthly_in = []
         labels = []
-        for k, step in enumerate(steps):
-            recs = by_step[step]
+        for k, ym in enumerate(yms):
+            recs = by_step[ym]
             stack = np.array([to_2d(r, lats, lons, order) for r in recs])
             ens = stack.mean(axis=0)
             # the value is m w.e. s-1; convert to inches over the month
-            m = (im - 1 + k) % 12 + 1
-            y = iy + (im - 1 + k) // 12
+            y, m = ym
             days = month_len(y, m)
             mm = interp_to(LAT.ravel(), LON.ravel(), lats, lons, ens).reshape(LAT.shape)
             monthly_in.append(mm * days * 86400.0 * 1000.0 / 25.4)
@@ -200,47 +213,53 @@ def main():
 
         # anomaly vs the model's own hindcast climate
         anoms = []
-        for k, step in enumerate(steps):
-            if step not in clim:
+        for k, ym in enumerate(yms):
+            if ym not in clim:
                 continue
-            recs = clim[step]
+            recs = clim[ym]
             stack = np.array([to_2d(r, lats, lons, order) for r in recs])
             cm = stack.mean(axis=0)
-            m = (im - 1 + k) % 12 + 1
-            y = iy + (im - 1 + k) // 12
+            y, m = ym
             days = month_len(y, m)
             cm_in = interp_to(LAT.ravel(), LON.ravel(), lats, lons, cm).reshape(LAT.shape)
             cm_in = cm_in * days * 86400.0 * 1000.0 / 25.4
-            anoms.append((m, y, monthly_in[k] - cm_in))
+            anoms.append((m, y, k + 1, monthly_in[k] - cm_in))
 
         # ---------------- draw ----------------
         initlabel = "%s-%s-01 00Z" % (init[:4], init[4:])
         draw_map(os.path.join(OUT, "snow_%s_total_run_in.png" % tag),
                  "%s  Snowfall Total — Init to End of Run" % name,
                  "Init %s · %d-member ensemble mean · accumulated over %d lead months · "
-                 "inches of water equivalent" % (initlabel, len(by_step[steps[0]]), len(steps)),
+                 "inches of water equivalent" % (initlabel, len(by_step[yms[0]]), len(yms)),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                  "Accumulated snowfall (in w.e.)")
         for k, lab in enumerate(labels):
-            draw_map(os.path.join(OUT, "snow_%s_month%02d_in.png" % (tag, k + 1)),
+            mf = "snow_%s_month%02d_in.png" % (tag, k + 1)
+            manifest[mf] = lab
+            draw_map(os.path.join(OUT, mf),
                      "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean · lead month %d · "
-                     "inches of water equivalent" % (initlabel, len(by_step[steps[0]]), k + 1),
+                     "inches of water equivalent" % (initlabel, len(by_step[yms[0]]), k + 1),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                      "Accumulated snowfall (in w.e.)")
-        for (m, y, a) in anoms:
-            draw_map(os.path.join(OUT, "SNOW_%s_%s%d_anom_in.png" % (tag.upper(), MONTH_NAMES[m - 1], y)),
+        for (m, y, lead, a) in anoms:
+            af = "SNOW_%s_%s%d_anom_in.png" % (tag.upper(), MONTH_NAMES[m - 1], y)
+            manifest[af] = "%s %d" % (MONTH_NAMES[m - 1], y)
+            draw_map(os.path.join(OUT, af),
                      "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
                      "Init %s · %d-member ensemble mean · lead month %d · "
                      "anomaly vs %s hindcast climate · in w.e." % (
-                         initlabel, len(by_step[steps[0]]),
-                         (m - im) % 12 + 1, name),
+                         initlabel, len(by_step[yms[0]]),
+                         lead, name),
                      a, X, Y, in_us, relief, states, provs, countries,
                      acmap, anorm, ANOM_LEVELS, "Snowfall anomaly (in w.e.)")
         print("rendered %-16s init=%s  months=%d anomalies=%d"
               % (tag, init, len(monthly_in), len(anoms)), flush=True)
+
+    json.dump(manifest, open(os.path.join(DATA, "render_manifest.json"), "w"), indent=1)
+    print("manifest: %d files" % len(manifest))
 
 
 def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,

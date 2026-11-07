@@ -80,10 +80,14 @@ def render_spv(members, times, model_name, out_path, domain="60",
     ax.plot(era5["t"], era5["rmax"], color=C_RMAX, lw=1.0, ls=(0, (1.5, 2)), zorder=3)
     ax.plot(era5["t"], era5["mean"], color=C_ERA5, lw=1.7, zorder=4)
 
+    # the model series and the ERA5 layer can have different lengths (daily
+    # model vs. a clipped climatology window), so each is plotted on its own
+    # axis
+    tser = list(times[:mem.shape[1]])
     for i in range(mem.shape[0]):
-        ax.plot(times, mem[i], color=C_MEMBER, lw=0.55, alpha=0.45, zorder=5)
+        ax.plot(tser, mem[i], color=C_MEMBER, lw=0.55, alpha=0.45, zorder=5)
     ens = np.nanmean(mem, axis=0)
-    ax.plot(times, ens, color=C_MEAN, lw=2.4, zorder=7)
+    ax.plot(tser, ens, color=C_MEAN, lw=2.4, zorder=7)
 
     mc_ok = False
     if model_clim is not None:
@@ -102,7 +106,9 @@ def render_spv(members, times, model_name, out_path, domain="60",
 
     ax.set_ylabel("Zonal Wind (m/s) — %s" % label, fontsize=11.5, color=C_TEXT)
     ax.set_xlabel("Valid Days", fontsize=11.5, color=C_TEXT, labelpad=8)
-    ax.set_xlim(times[0], times[-1])
+    x0 = min(times[0], era5["t"][0])
+    x1 = max(times[-1], era5["t"][-1])
+    ax.set_xlim(x0, x1)
     ax.xaxis.set_major_locator(mdates.DayLocator(bymonthday=range(1, 29, 14)))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
     ax.xaxis.set_minor_locator(mdates.MonthLocator())

@@ -44,7 +44,8 @@
    "grid": null,
    "nlat": 1,
    "nlon": 1
-  }
+  },
+  "members": 51
  },
  "ukmo-gloseas6": {
   "name": "UKMO GloSeas6-GC5.1",
@@ -78,7 +79,21 @@
    "nlat": 1,
    "nlon": 1
   },
-  "done": true
+  "done": true,
+  "u10m": {
+   "fields": 360,
+   "steps": [
+    744,
+    768,
+    792,
+    816,
+    840
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "members": 60
  },
  "eccc-canesm5": {
   "name": "ECCC CanESM5.1p1bc",
@@ -112,7 +127,21 @@
    "nlat": 1,
    "nlon": 1
   },
-  "done": true
+  "done": true,
+  "u10m": {
+   "fields": 120,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "members": 20
  },
  "eccc-gem5": {
   "name": "ECCC GEM5.2-NEMO",
@@ -146,6 +175,116 @@
    "nlat": 1,
    "nlon": 1
   },
-  "done": true
+  "done": true,
+  "u10m": {
+   "fields": 120,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "members": 20
+ },
+ "cmcc-sps4": {
+  "name": "CMCC SPS4",
+  "centre": "cmcc",
+  "system": "4",
+  "init": "2026-10",
+  "leads": 7,
+  "snow": {
+   "fields": 300,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "u10m": {
+   "fields": 300,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true,
+  "members": 50
+ },
+ "dwd-gcfs2": {
+  "name": "DWD GCFS2.2",
+  "centre": "dwd",
+  "system": "22",
+  "init": "2026-10",
+  "leads": 7,
+  "snow": {
+   "fields": 300,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "u10m": {
+   "fields": 300,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true,
+  "members": 50
  }
 }

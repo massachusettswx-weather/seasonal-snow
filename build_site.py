@@ -186,7 +186,7 @@ def header(active):
         for h, t in tabs)
     return """<header class="top">
   <h1>Seasonal Forecast Graphics</h1>
-  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; init 1 Nov 2026</span>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; Nov 2026 &amp; Oct 2026 inits</span>
   <span class="spacer"></span>
   <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
      rel="noopener">GitHub</a>
@@ -242,7 +242,9 @@ def build_home(reg):
 
     body = """<div class="card">
   <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
-  <p class="lead">Every panel comes from the same init (1 November 2026).
+  <p class="lead">Each model is shown from its own most recent init
+  (ECMWF SEAS5 from 1 November 2026, the other centres from 1 October 2026
+  &mdash; their November runs are not released yet).
   Pick a model and you will be taken to its list of variables &mdash;
   accumulated snowfall over the continental United States, and the 10 hPa
   zonal-mean zonal wind (the stratospheric polar vortex proxy) against the

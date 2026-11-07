@@ -41,6 +41,11 @@ MODELS = {
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
 }
 
+# the month label for each rendered file, written by plot_snow_models.py
+def month_of_file(fn):
+    return MANIFEST.get(fn, "")
+
+
 SNOW_TOTAL_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in\.png$")
 SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in\.png$")
 SNOW_ANOM_RE = re.compile(
@@ -50,12 +55,18 @@ SPV_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)\.png$")
 TBL_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)_table\.json$")
 
 
+MANIFEST = {}
+
+
 def copy(src, dst):
     shutil.copyfile(src, dst)
     return os.path.relpath(dst, SITE)
 
 
 def main():
+    mp = os.path.join(HERE, "data", "render_manifest.json")
+    if os.path.exists(mp):
+        MANIFEST.update(json.load(open(mp)))
     os.makedirs(MAPDIR, exist_ok=True)
     os.makedirs(SPVDIR, exist_ok=True)
     os.makedirs(DATA, exist_ok=True)
@@ -112,12 +123,10 @@ def main():
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
-                cm = (9 + k) % 12          # lead 1 = the init month (October)
-                yr = 2026 + (9 + k) // 12
-                ms.append({"label": "%s %d" % (FULLMONTHS[cm], yr),
+                ms.append({"label": month_of_file(fn),
                            "file": copy(os.path.join(OUT, fn),
                                         os.path.join(MAPDIR, fn)),
-                           "caption": "Lead month %d." % k})
+                           "caption": "Lead month %d." % (k + 1)})
             entry["months"] = ms
         frames = []
         if d.get("anom"):
