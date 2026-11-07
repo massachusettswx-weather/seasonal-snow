@@ -2,88 +2,41 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seasonal Snow Forecasts &middot; Massachusettswx</title>
-<meta name="description" content="Monthly and seasonal snowfall anomaly maps from ECMWF SEAS5 and other seasonal prediction systems.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home &middot; Seasonal Forecast Graphics</title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<div class="wrap">
-<header>
-  <div class="credit">@Massachusettswx</div>
-  <h1>Seasonal Snowfall Anomaly Maps</h1>
-  <div class="sub">Monthly and three-month snowfall anomalies over the continental United States,
-  from ECMWF SEAS5 and other seasonal prediction systems that carry a snow variable.</div>
+<header class="top">
+  <h1>Seasonal Forecast Graphics</h1>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; init 1 Nov 2026</span>
+  <span class="spacer"></span>
+  <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
+     rel="noopener">GitHub</a>
 </header>
-
-<h2>Panels</h2>
-<div class="note">Anomaly = seasonal-forecast snowfall minus the corresponding climatology.
-  Panels are in <strong>inches of water equivalent</strong> (1&nbsp;in = 25.4&nbsp;mm w.e.).
-  Brown = below average, teal = above average. The forecast field is clipped at the
-  US/Canada border.</div>
-<div class="filters">
-  <button class="on" data-f="all">All</button>
-  <button data-f="monthly">1-month</button>
-  <button data-f="3-month mean">3-month mean</button>
+<nav class="tabs"><a href="index.html" class="active">Home</a><a href="snow.html">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a></nav>
+<div class="wrap">
+<div class="card">
+  <h2 class="sec">Choose a seasonal model</h2>
+  <p class="lead">Every panel below comes from the same init (1 November 2026).
+  Pick a model, then pick what you want to look at &mdash; accumulated snowfall
+  for the continental United States, or the 10 hPa zonal-mean zonal wind
+  (stratospheric polar vortex proxy) with the ERA5 1991&ndash;2020 climatology.</p>
 </div>
-<div class="cards">
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_3mo_DJF_in.png" alt="DJF 2026/27 snowfall anomaly"><figcaption class="meta"><div class="t">DJF 2026/27</div><div class="d">3-month mean · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_3mo_FMA_in.png" alt="FMA 2027 snowfall anomaly"><figcaption class="meta"><div class="t">FMA 2027</div><div class="d">3-month mean · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_3mo_JFM_in.png" alt="JFM 2027 snowfall anomaly"><figcaption class="meta"><div class="t">JFM 2027</div><div class="d">3-month mean · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_3mo_NDJ_in.png" alt="NDJ 2026/27 snowfall anomaly"><figcaption class="meta"><div class="t">NDJ 2026/27</div><div class="d">3-month mean · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Apr2027_in.png" alt="Apr 2027 snowfall anomaly"><figcaption class="meta"><div class="t">Apr 2027</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Dec2026_in.png" alt="Dec 2026 snowfall anomaly"><figcaption class="meta"><div class="t">Dec 2026</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Feb2027_in.png" alt="Feb 2027 snowfall anomaly"><figcaption class="meta"><div class="t">Feb 2027</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Jan2027_in.png" alt="Jan 2027 snowfall anomaly"><figcaption class="meta"><div class="t">Jan 2027</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Mar2027_in.png" alt="Mar 2027 snowfall anomaly"><figcaption class="meta"><div class="t">Mar 2027</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
-<figure class="card"><img loading="lazy" src="assets/maps/SEAS5_202611_snow_anomaly_Nov2026_in.png" alt="Nov 2026 snowfall anomaly"><figcaption class="meta"><div class="t">Nov 2026</div><div class="d">monthly · in w.e. · vs ECMWF SEAS5 hindcast climatology</div></figcaption></figure>
+<div class="grid c3"><div class="model">
+  <h3>ECMWF SEAS5</h3>
+  <div class="meta">System 51 · 51-member ensemble · 1° global grid · 7 lead months</div>
+  <div class="tags"><span class="tag ok">Snowfall</span><span class="tag ok">10 hPa wind</span><span class="tag">51 members</span><span class="tag">init 2026-11</span></div>
+  <div class="acts"><a class="btn primary" href="snow.html?m=ecmwf-seas5">Snowfall</a><a class="btn" href="spv.html?m=ecmwf-seas5">10 hPa zonal wind</a></div>
+</div></div>
+<div class="card">
+  <p class="note">Snowfall is accumulated water equivalent in inches.
+  Anomalies are computed against each model's own hindcast climate.
+  The 10&nbsp;hPa charts show every ensemble member, the ensemble mean, the
+  ERA5 daily climatology with 10&ndash;90th and 30&ndash;70th percentile bands,
+  the 1959&ndash;2020 record bounds and the model's own climate mean where
+  one could be built.</p>
 </div>
-
-<h2>Seasonal systems with snow</h2>
-<div class="sys"><div class="h"><div class="name">Seasonal forecast monthly statistics on pressure levels</div><div><span class="pill plan">planned</span></div></div><div class="m">no snow variable</div></div>
-<div class="sys"><div class="h"><div class="name">Seasonal forecast monthly averages of ocean variables</div><div><span class="pill plan">planned</span></div></div><div class="m">no snow variable</div></div>
-<div class="sys"><div class="h"><div class="name">Seasonal forecast anomalies on pressure levels</div><div><span class="pill plan">planned</span></div></div><div class="m">no snow variable</div></div>
-<div class="sys"><div class="h"><div class="name">ECMWF SEAS5 / C3S monthly means</div><div><span class="pill on">published</span></div></div><div class="m">1° global, 51-member ensemble · snow variables: <code>snow_depth</code>, <code>snowfall</code></div></div>
-<div class="sys"><div class="h"><div class="name">C3S post-processed single levels</div><div><span class="pill plan">planned</span></div></div><div class="m">bias-adjusted anomalies + snow depth · snow variables: <code>snow_depth_anomaly</code>, <code>snowfall_anomalous_rate_of_accumulation</code></div></div>
-<div class="sys"><div class="h"><div class="name">C3S seasonal original single levels</div><div><span class="pill plan">planned</span></div></div><div class="m">sub-daily (6-hourly) original data · snow variables: <code>snow_cover</code>, <code>snow_depth</code>, <code>snowfall</code></div></div>
-<div class="sys"><div class="h"><div class="name">Seasonal forecast subdaily data on pressure levels</div><div><span class="pill plan">planned</span></div></div><div class="m">no snow variable</div></div>
-<div class="sys"><div class="h"><div class="name">C3S SIS hydrology Europe reforecast</div><div><span class="pill plan">planned</span></div></div><div class="m">snow depth water equivalent · snow variables: <code>snow_depth_water_equivalent</code></div></div>
-<div class="sys"><div class="h"><div class="name">C3S SIS hydrology Europe seasonal</div><div><span class="pill plan">planned</span></div></div><div class="m">snow depth water equivalent · snow variables: <code>snow_depth_water_equivalent</code></div></div>
-<div class="sys"><div class="h"><div class="name">Climatic suitability for the presence and seasonal activity of the Aedes albopictus mosquito for Europe derived from climate projections</div><div><span class="pill plan">planned</span></div></div><div class="m">no snow variable</div></div>
-
-<h2>Method</h2>
-<table>
-<tr><th>Forecast</th><td>ECMWF SEAS5 (C3S system&nbsp;51),
-  <code>seasonal-monthly-single-levels</code>, variable <code>snowfall</code>,
-  51-member ensemble. Provenance: the mean of the 51 <code>monthly_mean</code>
-  members reproduces ECMWF's separately served <code>ensemble_mean</code> product
-  to 1.4&times;10<sup>-5</sup> relative.</td></tr>
-<tr><th>Climatology</th><td>ECMWF's own <code>hindcast_climate_mean</code> for the
-  lead month &mdash; the standard seasonal-anomaly definition. The two fields share the
-  same 1&deg; SEAS5 grid, so the difference is taken natively before display
-  interpolation.</td></tr>
-<tr><th>Resolution</th><td>The CDS seasonal product is 1.00&deg;; the maps are drawn on a
-  0.05&deg; display grid with a 0.25&deg; ERA5 hillshade basemap.</td></tr>
-<tr><th>Map</th><td>Flat equirectangular projection (x compressed by cos&nbsp;37&deg;N),
-  domain 125&deg;W&ndash;65&deg;W / 24.5&deg;N&ndash;50&deg;N, 10&deg; labelled graticule.</td></tr>
-<tr><th>Built</th><td>2026-11-06</td></tr>
-</table>
-
-<footer>Source: Copernicus Climate Change Service (C3S) seasonal forecasts.
-  Maps and code by @Massachusettswx. Not an official ECMWF/C3S product.</footer>
 </div>
-<script>
-document.querySelectorAll('.filters button').forEach(function(b){
-  b.addEventListener('click', function(){
-    document.querySelectorAll('.filters button').forEach(function(x){x.classList.remove('on')});
-    b.classList.add('on');
-    var f=b.dataset.f;
-    document.querySelectorAll('.card').forEach(function(c){
-      var t=c.querySelector('.d').textContent;
-      c.style.display=(f==='all'||t.indexOf(f)>=0)?'':'none';
-    });
-  });
-});
-</script>
 </body>
 </html>

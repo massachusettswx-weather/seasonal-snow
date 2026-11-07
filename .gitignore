@@ -25,3 +25,8 @@ data/*.log
 _*.log
 _*.sh
 _*.py
+
+# model fetch working dir (large GRIBs, re-fetchable)
+data/models/
+# local site preview screenshots
+preview/

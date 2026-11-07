@@ -1,0 +1,24 @@
+{
+ "ecmwf-seas5": {
+  "name": "ECMWF SEAS5",
+  "centre": "ecmwf",
+  "system": "51",
+  "expected_leads": 7,
+  "snow": {
+   "fields": 51,
+   "steps": [
+    720
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "init": "2026-11",
+   "dataset": "seasonal-monthly-single-levels"
+  },
+  "control": null,
+  "u10": {
+   "error": "queued"
+  },
+  "done": true
+ }
+}

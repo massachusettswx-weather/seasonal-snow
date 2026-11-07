@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snowfall &middot; Seasonal Forecast Graphics</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="top">
+  <h1>Seasonal Forecast Graphics</h1>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; init 1 Nov 2026</span>
+  <span class="spacer"></span>
+  <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
+     rel="noopener">GitHub</a>
+</header>
+<nav class="tabs"><a href="index.html">Home</a><a href="snow.html" class="active">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a></nav>
+<div class="wrap">
+<div class="card">
+  <h2 class="sec">Snowfall</h2>
+  <p class="lead">Accumulated snowfall over the continental United States,
+  in inches of water equivalent. Anomalies are measured against the model's own
+  hindcast climate.</p>
+  <div class="picker">
+    <label for="modelSel">Model</label>
+    <select id="modelSel" class="ctrl"><option value="ecmwf-seas5">ECMWF SEAS5</option></select>
+  </div>
+</div>
+
+<div class="card" id="tab-total">
+  <h2 class="sec">Total accumulation &mdash; init to end of run</h2>
+  <p class="lead" id="totalCap"></p>
+  <div class="stage"><img id="totalImg" alt="Total accumulated snowfall"></div>
+</div>
+
+<div class="card" id="tab-monthly">
+  <h2 class="sec">Accumulation by lead month</h2>
+  <p class="lead">One panel per lead month of the run.</p>
+  <div class="grid c2" id="monthlyGrid"></div>
+</div>
+
+<div class="card" id="tab-anom">
+  <h2 class="sec">Monthly anomaly</h2>
+  <p class="lead">Drag the bar to step through the lead months. Values are
+  inches of water equivalent above or below the model's hindcast climate.</p>
+  <div class="stage"><img id="anomImg" alt="Monthly snowfall anomaly"></div>
+  <div class="slider">
+    <span class="frameLabel" id="anomLabel">&mdash;</span>
+    <input type="range" id="anomRange" min="0" max="0" value="0" step="1">
+    <button class="ctrl ghost" id="anomPrev">&#8592;</button>
+    <button class="ctrl ghost" id="anomNext">&#8594;</button>
+  </div>
+  <div class="cap" id="anomCap"></div>
+</div>
+<script>
+const MODELS = {"ecmwf-seas5": {"id": "ecmwf-seas5", "name": "ECMWF SEAS5", "note": "System 51 \u00b7 51-member ensemble \u00b7 1\u00b0 global grid \u00b7 7 lead months", "init": "2026-11", "total": {"file": "assets/maps/snow_ecmwf-seas5_total_run_in.png", "caption": "Total accumulation from the 1 November 2026 init to the end of the run (6 lead months)."}, "months": [{"label": "November 2026", "file": "assets/maps/snow_ecmwf-seas5_month01_in.png", "caption": "Lead month 1"}, {"label": "December 2026", "file": "assets/maps/snow_ecmwf-seas5_month02_in.png", "caption": "Lead month 2"}, {"label": "January 2027", "file": "assets/maps/snow_ecmwf-seas5_month03_in.png", "caption": "Lead month 3"}, {"label": "February 2027", "file": "assets/maps/snow_ecmwf-seas5_month04_in.png", "caption": "Lead month 4"}, {"label": "March 2027", "file": "assets/maps/snow_ecmwf-seas5_month05_in.png", "caption": "Lead month 5"}, {"label": "April 2027", "file": "assets/maps/snow_ecmwf-seas5_month06_in.png", "caption": "Lead month 6"}], "frames": [{"label": "November 2026", "file": "assets/maps/SEAS5_202611_snow_anomaly_Nov2026_in.png", "caption": "Lead month 1 anomaly vs the ECMWF hindcast climate."}, {"label": "December 2026", "file": "assets/maps/SEAS5_202611_snow_anomaly_Dec2026_in.png", "caption": "Lead month 2 anomaly vs the ECMWF hindcast climate."}, {"label": "January 2027", "file": "assets/maps/SEAS5_202611_snow_anomaly_Jan2027_in.png", "caption": "Lead month 3 anomaly vs the ECMWF hindcast climate."}, {"label": "February 2027", "file": "assets/maps/SEAS5_202611_snow_anomaly_Feb2027_in.png", "caption": "Lead month 4 anomaly vs the ECMWF hindcast climate."}, {"label": "March 2027", "file": "assets/maps/SEAS5_202611_snow_anomaly_Mar2027_in.png", "caption": "Lead month 5 anomaly vs the ECMWF hindcast climate."}, {"label": "April 2027", "file": "assets/maps/SEAS5_202611_snow_anomaly_Apr2027_in.png", "caption": "Lead month 6 anomaly vs the ECMWF hindcast climate."}, {"label": "NDJ (3-month mean)", "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_NDJ_in.png", "caption": "Three-month mean anomaly vs the ECMWF hindcast climate."}, {"label": "DJF (3-month mean)", "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_DJF_in.png", "caption": "Three-month mean anomaly vs the ECMWF hindcast climate."}, {"label": "JFM (3-month mean)", "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_JFM_in.png", "caption": "Three-month mean anomaly vs the ECMWF hindcast climate."}, {"label": "FMA (3-month mean)", "file": "assets/maps/SEAS5_202611_snow_anomaly_3mo_FMA_in.png", "caption": "Three-month mean anomaly vs the ECMWF hindcast climate."}], "spv": {"60": {"file": "assets/spv/SPV_ecmwf-seas5_60N.png", "caption": "ECMWF SEAS5 \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)", "table": {"head": ["Model ens. mean (m/s)", "ERA5 clim. (m/s)"], "rows": [["November 2026", "10.7", "27.7"], ["December 2026", "37.4", "33.8"], ["January 2027", "22.7", "30.0"], ["February 2027", "9.8", "21.3"], ["March 2027", "11.0", "15.9"], ["April 2027", "3.9", "1.6"], ["May 2027", "-4.7", "-8.3"], ["June 2027", "-7.7", "-11.3"]]}}, "NH": {"file": "assets/spv/SPV_ecmwf-seas5_NH.png", "caption": "ECMWF SEAS5 \u00b7 10 hPa zonal-mean zonal wind (Northern Hemisphere)", "table": {"head": ["Model ens. mean (m/s)", "ERA5 clim. (m/s)"], "rows": [["November 2026", "5.7", "10.2"], ["December 2026", "10.5", "11.5"], ["January 2027", "5.6", "8.3"], ["February 2027", "3.9", "6.0"], ["March 2027", "2.9", "4.0"], ["April 2027", "-0.6", "-2.0"], ["May 2027", "-4.4", "-9.1"], ["June 2027", "-7.0", "-13.8"]]}}}}};
+
+function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
+const sel=document.getElementById('modelSel');
+if(q('m') && MODELS[q('m')]) sel.value=q('m');
+
+function model(){return MODELS[sel.value];}
+
+function renderTotal(){
+  const m=model();
+  const t=m.total;
+  document.getElementById('totalImg').src=t.file;
+  document.getElementById('totalImg').alt=t.caption;
+  document.getElementById('totalCap').textContent=t.caption;
+}
+
+function renderMonthly(){
+  const m=model();
+  const g=document.getElementById('monthlyGrid');
+  g.innerHTML=m.months.map(x=>
+    `<div class="stage"><img src="${x.file}" alt="${x.label}"><div class="cap">${x.label} &mdash; ${x.caption}</div></div>`
+  ).join('');
+}
+
+function renderAnom(i){
+  const m=model();
+  const fr=m.frames[i];
+  document.getElementById('anomImg').src=fr.file;
+  document.getElementById('anomImg').alt=fr.label;
+  document.getElementById('anomLabel').textContent=fr.label;
+  document.getElementById('anomCap').textContent=fr.caption||'';
+}
+
+function setFrame(i){
+  const m=model();
+  const r=document.getElementById('anomRange');
+  i=Math.max(0,Math.min(m.frames.length-1,i));
+  r.value=i; renderAnom(i);
+}
+
+function renderAll(){
+  renderTotal(); renderMonthly();
+  const m=model();
+  const r=document.getElementById('anomRange');
+  r.max=String(m.frames.length-1);
+  setFrame(0);
+}
+
+sel.addEventListener('change',renderAll);
+document.getElementById('anomRange').addEventListener('input',e=>setFrame(+e.target.value));
+document.getElementById('anomPrev').addEventListener('click',()=>setFrame(+document.getElementById('anomRange').value-1));
+document.getElementById('anomNext').addEventListener('click',()=>setFrame(+document.getElementById('anomRange').value+1));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft') setFrame(+document.getElementById('anomRange').value-1);
+  if(e.key==='ArrowRight') setFrame(+document.getElementById('anomRange').value+1);
+});
+renderAll();
+</script>
+</div>
+</body>
+</html>

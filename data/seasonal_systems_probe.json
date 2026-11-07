@@ -1,0 +1,68 @@
+{
+ "ecmwf:51": {
+  "centre": "ecmwf",
+  "system": "51",
+  "snowfall": {
+   "members": 51,
+   "ni": 360,
+   "nj": 180,
+   "dx": 1.0,
+   "dy": 1.0,
+   "first": 89.5,
+   "last": -89.5,
+   "init": "2026-11"
+  },
+  "u10": {
+   "members": 51,
+   "ni": 360,
+   "nj": 180,
+   "dx": 1.0,
+   "dy": 1.0,
+   "first": 89.5,
+   "last": -89.5,
+   "init": "2026-11"
+  }
+ },
+ "ecmwf:1": {
+  "centre": "ecmwf",
+  "system": "1"
+ },
+ "ecmwf:2": {
+  "centre": "ecmwf",
+  "system": "2"
+ },
+ "ecmwf:3": {
+  "centre": "ecmwf",
+  "system": "3"
+ },
+ "ncep:2": {
+  "centre": "ncep",
+  "system": "2",
+  "name": "NCEP CFSv2"
+ },
+ "eccc:4": {
+  "centre": "eccc",
+  "system": "4",
+  "name": "ECCC CanESM5.1p1bc"
+ },
+ "eccc:5": {
+  "centre": "eccc",
+  "system": "5",
+  "name": "ECCC GEM5.2-NEMO"
+ },
+ "ukmo:610": {
+  "centre": "ukmo",
+  "system": "610",
+  "name": "UKMO GloSea6-GC5.1"
+ },
+ "bom:2": {
+  "centre": "bom",
+  "system": "2",
+  "name": "BOM ACCESS-S2"
+ },
+ "cmcc:4": {
+  "centre": "cmcc",
+  "system": "4",
+  "name": "CMCC SPS4"
+ }
+}
