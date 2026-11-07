@@ -36,4 +36,27 @@ git remote set-url origin "https://github.com/${ORG}/${REPO}.git"
 
 echo
 echo "Pushed to https://github.com/${ORG}/${REPO}"
-echo "Enable Pages: Settings -> Pages -> Source: main / (root)"
+
+# enable GitHub Pages (source: main / root) - needs a public repo
+code=$(curl -s -o /tmp/pages.json -w '%{http_code}' -X POST \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/repos/${ORG}/${REPO}/pages" \
+  -d '{"source":{"branch":"main","path":"/"}}')
+if [ "$code" = "201" ] || [ "$code" = "409" ]; then
+  echo "Pages enabled (source: main / root)"
+  for i in $(seq 1 12); do
+    sleep 15
+    url=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
+      "https://api.github.com/repos/${ORG}/${REPO}/pages" | \
+      python3 -c "import json,sys;print(json.load(sys.stdin).get('html_url',''))" 2>/dev/null || true)
+    if [ -n "$url" ]; then
+      echo "Site live at: ${url}"
+      break
+    fi
+  done
+else
+  echo "NOTE: could not enable Pages automatically (HTTP $code) - enable it in"
+  echo "      Settings -> Pages -> Source: main / (root) by hand."
+  head -c 300 /tmp/pages.json; echo
+fi

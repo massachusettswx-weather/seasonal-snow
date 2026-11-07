@@ -14,21 +14,21 @@
   <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
      rel="noopener">GitHub</a>
 </header>
-<nav class="tabs"><a href="index.html" class="active">Home</a><a href="snow.html">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a></nav>
+<nav class="tabs"><a href="index.html" class="active">Home</a><a href="model.html">Model</a><a href="snow.html">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a></nav>
 <div class="wrap">
 <div class="card">
-  <h2 class="sec">Choose a seasonal model</h2>
-  <p class="lead">Every panel below comes from the same init (1 November 2026).
-  Pick a model, then pick what you want to look at &mdash; accumulated snowfall
-  for the continental United States, or the 10 hPa zonal-mean zonal wind
-  (stratospheric polar vortex proxy) with the ERA5 1991&ndash;2020 climatology.</p>
+  <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
+  <p class="lead">Every panel comes from the same init (1 November 2026).
+  Pick a model and you will be taken to its list of variables &mdash;
+  accumulated snowfall over the continental United States, and the 10 hPa
+  zonal-mean zonal wind (the stratospheric polar vortex proxy) against the
+  ERA5 1991&ndash;2020 climatology.</p>
 </div>
-<div class="grid c3"><div class="model">
+<div class="grid c3"><a class="model" href="model.html?m=ecmwf-seas5">
   <h3>ECMWF SEAS5</h3>
   <div class="meta">System 51 · 51-member ensemble · 1° global grid · 7 lead months</div>
   <div class="tags"><span class="tag ok">Snowfall</span><span class="tag ok">10 hPa wind</span><span class="tag">51 members</span><span class="tag">init 2026-11</span></div>
-  <div class="acts"><a class="btn primary" href="snow.html?m=ecmwf-seas5">Snowfall</a><a class="btn" href="spv.html?m=ecmwf-seas5">10 hPa zonal wind</a></div>
-</div></div>
+</a></div>
 <div class="card">
   <p class="note">Snowfall is accumulated water equivalent in inches.
   Anomalies are computed against each model's own hindcast climate.

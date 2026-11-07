@@ -1,39 +1,35 @@
 """Build the static site for the seasonal forecast graphics.
 
 Pages
-    index.html    home: pick a seasonal model, then pick what to look at
-    snow.html     snowfall page: end-of-run total, monthly totals, monthly
-                  anomalies (with a drag bar), for every model that does snow
-    spv.html      10 hPa zonal-mean zonal wind, one panel per model
+    index.html      home: pick a seasonal model
+    model.html      that model's variables: snowfall / 10 hPa zonal wind
+    snow.html       snowfall: end-of-run total, monthly totals, monthly
+                    anomalies with a drag bar
+    spv.html        10 hPa zonal-mean zonal wind, one panel per model
 
 Data
-    site/data/models.json   the model registry (name, members, init, panels)
-    site/data/frames.json   the drag-bar frames for the snowfall page
+    site/data/models.json        the model registry
+    site/data/models_public.json the browser's copy
 
 Run after any re-render:  python3 build_site.py
 """
-import os, re, json, shutil, datetime
+import os, json
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "output")
 SITE = os.path.join(HERE, "site")
 ASSETS = os.path.join(SITE, "assets")
-MAPDIR = os.path.join(ASSETS, "maps")
-SPVDIR = os.path.join(ASSETS, "spv")
 DATA = os.path.join(SITE, "data")
 
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-FULLMONTHS = ["January", "February", "March", "April", "May", "June", "July",
-              "August", "September", "October", "November", "December"]
 
 
 # --------------------------------------------------------------------------
 # model registry
 # --------------------------------------------------------------------------
 def load_registry():
-    """The registry is maintained by hand in site/data/models.json; this reads
-    it and validates that every referenced asset exists."""
+    """The registry is maintained by build_registry.py; this reads it and
+    validates that every referenced asset exists."""
     p = os.path.join(DATA, "models.json")
     if not os.path.exists(p):
         return {"models": []}
@@ -45,12 +41,24 @@ def load_registry():
             if os.path.exists(os.path.join(SITE, fr["file"])):
                 fr["ok"] = True
                 m["snow_ok"] = True
-        if m.get("spv"):
-            for dom, info in m["spv"].items():
-                if os.path.exists(os.path.join(SITE, info["file"])):
-                    info["ok"] = True
-                    m["spv_ok"] = True
+        for dom, info in m.get("spv", {}).items():
+            if os.path.exists(os.path.join(SITE, info["file"])):
+                info["ok"] = True
+                m["spv_ok"] = True
     return reg
+
+
+def public_map(reg=None):
+    """{model_id: model} for the browser, including the availability flags."""
+    if reg is None:
+        reg = load_registry()
+    out = {}
+    for m in reg.get("models", []):
+        p = dict(m)
+        p["snow_ok"] = m.get("snow_ok", False)
+        p["spv_ok"] = m.get("spv_ok", False)
+        out[m["id"]] = p
+    return out
 
 
 # --------------------------------------------------------------------------
@@ -91,11 +99,14 @@ h2.sec{font-size:16.5px; margin:0 0 4px; letter-spacing:.2px}
 p.lead{color:var(--muted); font-size:13.5px; margin:0 0 16px}
 .grid{display:grid; gap:16px}
 .grid.c2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
-.grid.c3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.grid.c3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.grid.c4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 .model{
   background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:16px 18px; display:flex; flex-direction:column; gap:8px;
+  transition:border-color .12s, box-shadow .12s;
 }
+.model:hover{border-color:#c3ccdb; box-shadow:0 2px 10px rgba(18,38,63,.07)}
 .model h3{margin:0; font-size:15.5px}
 .model .meta{font-size:12.5px; color:var(--muted)}
 .model .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:2px}
@@ -111,6 +122,7 @@ a.btn:hover{background:#e4e9f1}
 a.btn.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
 a.btn.primary:hover{background:#0d1c30}
 a.btn[aria-disabled="true"]{opacity:.42; pointer-events:none}
+a.btn.wide{display:block; text-align:center; padding:9px 14px}
 .picker{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
 .picker label{font-size:13px; color:var(--muted); font-weight:600}
 select,button.ctrl{
@@ -135,6 +147,20 @@ th{background:#eef1f6; font-size:12px; text-transform:uppercase; letter-spacing:
 tr:last-child td{border-bottom:none}
 .note{font-size:12.5px; color:var(--muted); border-left:3px solid var(--line);
   padding-left:11px; margin-top:12px}
+.crumb{font-size:13px; color:var(--muted); margin-bottom:14px}
+.crumb a{text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+.varlist{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.var{background:var(--card); border:1px solid var(--line); border-radius:10px;
+  overflow:hidden; display:flex; flex-direction:column}
+.var .thumb{background:#eef1f6; border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:center; height:170px; overflow:hidden}
+.var .thumb img{max-width:100%; max-height:100%; object-fit:contain}
+.var .body{padding:14px 16px; display:flex; flex-direction:column; gap:6px; flex:1}
+.var h3{margin:0; font-size:15px}
+.var p{margin:0; font-size:12.5px; color:var(--muted)}
+.var .acts{margin-top:auto; padding-top:10px}
+.var.off{opacity:.55}
 footer{border-top:1px solid var(--line); margin-top:26px; padding:16px 0 0;
   color:var(--muted); font-size:12.5px; display:flex; justify-content:space-between}
 a{color:#1c4b8a}
@@ -152,6 +178,7 @@ def write_css():
 # --------------------------------------------------------------------------
 def header(active):
     tabs = [("index.html", "Home"),
+            ("model.html", "Model"),
             ("snow.html", "Snowfall"),
             ("spv.html", "Zonal Wind (10 hPa)")]
     links = "".join(
@@ -173,12 +200,6 @@ def footer():
         ERA5 reanalysis &middot; ERA5 climatology 1991&ndash;2020</span>
   <span><strong>@Massachusettswx</strong></span>
 </footer>"""
-
-
-def public_map():
-    """{model_id: model} for the browser."""
-    d = json.load(open(os.path.join(DATA, "models_public.json")))
-    return {m["id"]: m for m in d.get("models", [])}
 
 
 def page(title, active, body):
@@ -203,37 +224,29 @@ def page(title, active, body):
 # pages
 # --------------------------------------------------------------------------
 def build_home(reg):
+    """Step 1: choose a model."""
     cards = []
     for m in reg.get("models", []):
         tags = []
-        tags.append('<span class="tag %s">%s</span>' %
-                    ("ok" if m["snow_ok"] else "no",
-                     "Snowfall" if m["snow_ok"] else "No snowfall"))
-        tags.append('<span class="tag %s">%s</span>' %
-                    ("ok" if m["spv_ok"] else "no",
-                     "10 hPa wind" if m["spv_ok"] else "No wind"))
+        tags.append('<span class="tag %s">Snowfall</span>' %
+                    ("ok" if m["snow_ok"] else "no"))
+        tags.append('<span class="tag %s">10 hPa wind</span>' %
+                    ("ok" if m["spv_ok"] else "no"))
         tags.append('<span class="tag">%s members</span>' % m.get("members", "?"))
         tags.append('<span class="tag">init %s</span>' % m.get("init", "?"))
-        acts = []
-        acts.append('<a class="btn primary" href="snow.html?m=%s">Snowfall</a>' % m["id"]
-                    if m["snow_ok"] else
-                    '<a class="btn" aria-disabled="true">Snowfall</a>')
-        acts.append('<a class="btn" href="spv.html?m=%s">10 hPa zonal wind</a>' % m["id"]
-                    if m["spv_ok"] else
-                    '<a class="btn" aria-disabled="true">10 hPa zonal wind</a>')
-        cards.append("""<div class="model">
+        cards.append("""<a class="model" href="model.html?m=%s">
   <h3>%s</h3>
   <div class="meta">%s</div>
   <div class="tags">%s</div>
-  <div class="acts">%s</div>
-</div>""" % (m["name"], m.get("note", ""), "".join(tags), "".join(acts)))
+</a>""" % (m["id"], m["name"], m.get("note", ""), "".join(tags)))
 
     body = """<div class="card">
-  <h2 class="sec">Choose a seasonal model</h2>
-  <p class="lead">Every panel below comes from the same init (1 November 2026).
-  Pick a model, then pick what you want to look at &mdash; accumulated snowfall
-  for the continental United States, or the 10 hPa zonal-mean zonal wind
-  (stratospheric polar vortex proxy) with the ERA5 1991&ndash;2020 climatology.</p>
+  <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
+  <p class="lead">Every panel comes from the same init (1 November 2026).
+  Pick a model and you will be taken to its list of variables &mdash;
+  accumulated snowfall over the continental United States, and the 10 hPa
+  zonal-mean zonal wind (the stratospheric polar vortex proxy) against the
+  ERA5 1991&ndash;2020 climatology.</p>
 </div>
 <div class="grid c3">%s</div>
 <div class="card">
@@ -247,11 +260,86 @@ def build_home(reg):
     open(os.path.join(SITE, "index.html"), "w").write(page("Home", "index.html", body))
 
 
+def build_model_page(reg):
+    """Step 2: choose a variable for the chosen model."""
+    body = """<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a></div>
+  <div class="picker">
+    <label for="modelSel">Model</label>
+    <select id="modelSel" class="ctrl">%s</select>
+  </div>
+  <h2 class="sec" id="mName"></h2>
+  <p class="lead" id="mMeta"></p>
+</div>
+
+<div class="varlist" id="varlist"></div>
+
+<div class="card">
+  <p class="note">Snowfall is accumulated water equivalent in inches.
+  Anomalies are measured against the model's own hindcast climate.
+  The 10&nbsp;hPa chart shows every ensemble member, the ensemble mean, the
+  ERA5 1991&ndash;2020 daily climatology with 10&ndash;90th and 30&ndash;70th
+  percentile bands, the 1959&ndash;2020 record bounds and the model's own
+  climate mean where one could be built.</p>
+</div>"""
+
+    sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
+                  for m in reg.get("models", []))
+    body = body % sel
+
+    js = """
+<script>
+const MODELS=__MODELS__;
+function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
+const sel=document.getElementById('modelSel');
+if(q('m') && MODELS[q('m')]) sel.value=q('m');
+
+function render(){
+  const m=MODELS[sel.value];
+  document.getElementById('mName').textContent=m.name;
+  document.getElementById('mMeta').innerHTML=m.note||'';
+  const vars=[];
+  vars.push({
+    title:'Snowfall',
+    desc:'Accumulated snowfall over the continental United States &mdash; total for the run, each lead month, and monthly anomalies with a drag bar.',
+    href:'snow.html?m='+m.id,
+    img:(m.total&&m.total.file)||(m.frames.length&&m.frames[0].file)||'',
+    on:!!m.snow_ok
+  });
+  vars.push({
+    title:'10 hPa zonal-mean zonal wind',
+    desc:'The stratospheric polar vortex proxy in m/s, all members and the ensemble mean against the ERA5 1991&ndash;2020 climatology.',
+    href:'spv.html?m='+m.id,
+    img:(m.spv&&m.spv['60']&&m.spv['60'].file)||'',
+    on:!!m.spv_ok
+  });
+  document.getElementById('varlist').innerHTML=vars.map(v=>
+    `<div class="var ${v.on?'':'off'}">
+       <div class="thumb">${v.img?'<img src="'+v.img+'" alt="">':''}</div>
+       <div class="body">
+         <h3>${v.title}</h3>
+         <p>${v.desc}</p>
+         <div class="acts">${v.on
+            ?'<a class="btn primary wide" href="'+v.href+'">Open</a>'
+            :'<span class="tag no">not available for this model</span>'}</div>
+       </div>
+     </div>`).join('');
+}
+sel.addEventListener('change',render);
+render();
+</script>"""
+    body += js.replace("__MODELS__", json.dumps(public_map(reg)))
+    open(os.path.join(SITE, "model.html"), "w").write(page("Model", "model.html", body))
+
+
 def build_snow(reg):
+    """Step 3a: the snowfall page."""
     models = [m for m in reg.get("models", []) if m["snow_ok"]]
     sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
                   for m in models)
     body = """<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
+    <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
   <p class="lead">Accumulated snowfall over the continental United States,
   in inches of water equivalent. Anomalies are measured against the model's own
@@ -348,15 +436,18 @@ document.addEventListener('keydown',e=>{
 });
 renderAll();
 </script>"""
-    body += js.replace("__MODELS__", json.dumps(public_map()))
+    body += js.replace("__MODELS__", json.dumps(public_map(reg)))
     open(os.path.join(SITE, "snow.html"), "w").write(page("Snowfall", "snow.html", body))
 
 
 def build_spv(reg):
+    """Step 3b: the zonal wind page."""
     models = [m for m in reg.get("models", []) if m["spv_ok"]]
     sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
                   for m in models)
     body = """<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
+    <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">10 hPa zonal-mean zonal wind</h2>
   <p class="lead">The stratospheric polar vortex proxy at 10&nbsp;hPa, in m/s.
   Each model is shown over its own total lead days, against the
@@ -407,17 +498,17 @@ function render(){
 sel.addEventListener('change',render); dom.addEventListener('change',render);
 render();
 </script>"""
-    body += js.replace("__MODELS__", json.dumps(public_map()))
+    body += js.replace("__MODELS__", json.dumps(public_map(reg)))
     open(os.path.join(SITE, "spv.html"), "w").write(page("Zonal Wind", "spv.html", body))
 
 
 def main():
-    os.makedirs(MAPDIR, exist_ok=True)
-    os.makedirs(SPVDIR, exist_ok=True)
+    os.makedirs(os.path.join(ASSETS, "css"), exist_ok=True)
     os.makedirs(DATA, exist_ok=True)
     write_css()
     reg = load_registry()
     build_home(reg)
+    build_model_page(reg)
     build_snow(reg)
     build_spv(reg)
     print("site built:", SITE)
