@@ -1,0 +1,151 @@
+{
+ "ecmwf-seas5": {
+  "name": "ECMWF SEAS5",
+  "centre": "ecmwf",
+  "system": "51",
+  "init": "2026-11",
+  "leads": 7,
+  "snow": {
+   "fields": 306,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true,
+  "u10m": {
+   "fields": 306,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  }
+ },
+ "ukmo-gloseas6": {
+  "name": "UKMO GloSeas6-GC5.1",
+  "centre": "ukmo",
+  "system": "610",
+  "init": "2026-10",
+  "leads": 6,
+  "snow": {
+   "fields": 360,
+   "steps": [
+    744,
+    768,
+    792,
+    816,
+    840
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true
+ },
+ "eccc-canesm5": {
+  "name": "ECCC CanESM5.1p1bc",
+  "centre": "eccc",
+  "system": "4",
+  "init": "2026-10",
+  "leads": 7,
+  "snow": {
+   "fields": 120,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true
+ },
+ "eccc-gem5": {
+  "name": "ECCC GEM5.2-NEMO",
+  "centre": "eccc",
+  "system": "5",
+  "init": "2026-10",
+  "leads": 7,
+  "snow": {
+   "fields": 120,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1
+  },
+  "done": true
+ }
+}

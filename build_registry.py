@@ -16,28 +16,36 @@ MAPDIR = os.path.join(ASSETS, "maps")
 SPVDIR = os.path.join(ASSETS, "spv")
 DATA = os.path.join(SITE, "data")
 
-MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-FULL = ["January", "February", "March", "April", "May", "June", "July",
-        "August", "September", "October", "November", "December"]
-FULLM = {"Jan": "January", "Feb": "February", "Mar": "March", "Apr": "April",
-         "May": "May", "Jun": "June", "Jul": "July", "Aug": "August",
-         "Sep": "September", "Oct": "October", "Nov": "November",
-         "Dec": "December"}
+FULLMONTHS = ["January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December"]
+MONTH_ABBR = {"Jan": "January", "Feb": "February", "Mar": "March",
+              "Apr": "April", "May": "May", "Jun": "June", "Jul": "July",
+              "Aug": "August", "Sep": "September", "Oct": "October",
+              "Nov": "November", "Dec": "December"}
 
-# model id -> (display name, note)
+# the model registry: id -> display info
 MODELS = {
-    "ecmwf-seas5": ("ECMWF SEAS5",
-                    "System 51 \u00b7 51-member ensemble \u00b7 1\u00b0 global grid "
-                    "\u00b7 7 lead months"),
+    "ecmwf-seas5":     ("ECMWF SEAS5",
+                        "ECMWF SEAS5 \u00b7 51-member ensemble \u00b7 1\u00b0 global grid \u00b7 init 1 Nov 2026"),
+    "ukmo-gloseas6":   ("UKMO GloSeas6-GC5.1",
+                        "UK Met Office GloSeas6-GC5.1 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "eccc-canesm5":    ("ECCC CanESM5.1p1bc",
+                        "Environment Canada CanESM5.1p1bc \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "eccc-gem5":       ("ECCC GEM5.2-NEMO",
+                        "Environment Canada GEM5.2-NEMO \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "cmcc-sps4":       ("CMCC SPS4",
+                        "CMCC SPS4 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "dwd-gcfs2":       ("DWD GCFS2.2",
+                        "DWD GCFS2.2 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "meteo-france-s9": ("METFR System 9",
+                        "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
 }
 
-SNOW_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in\.png$")
-MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in\.png$")
-ANOM_RE = re.compile(
-    r"^SEAS5_(?P<init>\d{6})_snow_anomaly_(?P<mon>Nov|Dec|Jan|Feb|Mar|Apr)(?P<yr>\d{4})_in\.png$")
-ANOM3_RE = re.compile(
-    r"^SEAS5_(?P<init>\d{6})_snow_anomaly_3mo_(?P<win>NDJ|DJF|JFM|FMA)_in\.png$")
+SNOW_TOTAL_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in\.png$")
+SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in\.png$")
+SNOW_ANOM_RE = re.compile(
+    r"^SNOW_(?P<tag>[A-Z0-9\-]+?)_(?P<mon>January|February|March|April|May|June|July"
+    r"|August|September|October|November|December)(?P<yr>\d{4})_anom_in\.png$")
 SPV_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)\.png$")
 TBL_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)_table\.json$")
 
@@ -53,84 +61,82 @@ def main():
     os.makedirs(DATA, exist_ok=True)
 
     reg = {"models": []}
-    # ---------------- snowfall ----------------
-    snow_tags = {}
-    for fn in sorted(os.listdir(OUT)):
-        m = SNOW_RE.match(fn)
-        if m:
-            snow_tags.setdefault(m.group("tag"), {})["total"] = fn
-        m = MONTH_RE.match(fn)
-        if m:
-            snow_tags.setdefault(m.group("tag"), {}).setdefault("months", []).append(
-                (int(m.group("m")), fn))
-        m = ANOM_RE.match(fn)
-        if m:
-            snow_tags.setdefault("ecmwf-seas5", {}).setdefault("anom", []).append(
-                (m.group("mon"), int(m.group("yr")), fn))
-        m = ANOM3_RE.match(fn)
-        if m:
-            snow_tags.setdefault("ecmwf-seas5", {}).setdefault("anom3", []).append(
-                (m.group("win"), fn))
+    snow = {}
+    spv = {}
 
-    # ---------------- spv ----------------
-    spv_tags = {}
     for fn in sorted(os.listdir(OUT)):
+        m = SNOW_TOTAL_RE.match(fn)
+        if m:
+            snow.setdefault(m.group("tag"), {})["total"] = fn
+            continue
+        m = SNOW_MONTH_RE.match(fn)
+        if m:
+            snow.setdefault(m.group("tag"), {}).setdefault("months", []).append(
+                (int(m.group("m")), fn))
+            continue
+        m = SNOW_ANOM_RE.match(fn)
+        if m:
+            tag = m.group("tag").lower()
+            snow.setdefault(tag, {}).setdefault("anom", []).append(
+                (m.group("mon"), int(m.group("yr")), fn))
+            continue
         m = SPV_RE.match(fn)
         if m:
-            spv_tags.setdefault(m.group("tag"), {}).setdefault(m.group("dom"), {})["img"] = fn
+            spv.setdefault(m.group("tag"), {}).setdefault(m.group("dom"), {})["img"] = fn
+            continue
         m = TBL_RE.match(fn)
         if m:
-            spv_tags.setdefault(m.group("tag"), {}).setdefault(m.group("dom"), {})["tbl"] = fn
+            spv.setdefault(m.group("tag"), {}).setdefault(m.group("dom"), {})["tbl"] = fn
 
-    for tag, d in sorted(snow_tags.items()):
+    # per-model member counts and inits, from the fetch state
+    fp = os.path.join(HERE, "data", "models_fetched.json")
+    fstate = json.load(open(fp)) if os.path.exists(fp) else {}
+
+    for tag in sorted(snow.keys()):
+        d = snow[tag]
         name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
-        entry = {"id": tag, "name": name, "note": note, "members": 51, "init": "2026-11"}
-        total = d.get("total")
-        if total:
+        st = fstate.get(tag, {})
+        entry = {
+            "id": tag,
+            "name": name,
+            "note": note,
+            "members": st.get("members", "?"),
+            "init": st.get("init", "?"),
+        }
+        if d.get("total"):
             entry["total"] = {
-                "file": copy(os.path.join(OUT, total), os.path.join(MAPDIR, total)),
-                "caption": "Total accumulation from the 1 November 2026 init to the end "
-                           "of the run (6 lead months)."}
+                "file": copy(os.path.join(OUT, d["total"]),
+                             os.path.join(MAPDIR, d["total"])),
+                "caption": "Total accumulation from the init to the end of the run, "
+                           "in inches of water equivalent."}
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
-                cm = (9 + k) % 12           # lead 1 = November 2026
+                cm = (9 + k) % 12          # lead 1 = the init month (October)
                 yr = 2026 + (9 + k) // 12
-                ms.append({"label": "%s %d" % (FULL[cm], yr),
-                           "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
-                           "caption": "Lead month %d" % k})
+                ms.append({"label": "%s %d" % (FULLMONTHS[cm], yr),
+                           "file": copy(os.path.join(OUT, fn),
+                                        os.path.join(MAPDIR, fn)),
+                           "caption": "Lead month %d." % k})
             entry["months"] = ms
         frames = []
         if d.get("anom"):
-            order = ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"]
-            amap = {a[0]: a for a in d["anom"]}
-            for i, mon in enumerate(order):
-                if mon in amap:
-                    _, yr, fn = amap[mon]
-                    frames.append({
-                        "label": "%s %d" % (FULLM[mon], yr),
-                        "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
-                        "caption": "Lead month %d anomaly vs the ECMWF hindcast climate."
-                                   % (i + 1)})
-        if d.get("anom3"):
-            wmap = dict(d["anom3"])
-            for win in ("NDJ", "DJF", "JFM", "FMA"):
-                fn = wmap.get(win)
-                if not fn:
-                    continue
+            rev = {v: k for k, v in MONTH_ABBR.items()}   # full -> abbr
+            for (mon, yr, fn) in sorted(d["anom"],
+                                        key=lambda a: (a[1], list(MONTH_ABBR).index(rev[a[0]]))):
                 frames.append({
-                    "label": "%s (3-month mean)" % win,
+                    "label": "%s %d" % (mon, yr),
                     "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
-                    "caption": "Three-month mean anomaly vs the ECMWF hindcast climate."})
+                    "caption": "Anomaly vs this model's own hindcast climate."})
         if frames:
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):
             reg["models"].append(entry)
 
-    # ---------------- spv attach ----------------
+    # attach the SPV panels
     for entry in reg["models"]:
         tag = entry["id"]
-        sd = spv_tags.get(tag)
+        sd = spv.get(tag)
         if not sd:
             continue
         entry["spv"] = {}
@@ -138,31 +144,29 @@ def main():
             d = sd.get(dom)
             if not d or "img" not in d:
                 continue
-            info = {"file": copy(os.path.join(OUT, d["img"]),
-                                 os.path.join(SPVDIR, d["img"])),
-                    "caption": "%s \u00b7 10 hPa zonal-mean zonal wind (%s)"
-                               % (entry["name"], "60\u00b0N" if dom == "60N"
-                                  else "Northern Hemisphere")}
+            info = {
+                "file": copy(os.path.join(OUT, d["img"]), os.path.join(SPVDIR, d["img"])),
+                "caption": "%s \u00b7 10 hPa zonal-mean zonal wind (%s)"
+                           % (entry["name"], "60\u00b0N" if dom == "60N"
+                              else "Northern Hemisphere")}
             if "tbl" in d:
-                t = json.load(open(os.path.join(OUT, d["tbl"])))
-                info["table"] = t
+                info["table"] = json.load(open(os.path.join(OUT, d["tbl"])))
             entry["spv"]["60" if dom == "60N" else "NH"] = info
 
     json.dump(reg, open(os.path.join(DATA, "models.json"), "w"), indent=1)
 
-    # the public copy strips anything the browser does not need
     pub = {"models": []}
     for m in reg["models"]:
         p = dict(m)
-        p.pop("members", None)
         pub["models"].append(p)
     json.dump(pub, open(os.path.join(DATA, "models_public.json"), "w"), indent=1)
 
     print("registry: %d model(s)" % len(reg["models"]))
     for m in reg["models"]:
-        print("  %-14s frames=%d months=%d total=%s spv=%s"
-              % (m["id"], len(m.get("frames", [])), len(m.get("months", [])),
-                 bool(m.get("total")), sorted(m.get("spv", {}).keys())))
+        print("  %-16s init=%-8s frames=%-3d months=%-3d total=%-5s spv=%s"
+              % (m["id"], m.get("init"), len(m.get("frames", [])),
+                 len(m.get("months", [])), bool(m.get("total")),
+                 sorted(m.get("spv", {}).keys())))
 
 
 if __name__ == "__main__":
