@@ -122,8 +122,10 @@ def submit(c, only=None):
         for k in range(nch):
             if k in done.get(tag, ()) or (tag, k) in live_keys:
                 continue
-            # prefer centres with nothing at all, then the least complete
-            cands.append((len(done.get(tag, ())), tag, centre, sysid, yy, mm, k))
+            # FINISH a centre before starting another: the three queue slots
+            # are scarce, and a centre is only publishable once all its chunks
+            # are in, so a half-done centre is worth more than a fresh one.
+            cands.append((-len(done.get(tag, ())), tag, centre, sysid, yy, mm, k))
     cands.sort()
 
     for _, tag, centre, sysid, yy, mm, k in cands:

@@ -16,9 +16,21 @@ publish () {
 }
 
 count_ready () {
-  local n=0 t
+  # a centre only counts when all three chunks are merged, i.e. the npz holds
+  # the full 215-day run - a partial centre must not be published as if it
+  # were the whole series.
+  local n=0 t d
   for t in $CENTRES; do
-    [ -f "data/models/$t/u10_daily.npz" ] && n=$((n+1))
+    [ -f "data/models/$t/u10_daily.npz" ] || continue
+    d=$(python3 -c "
+import numpy as np,sys
+try:
+    z=np.load('data/models/$t/u10_daily.npz', allow_pickle=True)
+    print(len(z['dates']))
+except Exception:
+    print(0)
+" 2>/dev/null)
+    [ "$d" = "215" ] && n=$((n+1)) || echo "   $t: only $d of 215 days - not publishing"
   done
   echo "$n"
 }
