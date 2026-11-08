@@ -153,7 +153,9 @@ def main():
         if not sd:
             continue
         entry["spv"] = {}
-        for dom in ("60N", "NH"):
+        # only the 60 deg N domain is published - the NH (0-90 deg N) option
+        # was dropped from the site
+        for dom in ("60N",):
             d = sd.get(dom)
             if not d or "img" not in d:
                 continue

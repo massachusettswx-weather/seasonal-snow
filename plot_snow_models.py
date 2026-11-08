@@ -35,6 +35,55 @@ ANOM_LEVELS = np.array([-4, -2, -1, -0.5, -0.25, -0.1, 0,
                          0.1, 0.25, 0.5, 1, 2, 4], dtype=float)
 
 
+def _nice_ceil(v):
+    """Smallest 'nice' number (1/2/2.5/5 x 10^n) that is >= v."""
+    if v <= 0:
+        return 0.0
+    e = np.floor(np.log10(v))
+    for m in (1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.5, 10.0):
+        c = m * 10.0 ** e
+        if c >= v - 1e-12:
+            return float(c)
+    return float(10.0 ** (e + 1))
+
+
+def panel_scale(hi, lo=0.02):
+    """Log ladder + colour list fitted to one panel's own range.
+
+    The reference weathermodels ladder spans 0.01-300 in, which is right for
+    a six-month total but leaves a single month crammed into its bottom three
+    bins (a monthly maximum of ~5 in lands under the '1 in' tick, so the map
+    looks empty and cannot be compared with the total).  This stretches the
+    SAME colour ramp over the panel's own range so the structure is visible.
+
+    Returns (levels, colors): the levels are rounded to round numbers so the
+    colourbar ticks stay readable, and the colours are the reference ramp
+    resampled evenly over those levels so the panel keeps the same palette.
+    """
+    d = json.load(open(os.path.join(DATA, "weathermodels_scale.json")))
+    ref = np.array(d["levels"], dtype=float)[::-1]      # ascending
+    ref_colors = list(d["colors"])[::-1]                # ascending with it
+    n = len(ref)
+    if not np.isfinite(hi) or hi <= lo:
+        hi = lo * 2.0
+    lo_ref, hi_ref = np.log10(ref[0]), np.log10(ref[-1])
+    t = (np.log10(ref) - lo_ref) / (hi_ref - lo_ref)
+    raw = 10.0 ** (np.log10(lo) + t * (np.log10(hi) - np.log10(lo)))
+    out = []
+    for v in raw:
+        nv = _nice_ceil(v)
+        if not out or nv > out[-1] * (1 + 1e-9):
+            out.append(nv)
+    if out[-1] < hi:
+        out.append(_nice_ceil(hi * 1.0000001))
+    levels = np.array(out, dtype=float)
+    # resample the reference ramp evenly over the fitted levels
+    idx = np.clip(np.round(np.linspace(0, n - 1, len(levels))).astype(int),
+                  0, n - 1)
+    colors = [ref_colors[i] for i in idx]
+    return levels, colors
+
+
 def anom_cmap():
     """Signed-log ladder in the house brown/white/teal palette."""
     stops = ["#3a2006", "#5a3410", "#7d4d1a", "#a06a26", "#c08a3e",
@@ -226,24 +275,37 @@ def main():
             anoms.append((m, y, k + 1, monthly_in[k] - cm_in))
 
         # ---------------- draw ----------------
-        initlabel = "%s-%s-01 00Z" % (init[:4], init[4:])
+        initlabel = "%s-%s-01 00Z" % (init[:4], init[5:7])
+        # the accumulation window covered by the run: 1st of the first lead
+        # month -> last day of the last lead month
+        y0, m0 = yms[0]
+        y1, m1 = yms[-1]
+        import calendar
+        dlast = calendar.monthrange(y1, m1)[1]
+        window = "%d %s %d – %d %s %d" % (1, MONTH_NAMES[m0 - 1], y0,
+                                          dlast, MONTH_NAMES[m1 - 1], y1)
         draw_map(os.path.join(OUT, "snow_%s_total_run_in.png" % tag),
                  "%s  Snowfall Total — Init to End of Run" % name,
-                 "Init %s · %d-member ensemble mean · accumulated over %d lead months · "
-                 "inches of water equivalent" % (initlabel, len(by_step[yms[0]]), len(yms)),
+                 "Init %s · %d-member ensemble mean · accumulated %s (%d lead months) · "
+                 "inches of water equivalent" % (initlabel, len(by_step[yms[0]]),
+                                                 window, len(yms)),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
-                 "Accumulated snowfall (in w.e.)")
+                 "Accumulated snowfall (in w.e., log scale)")
         for k, lab in enumerate(labels):
             mf = "snow_%s_month%02d_in.png" % (tag, k + 1)
             manifest[mf] = {"label": lab, "lead": k + 1}
+            vmax = float(np.nanmax(np.where(in_us, monthly_in[k], np.nan)))
+            lv, cols = panel_scale(vmax)
+            pcmap = ListedColormap(cols, name="wm_fitted")
             draw_map(os.path.join(OUT, mf),
                      "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean · lead month %d · "
-                     "inches of water equivalent" % (initlabel, len(by_step[yms[0]]), k + 1),
+                     "inches of water equivalent · colour scale fitted to this month"
+                     % (initlabel, len(by_step[yms[0]]), k + 1),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
-                     wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
-                     "Accumulated snowfall (in w.e.)")
+                     pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
+                     "Accumulated snowfall (in w.e., log scale)")
         for (m, y, lead, a) in anoms:
             af = "SNOW_%s_%s%d_anom_in.png" % (tag.upper(), MONTH_NAMES[m - 1], y)
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),

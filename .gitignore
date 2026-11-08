@@ -30,3 +30,6 @@ _*.py
 data/models/
 # local site preview screenshots
 preview/
+
+# transient fetch logs / job dumps
+data/probe/

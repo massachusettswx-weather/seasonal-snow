@@ -20,7 +20,7 @@ that date), so the model trace and the ERA5 climatology line - which is also a
 
 usage: python3 build_spv_panels.py
 """
-import os, sys, json, collections
+import os, sys, json, collections, calendar
 import numpy as np
 from datetime import datetime, timedelta, date
 
@@ -207,7 +207,13 @@ def build_one(tag, name, init):
             return
         dates = sorted(by_date)
         nmem = max(len(v) for v in by_date.values())
-        times = [datetime(d.year, d.month, d.day) for d in dates]
+        # A monthly_mean GRIB field is valid at the END of the averaging
+        # period (step = 720 h from a 1 Oct init is valid 1 Nov and therefore
+        # describes OCTOBER).  The lead month is the month of (valid - 1 day),
+        # which is the same rule the snowfall panels use - without it every
+        # non-ECMWF model is labelled one month late.
+        rep = [d - timedelta(days=1) for d in dates]
+        times = [datetime(r.year, r.month, 1) for r in rep]
 
         for dom, idx, key in (("60", 0, "60N"), ("NH", 1, "NH")):
             arr = np.full((nmem, len(dates)), np.nan)
@@ -217,7 +223,12 @@ def build_one(tag, name, init):
             ens = np.nanmean(arr, axis=0)
 
             era = load_era5(dom, int(init[:4]))
-            t0, t1 = times[0] - timedelta(days=15), times[-1] + timedelta(days=15)
+            # the ERA5 window must cover the WHOLE of the first and the last
+            # lead month, otherwise the monthly mean is taken over a partial
+            # month
+            t0 = datetime(rep[0].year, rep[0].month, 1)
+            t1 = datetime(rep[-1].year, rep[-1].month,
+                          calendar.monthrange(rep[-1].year, rep[-1].month)[1])
             keep = [i for i, t in enumerate(era["t"]) if t0 <= t <= t1]
             era_cut = {k: [era[k][i] for i in keep]
                        for k in ("t", "mean", "p10", "p30", "p70", "p90",

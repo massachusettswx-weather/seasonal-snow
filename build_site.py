@@ -362,7 +362,10 @@ def build_snow(reg):
 
 <div class="card" id="tab-monthly">
   <h2 class="sec">Accumulation by lead month</h2>
-  <p class="lead">One panel per lead month of the run.</p>
+  <p class="lead">One panel per lead month of the run. Each monthly panel is
+  drawn on its own logarithmic colour scale, fitted to that month, so the
+  structure stays visible &mdash; the six months add up to the total above.
+  The total panel uses the fixed weathermodels scale (0&ndash;216&nbsp;in).</p>
   <div class="grid c2" id="monthlyGrid"></div>
 </div>
 
@@ -462,7 +465,6 @@ def build_spv(reg):
     <label for="domSel">Domain</label>
     <select id="domSel" class="ctrl">
       <option value="60">60&deg;N</option>
-      <option value="NH">Northern Hemisphere (0&ndash;90&deg;N)</option>
     </select>
   </div>
 </div>
@@ -484,7 +486,7 @@ function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
 const sel=document.getElementById('modelSel');
 const dom=document.getElementById('domSel');
 if(q('m') && MODELS[q('m')]) sel.value=q('m');
-if(q('d')) dom.value=q('d');
+if(q('d') && MODELS[sel.value].spv && MODELS[sel.value].spv[q('d')]) dom.value=q('d');
 function model(){return MODELS[sel.value];}
 function render(){
   const m=model();

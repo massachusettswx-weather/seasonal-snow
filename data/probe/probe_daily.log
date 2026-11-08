@@ -1,8 +1,0 @@
-=== probe cmcc4
-   QUEUEFULL - stopping (account limit)
-DONE {
- "cmcc4": {
-  "ok": false,
-  "err": "QUEUEFULL"
- }
-}
