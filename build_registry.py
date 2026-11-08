@@ -42,8 +42,9 @@ MODELS = {
 }
 
 # the month label for each rendered file, written by plot_snow_models.py
-def month_of_file(fn):
-    return MANIFEST.get(fn, "")
+def info_of_file(fn):
+    """-> {'label': ..., 'lead': ...} for a rendered file."""
+    return MANIFEST.get(fn, {"label": "", "lead": 0})
 
 
 SNOW_TOTAL_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in\.png$")
@@ -123,20 +124,23 @@ def main():
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
-                ms.append({"label": month_of_file(fn),
+                info = info_of_file(fn)
+                ms.append({"label": info["label"],
                            "file": copy(os.path.join(OUT, fn),
                                         os.path.join(MAPDIR, fn)),
-                           "caption": "Lead month %d." % (k + 1)})
+                           "caption": "Lead month %d." % info["lead"]})
             entry["months"] = ms
         frames = []
         if d.get("anom"):
             rev = {v: k for k, v in MONTH_ABBR.items()}   # full -> abbr
             for (mon, yr, fn) in sorted(d["anom"],
                                         key=lambda a: (a[1], list(MONTH_ABBR).index(rev[a[0]]))):
+                info = info_of_file(fn)
                 frames.append({
-                    "label": "%s %d" % (mon, yr),
+                    "label": info["label"] or ("%s %d" % (mon, yr)),
                     "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
-                    "caption": "Anomaly vs this model's own hindcast climate."})
+                    "caption": "Lead month %d - anomaly vs this model's own "
+                               "hindcast climate." % info["lead"]})
         if frames:
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):

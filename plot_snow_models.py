@@ -236,7 +236,7 @@ def main():
                  "Accumulated snowfall (in w.e.)")
         for k, lab in enumerate(labels):
             mf = "snow_%s_month%02d_in.png" % (tag, k + 1)
-            manifest[mf] = lab
+            manifest[mf] = {"label": lab, "lead": k + 1}
             draw_map(os.path.join(OUT, mf),
                      "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean · lead month %d · "
@@ -246,7 +246,8 @@ def main():
                      "Accumulated snowfall (in w.e.)")
         for (m, y, lead, a) in anoms:
             af = "SNOW_%s_%s%d_anom_in.png" % (tag.upper(), MONTH_NAMES[m - 1], y)
-            manifest[af] = "%s %d" % (MONTH_NAMES[m - 1], y)
+            manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
+                            "lead": lead}
             draw_map(os.path.join(OUT, af),
                      "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
                      "Init %s · %d-member ensemble mean · lead month %d · "

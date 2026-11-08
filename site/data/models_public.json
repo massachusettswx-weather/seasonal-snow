@@ -14,64 +14,64 @@
     {
      "label": "October 2026",
      "file": "assets/maps/snow_cmcc-sps4_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/snow_cmcc-sps4_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_cmcc-sps4_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_cmcc-sps4_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_cmcc-sps4_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_cmcc-sps4_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
      "file": "assets/maps/SNOW_CMCC-SPS4_October2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_CMCC-SPS4_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_CMCC-SPS4_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_CMCC-SPS4_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_CMCC-SPS4_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_CMCC-SPS4_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
@@ -175,64 +175,64 @@
     {
      "label": "October 2026",
      "file": "assets/maps/snow_dwd-gcfs2_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/snow_dwd-gcfs2_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_dwd-gcfs2_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_dwd-gcfs2_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_dwd-gcfs2_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_dwd-gcfs2_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
      "file": "assets/maps/SNOW_DWD-GCFS2_October2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_DWD-GCFS2_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_DWD-GCFS2_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_DWD-GCFS2_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_DWD-GCFS2_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_DWD-GCFS2_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
@@ -336,64 +336,64 @@
     {
      "label": "October 2026",
      "file": "assets/maps/snow_eccc-canesm5_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/snow_eccc-canesm5_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_eccc-canesm5_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_eccc-canesm5_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_eccc-canesm5_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_eccc-canesm5_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
      "file": "assets/maps/SNOW_ECCC-CANESM5_October2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_ECCC-CANESM5_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_ECCC-CANESM5_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_ECCC-CANESM5_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_ECCC-CANESM5_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_ECCC-CANESM5_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
@@ -497,64 +497,64 @@
     {
      "label": "October 2026",
      "file": "assets/maps/snow_eccc-gem5_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/snow_eccc-gem5_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_eccc-gem5_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_eccc-gem5_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_eccc-gem5_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_eccc-gem5_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
      "file": "assets/maps/SNOW_ECCC-GEM5_October2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_ECCC-GEM5_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_ECCC-GEM5_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_ECCC-GEM5_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_ECCC-GEM5_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_ECCC-GEM5_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
@@ -658,64 +658,64 @@
     {
      "label": "November 2026",
      "file": "assets/maps/snow_ecmwf-seas5_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_ecmwf-seas5_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_ecmwf-seas5_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_ecmwf-seas5_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_ecmwf-seas5_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "April 2027",
      "file": "assets/maps/snow_ecmwf-seas5_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "April 2027",
      "file": "assets/maps/SNOW_ECMWF-SEAS5_April2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
@@ -2909,64 +2909,64 @@
     {
      "label": "October 2026",
      "file": "assets/maps/snow_ukmo-gloseas6_month01_in.png",
-     "caption": "Lead month 2."
+     "caption": "Lead month 1."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/snow_ukmo-gloseas6_month02_in.png",
-     "caption": "Lead month 3."
+     "caption": "Lead month 2."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/snow_ukmo-gloseas6_month03_in.png",
-     "caption": "Lead month 4."
+     "caption": "Lead month 3."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/snow_ukmo-gloseas6_month04_in.png",
-     "caption": "Lead month 5."
+     "caption": "Lead month 4."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/snow_ukmo-gloseas6_month05_in.png",
-     "caption": "Lead month 6."
+     "caption": "Lead month 5."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/snow_ukmo-gloseas6_month06_in.png",
-     "caption": "Lead month 7."
+     "caption": "Lead month 6."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_October2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 1 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "November 2026",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_November2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 2 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "December 2026",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_December2026_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 3 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "January 2027",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_January2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 4 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "February 2027",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_February2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 5 - anomaly vs this model's own hindcast climate."
     },
     {
      "label": "March 2027",
      "file": "assets/maps/SNOW_UKMO-GLOSEAS6_March2027_anom_in.png",
-     "caption": "Anomaly vs this model's own hindcast climate."
+     "caption": "Lead month 6 - anomaly vs this model's own hindcast climate."
     }
    ],
    "spv": {
