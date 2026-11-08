@@ -132,6 +132,7 @@ def submit(c, only=None):
                 j["status"] = "stalled"
             st["stall"] = True
             live = []
+            cap = 1
             save_state(st)
     live_keys = {(j["tag"], j.get("chunk", 0)) for j in live}
     new = 0
