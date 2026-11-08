@@ -162,11 +162,18 @@ def main():
     for tag, meta in sorted(state.items()):
         name = meta.get("name", tag)
         init = meta.get("init", "2026-11")
+        try:
+            build_one(tag, name, init)
+        except Exception as e:
+            # one bad download must not stop the other centres from rendering
+            print("!! %s failed: %s" % (tag, str(e)[:300]), flush=True)
 
+
+def build_one(tag, name, init):
         if tag == "ecmwf-seas5" and os.path.exists(
                 os.path.join(DATA, "seas5_202611_daily.npz")):
             build_ecmwf_daily(name, init)
-            continue
+            return
 
         # daily product from the C3S subdaily archive
         npz = os.path.join(MDIR, tag, "u10_daily.npz")
@@ -174,17 +181,17 @@ def main():
             dates, m60, mnh, members, m = load_npz(npz)
             times = [datetime(d.year, d.month, d.day) for d in dates]
             render_daily(tag, name, init, times, m60, mnh, "daily")
-            continue
+            return
 
         # monthly fallback
         ug = os.path.join(MDIR, tag, "u10_monthly.grib")
         if not os.path.exists(ug):
             print("skip %s (no u10)" % tag)
-            continue
+            return
         by_date = read_u10(ug)
         if not by_date:
             print("skip %s (unreadable u10)" % tag)
-            continue
+            return
         dates = sorted(by_date)
         nmem = max(len(v) for v in by_date.values())
         times = [datetime(d.year, d.month, d.day) for d in dates]
