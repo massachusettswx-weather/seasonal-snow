@@ -22,6 +22,7 @@ usage:
   python3 fetch_models_daily.py               # both
 """
 import os, sys, json, time, argparse
+from datetime import datetime, timezone
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +42,8 @@ CHUNK = 215           # days per job.  The CDS rejects a job when the dataset
                       # scarce resource, not the job size).
 MAX_INFLIGHT = 3      # the CDS queue gate lets ~3 of our jobs sit queued at
                       # once; anything beyond that is rejected outright.
+WEDGE_S = 3 * 3600    # a job that has sat "accepted" this long without a
+                      # worker has wedged - dismiss it and re-queue.
 
 # tag, originating_centre, system, init year, init month
 CENTRES = [
@@ -117,7 +120,8 @@ def submit(c, only=None):
             continue
         st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=0,
                                hours=hs, job=jid, status="accepted",
-                               init="%04d-%02d" % (yy, mm)))
+                               init="%04d-%02d" % (yy, mm),
+                               _t0=time.time()))
         save_state(st)
         new += 1
         print("submitted %-16s %d steps  job %s" % (tag, len(hs), jid[:8]), flush=True)
@@ -160,6 +164,18 @@ def poll(c):
             j["status"] = s
             changed = True
             print("%-16s chunk %d -> %s" % (j["tag"], j["chunk"], s), flush=True)
+        if s in ("accepted", "queued"):
+            # how long has it been waiting for a MARS worker?
+            waited = time.time() - j.get("_t0", time.time())
+            print("   %-16s waiting %.0f min" % (j["tag"], waited / 60), flush=True)
+            if waited > WEDGE_S:
+                print("   %-16s WEDGED - dismissing and re-queueing" % j["tag"],
+                      flush=True)
+                c._request("DELETE", "/retrieve/v1/jobs/%s" % j["job"])
+                j["status"] = "wedged"
+                j["_t0"] = time.time()
+                changed = True
+                continue
         if s != "successful":
             if s in ("failed", "rejected", "dismissed"):
                 j["status"] = "failed"
