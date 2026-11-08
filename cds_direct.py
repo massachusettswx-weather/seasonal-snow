@@ -103,11 +103,70 @@ class CDSDirect:
             link = None
         if not link:
             raise RuntimeError("no result link for job %s" % jid)
-        dr = self._request("GET", link)
+        dr = self.s.get(link, stream=True, timeout=180)
         if dr.status_code >= 400:
             raise RuntimeError("download HTTP %d" % dr.status_code)
-        with open(target, "wb") as f:
-            f.write(dr.content)
+        # stream to disk: a full 215-day pull is ~2.5 GB and must not be
+        # buffered in memory
+        tmp = target + ".part"
+        with open(tmp, "wb") as f:
+            for chunk in dr.iter_content(chunk_size=4 * 1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+        os.replace(tmp, target)
+        return target
+
+    # ------------------------------------------------------------------
+    def submit(self, dataset, request):
+        """Create a job and return its id without waiting for the result.
+
+        Needed because the CDS subdaily queue is currently ~1000 jobs deep and
+        shared with every other user: submitting the whole batch at once and
+        then polling is far better than blocking on one job at a time.
+        """
+        r = self._request("POST", "/retrieve/v1/processes/%s/execute" % dataset,
+                          json={"inputs": request})
+        if r.status_code in (400, 422):
+            txt = r.text
+            if "Maximum number queued" in txt:
+                raise QueueFull(txt)
+            raise NoData("HTTP %d: %s" % (r.status_code, txt[:400]))
+        r.raise_for_status()
+        job = r.json()
+        return job.get("jobID") or job.get("processID")
+
+    # ------------------------------------------------------------------
+    def job_status(self, jid):
+        r = self._request("GET", "/retrieve/v1/jobs/%s" % jid)
+        if r.status_code == 404:
+            return "gone"
+        return r.json().get("status")
+
+    # ------------------------------------------------------------------
+    def download_job(self, jid, target):
+        rr = self._request("GET", "/retrieve/v1/jobs/%s/results" % jid)
+        if rr.status_code >= 400:
+            txt = rr.text
+            if "Maximum number queued" in txt:
+                raise QueueFull(txt)
+            raise RuntimeError("results HTTP %d: %s" % (rr.status_code, txt[:300]))
+        try:
+            link = rr.json()["asset"]["value"]["href"]
+        except Exception:
+            link = None
+        if not link:
+            raise RuntimeError("no result link for job %s" % jid)
+        dr = self.s.get(link, stream=True, timeout=180)
+        if dr.status_code >= 400:
+            raise RuntimeError("download HTTP %d" % dr.status_code)
+        # stream to disk: a full 215-day pull is ~2.5 GB and must not be
+        # buffered in memory
+        tmp = target + ".part"
+        with open(tmp, "wb") as f:
+            for chunk in dr.iter_content(chunk_size=4 * 1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+        os.replace(tmp, target)
         return target
 
     # ------------------------------------------------------------------

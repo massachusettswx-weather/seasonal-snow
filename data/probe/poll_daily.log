@@ -1,0 +1,93 @@
+===== poll 1 05:25:42
+cmcc-sps4        chunk 0 -> rejected
+cmcc-sps4        chunk 1 -> rejected
+cmcc-sps4        chunk 2 -> rejected
+dwd-gcfs2        chunk 0 -> rejected
+dwd-gcfs2        chunk 1 -> rejected
+dwd-gcfs2        chunk 2 -> rejected
+eccc-canesm5     chunk 0 -> rejected
+eccc-canesm5     chunk 1 -> rejected
+eccc-canesm5     chunk 2 -> rejected
+eccc-gem5        chunk 0 -> rejected
+eccc-gem5        chunk 1 -> rejected
+eccc-gem5        chunk 2 -> rejected
+ukmo-gloseas6    chunk 0 -> rejected
+ukmo-gloseas6    chunk 1 -> rejected
+ukmo-gloseas6    chunk 2 -> rejected
+meteo-france-s9  chunk 0 -> rejected
+meteo-france-s9  chunk 1 -> rejected
+meteo-france-s9  chunk 2 -> rejected
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 0 pending, 3 failed
+  dwd-gcfs2        chunks 0/3 done, 0 pending, 3 failed
+  eccc-canesm5     chunks 0/3 done, 0 pending, 3 failed
+  eccc-gem5        chunks 0/3 done, 0 pending, 3 failed
+  ukmo-gloseas6    chunks 0/3 done, 0 pending, 3 failed
+  meteo-france-s9  chunks 0/3 done, 0 pending, 3 failed
+===== poll 2 05:27:53
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 3 05:29:53
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 4 05:31:54
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 5 05:33:54
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 6 05:35:55
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 7 05:37:55
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/0 done, 0 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+===== poll 8 05:39:56
+eccc-canesm5     chunk 0 -> rejected
+eccc-gem5        chunk 0 -> rejected
+ukmo-gloseas6    chunk 0 -> rejected
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/1 done, 1 pending, 0 failed
+  dwd-gcfs2        chunks 0/1 done, 1 pending, 0 failed
+  eccc-canesm5     chunks 0/1 done, 0 pending, 1 failed
+  eccc-gem5        chunks 0/1 done, 0 pending, 1 failed
+  ukmo-gloseas6    chunks 0/1 done, 0 pending, 1 failed
+  meteo-france-s9  chunks 0/1 done, 1 pending, 0 failed

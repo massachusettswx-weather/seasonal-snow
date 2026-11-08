@@ -1,18 +1,22 @@
 """Render the 10 hPa SPV panels for every seasonal model we have u10 for.
 
-The u10 files differ between centres, so the reader groups the GRIB records by
-their VALID DATE (dataDate + step) rather than by the step alone:
+Two data paths:
 
-  * UKMO packs 60 members per lead month with a different step for each
-    member (the perturbed members are initialised on different days);
-  * the other centres use one step per lead month with N members.
+  * DAILY - the C3S *original* (subdaily) product carries every ensemble member
+    at 12-hourly resolution.  This is the path used for every centre now, and
+    it is what makes the chart look like the ECMWF one: daily member traces,
+    daily ensemble mean, daily ERA5 climatology.
+  * MONTHLY - the fallback, one value per lead month.
 
-Grouping by valid date handles both and gives the true member count.
+The u10 files differ between centres, so the monthly reader groups the GRIB
+records by their VALID DATE (dataDate + step) rather than by the step alone:
+UKMO packs 60 members per lead month with a different step for each member
+(the perturbed members are initialised on different days), and grouping by
+valid date handles that and gives the true member count.
 
-For each model the fields are reduced to the zonal mean at 60N and over the
-Northern Hemisphere, then drawn in the house style: every ensemble member,
-the ensemble mean, the ERA5 1991-2020 climatology with percentile bands and
-record bounds.
+Model values are plotted on the calendar day they belong to (the 12Z state of
+that date), so the model trace and the ERA5 climatology line - which is also a
+12Z value - sit on exactly the same x positions.
 
 usage: python3 build_spv_panels.py
 """
@@ -23,6 +27,7 @@ from datetime import datetime, timedelta, date
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from plot_spv import render_spv, load_era5   # noqa: E402
+from u10_daily import load_npz               # noqa: E402
 
 DATA = os.path.join(HERE, "data")
 OUT = os.path.join(HERE, "output")
@@ -71,14 +76,44 @@ def read_u10(path):
 
 
 def month_table(times, ens, era):
-    eramean = np.asarray(era["mean"], float)
-    rows = []
+    """Lead-month means: model ensemble mean vs the ERA5 climatology over the
+    SAME days, so a partially covered lead month compares like with like."""
+    emap = {t.date(): v for t, v in zip(era["t"], era["mean"])}
+    buckets = collections.defaultdict(list)
+    ebuck = collections.defaultdict(list)
     for t, e in zip(times, ens):
-        eidx = [i for i, et in enumerate(era["t"])
-                if et.year == t.year and et.month == t.month]
-        ev = float(np.nanmean(eramean[eidx])) if eidx else np.nan
-        rows.append(["%s %d" % (MONTHS[t.month - 1], t.year), "%.1f" % float(e), "%.1f" % ev])
+        buckets[(t.year, t.month)].append(float(e))
+        if t.date() in emap:
+            ebuck[(t.year, t.month)].append(emap[t.date()])
+    rows = []
+    for key in sorted(buckets):
+        ev = ebuck.get(key)
+        rows.append(["%s %d" % (MONTHS[key[1] - 1], key[0]),
+                     "%.1f" % float(np.nanmean(buckets[key])),
+                     "%.1f" % (float(np.nanmean(ev)) if ev else float("nan"))])
     return {"head": ["Model ens. mean (m/s)", "ERA5 clim. (m/s)"], "rows": rows}
+
+
+def render_daily(tag, name, init, times, m60, mnh, daily_label):
+    """Draw the 60N and NH panels from a daily member matrix."""
+    for dom, mat, key in (("60", m60, "60N"), ("NH", mnh, "NH")):
+        era = load_era5(dom, int(init[:4]))
+        label = "60°N" if dom == "60" else "Northern Hemisphere"
+        fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
+        render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
+                   n_members=mat.shape[0],
+                   subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)"
+                            " · lead months 1–7 · ERA5 climatology 1991–2020"
+                            % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
+                               mat.shape[0]),
+                   footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
+                          "1991–2020" % name,
+                   title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"
+                         % (name, label))
+        json.dump(month_table(times, np.nanmean(mat, axis=0), era),
+                  open(os.path.join(OUT, "SPV_%s_%s_table.json" % (tag, key)), "w"),
+                  indent=1)
+        print("wrote %s  (daily, %d members, %d days)" % (fn, mat.shape[0], len(times)))
 
 
 def build_ecmwf_daily(name, init):
@@ -133,6 +168,15 @@ def main():
             build_ecmwf_daily(name, init)
             continue
 
+        # daily product from the C3S subdaily archive
+        npz = os.path.join(MDIR, tag, "u10_daily.npz")
+        if os.path.exists(npz):
+            dates, m60, mnh, members, m = load_npz(npz)
+            times = [datetime(d.year, d.month, d.day) for d in dates]
+            render_daily(tag, name, init, times, m60, mnh, "daily")
+            continue
+
+        # monthly fallback
         ug = os.path.join(MDIR, tag, "u10_monthly.grib")
         if not os.path.exists(ug):
             print("skip %s (no u10)" % tag)
