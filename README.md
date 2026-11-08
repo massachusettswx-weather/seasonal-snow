@@ -49,6 +49,39 @@ python3 build_registry.py    # collect the panels into the registry
 python3 build_site.py        # rebuild the site
 ```
 
+## Daily 10 hPa winds for every centre
+
+The monthly product gives one value per lead month, which makes a very coarse
+SPV chart. The C3S **original (subdaily)** product carries every ensemble
+member at 12-hourly resolution, so the same daily chart as the ECMWF panel can
+be drawn for every centre.
+
+```bash
+python3 fetch_models_daily.py --auto   # queue, download and decode (self-healing)
+```
+
+Each centre lands in `data/models/<tag>/u10_daily.npz` as a
+`members x days` matrix for 60N and the NH. `build_spv_panels.py` uses it
+automatically when it is present and falls back to the monthly GRIB otherwise.
+
+Three things bite when doing this:
+
+* **The queue gate.** The CDS rejects a request outright when too many of ours
+  are already waiting ("Maximum number queued requests for this dataset"), and
+  it applies across datasets. Only about three jobs can sit queued at once, so
+  the fetcher keeps a pool of three and refills it as jobs come off. Request
+  *size* is irrelevant - even a one-step request is rejected.
+* **Stale jobs count.** Jobs left behind by an earlier probe storm keep the
+  account blocked for hours. `python3 dismiss_jobs.py` clears them
+  (`DELETE /retrieve/v1/jobs/{jobID}`). It only touches rejected/failed jobs,
+  never the live ones.
+* **Disk.** A 215-day pull is ~2.5 GB, so each download is decoded to a small
+  `.npz` and the raw GRIB is deleted straight away.
+
+`u10_daily.py` is the shared decoder. It groups records by *valid date*
+rather than by lead time, because UKMO perturbs the member start dates, and
+it was validated to reproduce the existing ECMWF daily series bit for bit.
+
 ## Pushing to GitHub
 
 ```bash
@@ -56,7 +89,7 @@ python3 build_site.py        # rebuild the site
 ```
 
 Creates `massachusettswx-weather/seasonal-snow`, pushes `main`, enables Pages
-(source: main / root) and prints the live URL. See `GITHUB_TOKEN.md` for how
+(source: main /docs) and prints the live URL. See `GITHUB_TOKEN.md` for how
 to mint the token.
 
 ## The pipeline

@@ -15,7 +15,9 @@ from cds_direct import CDSDirect
 
 c = CDSDirect()
 jobs = c._request("GET", "/retrieve/v1/jobs?limit=5000").json().get("jobs", [])
-todo = [j["jobID"] for j in jobs if j.get("status") != "successful"]
+todo = [j["jobID"] for j in jobs if j.get("status") in ("rejected", "failed")]
+# NOTE: never dismiss "accepted"/"running"/"queued" jobs - those are our
+# live retrievals waiting for a MARS worker.
 print("jobs: %d total, %d to dismiss" % (len(jobs), len(todo)), flush=True)
 
 done = [0]; failed = [0]
