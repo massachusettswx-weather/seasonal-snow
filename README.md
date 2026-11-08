@@ -7,7 +7,7 @@ inits.
 ## What is here
 
 ```
-site/            the static site (this is what GitHub Pages serves)
+docs/            the static site (GitHub Pages publishes this directory)
   index.html     home: pick a seasonal model
   model.html     that model's variables: snowfall / 10 hPa zonal wind
   snow.html      snowfall: total for the run, per-lead-month totals, and the
@@ -66,7 +66,7 @@ to mint the token.
 | `fetch_models.py` | downloads snowfall (forecast + the model's own hindcast climate) and 10 hPa u for every released system, at its own init |
 | `plot_snow_models.py` | renders the accumulation totals, the per-lead-month totals and the monthly anomalies for every model |
 | `build_spv_panels.py` | renders the 10 hPa SPV chart and the lead-month table for every model |
-| `build_registry.py` | collects the rendered panels into `site/data/models.json` |
+| `build_registry.py` | collects the rendered panels into `docs/data/models.json` |
 | `build_site.py` | builds the three pages and the stylesheet |
 | `cds_direct.py` | a small direct CDS client (the stock one retries for hours) |
 | `scan_inits.py` | scans init months to find which are released |
