@@ -71,11 +71,24 @@ def read_daily_u10(path):
                 la = np.asarray(eccodes.codes_get_array(gid, "latitudes"), float)
                 lo = np.asarray(eccodes.codes_get_array(gid, "longitudes"), float)
                 v = np.asarray(eccodes.codes_get_array(gid, "values"), float)
-                lats = np.unique(la)[::-1]
-                lons = np.unique(lo)
-                if v.size != lats.size * lons.size:
-                    continue
-                v = v.reshape(len(lats), len(lons))
+                ni = int(_g(gid, "Ni", 0) or 0)
+                nj = int(_g(gid, "Nj", 0) or 0)
+                if ni and nj and v.size == ni * nj:
+                    # Reshape in the GRIB's own storage order and read the
+                    # latitudes off the grid directly.  ECMWF's grid is
+                    # descending (89.5 -> -89.5) but other centres use an
+                    # ascending one, and sorting the latitudes without also
+                    # reordering the values silently shifts the field.
+                    lat2d = la.reshape(nj, ni)
+                    v = v.reshape(nj, ni)
+                else:
+                    lats = np.unique(la)[::-1]
+                    lons = np.unique(lo)
+                    if v.size != lats.size * lons.size:
+                        continue
+                    v = v.reshape(len(lats), len(lons))
+                    lat2d = np.repeat(lats[:, None], len(lons), axis=1)
+                lats = lat2d[:, 0]
 
                 dd = _g(gid, "dataDate")
                 if dd is None:
