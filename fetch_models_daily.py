@@ -269,7 +269,7 @@ def main():
                 print("ALL CENTRES HAVE DAILY DATA", flush=True)
                 break
             print(">> still missing:", ", ".join(missing), flush=True)
-            time.sleep(90)
+            time.sleep(40)
         return
     if not args.poll:
         submit(c, only=only)
