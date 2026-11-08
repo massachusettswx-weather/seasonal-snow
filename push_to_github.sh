@@ -50,34 +50,46 @@ git remote set-url origin "https://github.com/${OWNER}/${REPO}.git"
 echo
 echo "Pushed to https://github.com/${OWNER}/${REPO}"
 
-# enable GitHub Pages (source: main / root)
-code=$(curl -s -o /tmp/pages.json -w '%{http_code}' -X POST \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/${OWNER}/${REPO}/pages" \
-  -d '{"source":{"branch":"main","path":"/"}}')
-if [ "$code" = "201" ]; then
-  echo "Pages enabled (source: main / root)"
-elif [ "$code" = "409" ]; then
-  echo "Pages already enabled"
-else
-  echo "NOTE: could not enable Pages automatically (HTTP $code) - enable it in"
-  echo "      Settings -> Pages -> Source: main / (root) by hand."
-  head -c 300 /tmp/pages.json; echo
+# GitHub Pages: the static site lives in docs/ -> publish from branch main, path /docs
+# (the repo root holds the pipeline code and must NOT be the published root).
+pages_set () {
+  curl -s -o /tmp/pages.json -w '%{http_code}' -X "$1" \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/repos/${OWNER}/${REPO}/pages" \
+    -d '{"source":{"branch":"main","path":"/docs"},"build_type":"legacy"}'
+}
+code=$(pages_set POST)
+if [ "$code" = "409" ]; then
+  code=$(pages_set PUT)          # already enabled -> update the source path
 fi
+case "$code" in
+  200|201) echo "Pages configured (source: main /docs)" ;;
+  *) echo "NOTE: could not set Pages automatically (HTTP $code) - set it in"
+     echo "      Settings -> Pages -> Source: Deploy from a branch -> main /docs."
+     head -c 300 /tmp/pages.json; echo ;;
+esac
 
-echo ">> waiting for the site to publish"
-for i in $(seq 1 20); do
+echo ">> waiting for the build to finish"
+url=""
+for i in $(seq 1 40); do
   sleep 15
-  url=$(curl -s -H "Authorization: Bearer ${TOKEN}" \
+  read -r st url < <(curl -s -H "Authorization: Bearer ${TOKEN}" \
     "https://api.github.com/repos/${OWNER}/${REPO}/pages" | \
-    python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('html_url',''))" 2>/dev/null || true)
-  if [ -n "$url" ]; then
-    echo
-    echo "Site live at: ${url}"
-    exit 0
-  fi
+    python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('status',''),d.get('html_url',''))" 2>/dev/null || echo " ")
+  if [ "$st" = "built" ] && [ -n "$url" ]; then break; fi
   printf "."
 done
 echo
-echo "Pages is building - check https://github.com/${OWNER}/${REPO}/pages"
+echo "Pages status: ${st:-unknown}"
+
+# html_url exists even when the build failed, so check the content actually serves.
+echo ">> verifying the published pages"
+for p in "" "model.html" "snow.html" "spv.html" "assets/css/style.css"; do
+  c=$(curl -s -o /dev/null -w '%{http_code}' -m 30 "${url}${p}")
+  printf "  %-28s %s\n" "/${p}" "$c"
+  [ "$c" = "200" ] || echo "  WARNING: ${p} did not serve (HTTP ${c})"
+done
+
+echo
+echo "Site live at: ${url}"

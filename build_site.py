@@ -8,15 +8,15 @@ Pages
     spv.html        10 hPa zonal-mean zonal wind, one panel per model
 
 Data
-    site/data/models.json        the model registry
-    site/data/models_public.json the browser's copy
+    docs/data/models.json        the model registry
+    docs/data/models_public.json the browser's copy
 
 Run after any re-render:  python3 build_site.py
 """
 import os, json
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SITE = os.path.join(HERE, "site")
+SITE = os.path.join(HERE, "docs")
 ASSETS = os.path.join(SITE, "assets")
 DATA = os.path.join(SITE, "data")
 

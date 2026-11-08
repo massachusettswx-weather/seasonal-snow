@@ -1,8 +1,8 @@
-"""Assemble site/data/models.json + models_public.json from the rendered assets.
+"""Assemble docs/data/models.json + models_public.json from the rendered assets.
 
 Walks output/ for the rendered snowfall panels (accumulation totals, monthly
 totals, monthly anomalies) and output/ for the 10 hPa SPV charts, copies them
-into site/assets/, and writes the registry the site reads.
+into docs/assets/, and writes the registry the site reads.
 
 Run after any re-render:  python3 build_registry.py
 """
@@ -10,7 +10,7 @@ import os, re, json, shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "output")
-SITE = os.path.join(HERE, "site")
+SITE = os.path.join(HERE, "docs")
 ASSETS = os.path.join(SITE, "assets")
 MAPDIR = os.path.join(ASSETS, "maps")
 SPVDIR = os.path.join(ASSETS, "spv")
