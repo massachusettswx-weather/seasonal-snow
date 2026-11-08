@@ -74,13 +74,34 @@ Three things bite when doing this:
 * **Stale jobs count.** Jobs left behind by an earlier probe storm keep the
   account blocked for hours. `python3 dismiss_jobs.py` clears them
   (`DELETE /retrieve/v1/jobs/{jobID}`). It only touches rejected/failed jobs,
-  never the live ones.
+  never the live ones. A job of ours that has been *accepted* but has not
+  started for hours is a wedge: dismiss it too, otherwise it keeps a queue
+  slot and blocks every other request, ERA5 included.
 * **Disk.** A 215-day pull is ~2.5 GB, so each download is decoded to a small
   `.npz` and the raw GRIB is deleted straight away.
 
 `u10_daily.py` is the shared decoder. It groups records by *valid date*
 rather than by lead time, because UKMO perturbs the member start dates, and
 it was validated to reproduce the existing ECMWF daily series bit for bit.
+
+## Lead-month labelling (the rule that catches everyone)
+
+A `monthly_mean` GRIB field is **valid at the end of the averaging period**.
+A field with `step = 720 h` from a 1 October init is valid 1 November and
+therefore describes **October**. The lead month is the month of
+*(valid date − 1 day)* - the same convention for every product.
+
+| init | lead 1 | lead 6 |
+|---|---|---|
+| ECMWF SEAS5, 1 Nov 2026 | November 2026 | April 2027 |
+| CMCC / DWD / ECCC / UKMO, 1 Oct 2026 | October 2026 | March 2027 |
+
+The snowfall panels and the SPV charts must use the same rule, otherwise the
+lead-month tables compare the model against the wrong ERA5 calendar month.
+
+Checked against ERA5: the ECMWF 10 hPa seasonal cycle over the Great Lakes
+correlates **r = 0.96** with the ERA5 calendar climatology at zero offset, so
+lead *k* really is calendar month *k*.
 
 ## Pushing to GitHub
 
@@ -116,6 +137,12 @@ Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
 * **Accumulation totals** use the weathermodels.com snow-total colourbar,
   sampled pixel-exactly from their published bar into
   `data/weathermodels_scale.json`.
+* **Single-month panels** are drawn on the *same colour ramp* but on a log
+  ladder fitted to that month (levels rounded to round numbers). The
+  published 0-216 in ladder is right for a six-month total but squeezes a
+  single month into its bottom three bins, which makes the monthly maps look
+  empty and impossible to reconcile with the total. The total panel keeps the
+  fixed weathermodels scale; the six months add up to it.
 * **Anomalies** use the brown -> white -> teal palette with a signed-log band
   ladder, and each model is measured against **its own** hindcast climate
   (ECMWF's `hindcast_climate_mean`), not a borrowed baseline.

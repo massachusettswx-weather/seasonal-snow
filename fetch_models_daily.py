@@ -47,6 +47,13 @@ MAX_INFLIGHT = 3      # the CDS queue gate lets ~3 of our jobs sit queued at
                       # once; anything beyond that is rejected outright.
 WEDGE_S = 3 * 3600    # a job that has sat "accepted" this long without a
                       # worker has wedged - dismiss it and re-queue.
+STALL_S = 25 * 60    # if EVERY live job has been waiting this long and none
+                      # has been picked up by a MARS worker, the archive is
+                      # not processing for us at all.  Holding three queue
+                      # slots in that state blocks every other dataset too
+                      # (ERA5 included - the gate is account wide), so drop
+                      # back to a single job and let the rest of the account
+                      # breathe until the archive recovers.
 
 # tag, originating_centre, system, init year, init month
 CENTRES = [
@@ -110,6 +117,22 @@ def submit(c, only=None):
     st = load_state()
     done = decoded_chunks(st)
     live = live_jobs(st)
+    cap = 1 if st.get("stall") else MAX_INFLIGHT
+    if live:
+        waited = [time.time() - j.get("_t0", time.time()) for j in live]
+        if min(waited) > STALL_S and not st.get("stall"):
+            print("!! all %d live job(s) stalled > %.0f min - the archive is not "
+                  "picking jobs up; dismissing them and dropping to a single "
+                  "queued job" % (len(live), STALL_S / 60), flush=True)
+            for j in live:
+                try:
+                    c._request("DELETE", "/retrieve/v1/jobs/%s" % j["job"])
+                except Exception as e:
+                    print("   dismiss failed:", str(e)[:120], flush=True)
+                j["status"] = "stalled"
+            st["stall"] = True
+            live = []
+            save_state(st)
     live_keys = {(j["tag"], j.get("chunk", 0)) for j in live}
     new = 0
 
@@ -129,7 +152,7 @@ def submit(c, only=None):
     cands.sort()
 
     for _, tag, centre, sysid, yy, mm, k in cands:
-        if len(live) + new >= MAX_INFLIGHT:
+        if len(live) + new >= cap:
             print("-- pool full (%d live) - %d chunk(s) queued behind"
                   % (len(live) + new, len(cands)), flush=True)
             break
@@ -198,6 +221,10 @@ def poll(c):
             j["status"] = s
             changed = True
             print("%-16s chunk %d -> %s" % (j["tag"], j["chunk"], s), flush=True)
+        if st.get("stall") and s in ("running", "successful"):
+            print("   archive is moving again - back to a full pool", flush=True)
+            st["stall"] = False
+            changed = True
         if s in ("accepted", "queued"):
             # how long has it been waiting for a MARS worker?
             waited = time.time() - j.get("_t0", time.time())
