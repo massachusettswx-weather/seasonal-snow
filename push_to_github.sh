@@ -64,7 +64,7 @@ if [ "$code" = "409" ]; then
   code=$(pages_set PUT)          # already enabled -> update the source path
 fi
 case "$code" in
-  200|201) echo "Pages configured (source: main /docs)" ;;
+  200|201|204) echo "Pages configured (source: main /docs)" ;;
   *) echo "NOTE: could not set Pages automatically (HTTP $code) - set it in"
      echo "      Settings -> Pages -> Source: Deploy from a branch -> main /docs."
      head -c 300 /tmp/pages.json; echo ;;

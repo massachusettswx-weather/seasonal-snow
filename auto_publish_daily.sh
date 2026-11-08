@@ -6,7 +6,7 @@
 # partial result is still published, and publishes whatever exists on timeout.
 cd /workspace/seas5
 TOKEN="$1"
-MIN_CENTRES="${2:-3}"
+MIN_CENTRES="${2:-1}"
 CENTRES="cmcc-sps4 dwd-gcfs2 eccc-canesm5 eccc-gem5 ukmo-gloseas6"
 
 publish () {
