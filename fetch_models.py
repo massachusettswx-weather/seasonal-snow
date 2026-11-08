@@ -1,47 +1,143 @@
-"""Patient fetch of the C3S seasonal systems, using the direct CDS client.
+"""Fetch the seasonal systems that are actually released, with their own init
+month and their own hindcast climate.
 
-The CDS queue limit ("Maximum number queued requests for this dataset") is
-global - it is shared with every other user of the dataset, and our own
-jobs are all terminal (none of ours holds a slot).  So the only workable
-strategy is: one request at a time, retry patiently with a long backoff, and
-move on to the next system rather than blocking on one.
+What the CDS told us (measured, 7 Nov 2026):
+  * every non-ECMWF C3S contribution rejects the 1 Nov 2026 init with
+    "Restricted access to current C3S seasonal forecast non-ECMWF
+    contribution" - those runs are simply not released yet;
+  * the 1 Oct 2026 init serves UKMO 610, ECCC 4, ECCC 5, CMCC 4, DWD 22 and
+    METFR 9;
+  * NCEP 2 and BOM 2 served neither of those months;
+  * ECMWF 51 serves the 1 Nov 2026 init.
 
-For each candidate system we pull:
-  * monthly snowfall + 2m_temperature  (seasonal-monthly-single-levels)
-  * u_component_of_wind at 10 hPa       (seasonal-original-pressure-levels)
+So this script does NOT hard-code an init: it probes each system backwards
+month by month and takes the FRESHEST init that actually returns data.  When
+the C3S release the November runs (expected 10 Nov 2026), re-running this
+script picks them up with no code change.
 
-and write everything to data/models/<tag>/*.grib plus data/systems_probe.json.
+For each system, at its own init:
+  * snowfall, monthly_mean            -> the forecast field
+  * snowfall, hindcast_climate_mean   -> that model's own climate (baseline)
+  * u_component_of_wind at 10 hPa      -> the SPV members
+
+One request at a time: the CDS queue limit is account-wide.
+
+usage:  python3 fetch_models.py [--include-late]
 """
-import os, sys, json, time, glob
-import numpy as np
+import os, sys, json, time
+import requests
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-from cds_direct import CDSDirect, QueueFull, NoData   # noqa: E402
-
 DATA = os.path.join(HERE, "data")
 MDIR = os.path.join(DATA, "models")
 os.makedirs(MDIR, exist_ok=True)
 
-CANDIDATES = [
+KEY = [l.split(":", 1)[1].strip() for l in open(os.path.join(HERE, ".cdsapirc"))
+       if l.strip().startswith("key:")][0]
+API = "https://cds.climate.copernicus.eu/api"
+S = requests.Session()
+S.headers.update({"PRIVATE-TOKEN": KEY})
+
+# tag, display name, centre, system, expected lead months
+SYSTEMS = [
     ("ecmwf-seas5",    "ECMWF SEAS5",          "ecmwf", "51", 7),
-    ("ncep-cfsv2",     "NCEP CFSv2",           "ncep",  "2",  7),
     ("ukmo-gloseas6",  "UKMO GloSeas6-GC5.1",  "ukmo",  "610", 6),
     ("eccc-canesm5",   "ECCC CanESM5.1p1bc",   "eccc",  "4",  7),
     ("eccc-gem5",      "ECCC GEM5.2-NEMO",     "eccc",  "5",  7),
-    ("bom-access-s2",  "BOM ACCESS-S2",        "bom",   "2",  7),
     ("cmcc-sps4",      "CMCC SPS4",            "cmcc",  "4",  7),
     ("dwd-gcfs2",      "DWD GCFS2.2",          "dwd",   "22", 7),
     ("meteo-france-s9","METFR System 9",       "meteo_france", "9", 6),
+    ("ncep-cfsv2",     "NCEP CFSv2",           "ncep",  "2",  7),
+    ("bom-access-s2",  "BOM ACCESS-S2",        "bom",   "2",  7),
 ]
 
-INIT_TRY = [("2026", "11"), ("2026", "10"), ("2026", "09"), ("2025", "11")]
+# probe newest first: Nov 2026, then Oct, Sep, ... back a year
+MONTHS = []
+for yr in (2026, 2025):
+    for mo in range(12, 0, -1):
+        MONTHS.append((str(yr), "%02d" % mo))
+MONTHS = MONTHS[:14]
+
+GC = "grib"
+
+
+def tb(jid):
+    for _ in range(3):
+        try:
+            r = S.get(API + "/retrieve/v1/jobs?limit=30", timeout=60).json()
+            for j in r.get("jobs", []):
+                if j.get("jobID") == jid:
+                    return ((j.get("metadata", {}).get("results", {}) or {})
+                            .get("traceback", "") or "")
+        except Exception:
+            pass
+        time.sleep(4)
+    return ""
+
+
+def retrieve(ds, req, out, tries=4):
+    """-> True on success.  Queue-limit rejections are retried with a pause."""
+    for attempt in range(tries):
+        try:
+            r = S.post("%s/retrieve/v1/processes/%s/execute" % (API, ds),
+                       json={"inputs": req}, timeout=180)
+        except Exception as e:
+            print("      http error: %s" % str(e)[:120], flush=True)
+            time.sleep(20)
+            continue
+        if r.status_code in (400, 422):
+            txt = r.text
+            if "Maximum number queued" in txt:
+                print("      queue full -> pause 120s", flush=True)
+                time.sleep(120)
+                continue
+            print("      rejected: %s" % txt[:220], flush=True)
+            return False
+        if r.status_code not in (200, 201):
+            print("      HTTP %d %s" % (r.status_code, r.text[:150]), flush=True)
+            time.sleep(20)
+            continue
+        jid = r.json().get("jobID")
+        t0 = time.time()
+        while time.time() - t0 < 2400:
+            time.sleep(12)
+            try:
+                st = S.get(API + "/retrieve/v1/jobs/" + jid, timeout=60).json().get("status")
+            except Exception:
+                continue
+            if st == "successful":
+                rr = S.get(API + "/retrieve/v1/jobs/%s/results" % jid, timeout=120)
+                try:
+                    link = rr.json()["asset"]["value"]["href"]
+                except Exception:
+                    print("      no result link", flush=True)
+                    return False
+                dr = S.get(link, timeout=900)
+                if dr.status_code >= 400:
+                    print("      download HTTP %d" % dr.status_code, flush=True)
+                    time.sleep(15)
+                    continue
+                with open(out, "wb") as f:
+                    f.write(dr.content)
+                return True
+            if st in ("rejected", "failed"):
+                t = tb(jid)
+                if "Maximum number queued" in t:
+                    print("      queue full -> pause 120s", flush=True)
+                    time.sleep(120)
+                    break
+                print("      job %s: %s" % (st, (t[-200:] or "")), flush=True)
+                return False
+        else:
+            print("      timed out waiting", flush=True)
+            time.sleep(20)
+    return False
 
 
 def grib_info(path):
     try:
         import eccodes
-        n = 0; steps = set(); lats = set(); lons = set(); dates = set()
+        n = 0; steps = set(); lats = set(); lons = set()
         with open(path, "rb") as f:
             while True:
                 try:
@@ -55,98 +151,137 @@ def grib_info(path):
                     steps.add(int(eccodes.codes_get(gid, "step")))
                     lats.add(float(eccodes.codes_get(gid, "latitudeOfLastGridPointInDegrees")))
                     lons.add(float(eccodes.codes_get(gid, "longitudeOfLastGridPointInDegrees")))
-                    dates.add(int(eccodes.codes_get(gid, "dataDate")))
                 except Exception:
                     pass
                 eccodes.codes_release(gid)
         grid = None
         if len(lats) > 1 and len(lons) > 1:
             grid = [round(abs(lats[0] - lats[1]), 4), round(abs(lons[0] - lons[1]), 4)]
-        return {"fields": n, "steps": sorted(steps)[:4], "grid": grid,
-                "nlat": len(lats), "nlon": len(lons)}
+        return {"fields": n, "steps": sorted(steps)[:5], "grid": grid}
     except Exception as e:
         return {"error": str(e)[:120]}
 
 
-def get(client, dataset, req, out, tries=8):
-    """One request with patient backoff on queue-full."""
-    delay = 45
-    for i in range(tries):
-        try:
-            client.retrieve(dataset, req, out)
-            return True
-        except QueueFull:
-            print("      queue full -> sleep %ds (try %d/%d)" % (delay, i + 1, tries),
-                  flush=True)
-            time.sleep(delay)
-            delay = min(delay * 1.4, 240)
-        except NoData as e:
-            print("      nodata: %s" % str(e)[:160], flush=True)
-            return False
-        except Exception as e:
-            print("      error: %s %s" % (type(e).__name__, str(e)[:160]), flush=True)
-            time.sleep(20)
-    return False
+def probe_init(centre, system):
+    """-> (year, month) of the freshest released init, or None."""
+    for (y, m) in MONTHS:
+        req = {"originating_centre": centre, "system": system,
+               "variable": "snowfall", "product_type": "monthly_mean",
+               "year": y, "month": m, "leadtime_month": ["1"],
+               "data_format": GC}
+        fn = "/tmp/probe_init.grib"
+        if retrieve("seasonal-monthly-single-levels", req, fn, tries=2):
+            print("   freshest init: %s-%s" % (y, m), flush=True)
+            return y, m
+        time.sleep(3)
+    return None
 
 
 def main():
-    c = CDSDirect()
-    path = os.path.join(DATA, "systems_probe.json")
-    res = json.load(open(path)) if os.path.exists(path) else {}
-    order = [x[0] for x in CANDIDATES]
-    # keep the ones we have not confirmed yet first, but revisit them later
-    todo = [x for x in CANDIDATES if not (res.get(x[0], {}).get("snow"))]
-    for sid, name, centre, system, leads in todo:
-        d = os.path.join(MDIR, sid)
+    p = os.path.join(DATA, "models_fetched.json")
+    state = json.load(open(p)) if os.path.exists(p) else {}
+
+    for tag, name, centre, system, leads in SYSTEMS:
+        d = os.path.join(MDIR, tag)
         os.makedirs(d, exist_ok=True)
-        print("== %-16s %s:%s" % (sid, centre, system), flush=True)
-        rec = res.get(sid, {})
+        rec = state.get(tag, {})
         rec.update({"name": name, "centre": centre, "system": system,
                     "expected_leads": leads})
-        snow = rec.get("snow")
-        # --- snowfall, all lead months ---
-        got_snow = False
-        for (y, m) in INIT_TRY:
-            if os.path.exists(os.path.join(d, "snowfall_monthly_%s-%s.grib" % (y, m))):
-                snow = {"init": "%s-%s" % (y, m), "dataset": "seasonal-monthly-single-levels"}
-                got_snow = True
-                break
-            req = {"originating_centre": centre, "system": system,
-                   "variable": "snowfall", "product_type": "monthly_mean",
-                   "year": y, "month": m,
-                   "leadtime_month": [str(k) for k in range(1, leads + 1)],
-                   "data_format": "grib"}
-            out = os.path.join(d, "snowfall_monthly_%s-%s.grib" % (y, m))
-            if get(c, "seasonal-monthly-single-levels", req, out):
-                info = grib_info(out)
-                info.update({"init": "%s-%s" % (y, m),
-                             "dataset": "seasonal-monthly-single-levels"})
-                snow = info
-                got_snow = True
-                print("   snowfall OK:", info, flush=True)
-                break
-        rec["snow"] = snow
-        rec["done"] = bool(snow)
-        res[sid] = rec
-        json.dump(res, open(path, "w"), indent=1)
-        if not got_snow:
+
+        # keep the init we already have, unless we can find a fresher one
+        have = rec.get("init")
+        print("== %-16s %s:%s  (current init %s)" % (tag, centre, system, have), flush=True)
+        fresh = probe_init(centre, system)
+        if fresh is None:
+            print("   no released init found - skipping", flush=True)
+            rec["done"] = False
+            state[tag] = rec
+            json.dump(state, open(p, "w"), indent=1)
             continue
-        # --- u10 ---
-        y, m = snow["init"].split("-")
-        uout = os.path.join(d, "u10_daily.grib")
-        if not os.path.exists(uout):
-            req = {"originating_centre": centre, "system": system,
-                   "variable": "u_component_of_wind", "pressure_level": "10",
-                   "year": y, "month": m,
-                   "leadtime_hour": [str(h) for h in range(12, 24 * 210, 24)],
-                   "data_format": "grib"}
-            if get(c, "seasonal-original-pressure-levels", req, uout, tries=5):
-                u = grib_info(uout); u["init"] = snow["init"]
-                rec["u10"] = u
-                print("   u10 OK:", u, flush=True)
-        json.dump(res, open(path, "w"), indent=1)
-    ok = [k for k, v in res.items() if v.get("snow")]
-    print("confirmed with snowfall: %s" % ", ".join(ok), flush=True)
+        y, m = fresh
+        if have == "%s-%s" % (y, m) and rec.get("snow"):
+            print("   already at the freshest init", flush=True)
+            state[tag] = rec
+            json.dump(state, open(p, "w"), indent=1)
+            continue
+        init = "%s-%s" % (y, m)
+        rec["init"] = init
+        rec.pop("snow", None); rec.pop("clim", None)
+        rec.pop("u10", None); rec.pop("u10m", None)
+        for f in ("snowfall_monthly.grib", "snowfall_hindcast.grib",
+                  "u10_daily.grib", "u10_monthly.grib"):
+            fp = os.path.join(d, f)
+            if os.path.exists(fp):
+                os.remove(fp)
+
+        # 1. the forecast field
+        fg = os.path.join(d, "snowfall_monthly.grib")
+        req = {"originating_centre": centre, "system": system,
+               "variable": "snowfall", "product_type": "monthly_mean",
+               "year": y, "month": m,
+               "leadtime_month": [str(k) for k in range(1, leads + 1)],
+               "data_format": GC}
+        print("   snowfall monthly_mean %s" % init, flush=True)
+        if retrieve("seasonal-monthly-single-levels", req, fg):
+            rec["snow"] = grib_info(fg)
+            print("   OK %s" % rec["snow"], flush=True)
+        else:
+            print("   FAILED", flush=True)
+            state[tag] = rec
+            json.dump(state, open(p, "w"), indent=1)
+            continue
+
+        # 2. that model's own hindcast climate
+        cg = os.path.join(d, "snowfall_hindcast.grib")
+        req = {"originating_centre": centre, "system": system,
+               "variable": "snowfall", "product_type": "hindcast_climate_mean",
+               "year": y, "month": m,
+               "leadtime_month": [str(k) for k in range(1, leads + 1)],
+               "data_format": GC}
+        print("   snowfall hindcast_climate_mean", flush=True)
+        if retrieve("seasonal-monthly-single-levels", req, cg):
+            rec["clim"] = grib_info(cg)
+            print("   OK %s" % rec["clim"], flush=True)
+        else:
+            print("   FAILED (anomalies will be skipped for this model)", flush=True)
+
+        # 3. the 10 hPa wind: daily where available, monthly otherwise
+        ug = os.path.join(d, "u10_daily.grib")
+        req = {"originating_centre": centre, "system": system,
+               "variable": "u_component_of_wind", "pressure_level": "10",
+               "year": y, "month": m,
+               "leadtime_hour": [str(h) for h in range(12, 24 * 210, 24)],
+               "data_format": GC}
+        print("   u10 daily", flush=True)
+        if retrieve("seasonal-original-pressure-levels", req, ug, tries=2):
+            rec["u10"] = grib_info(ug)
+            print("   OK (daily) %s" % rec["u10"], flush=True)
+        else:
+            print("   daily unavailable (ECMWF-only dataset)", flush=True)
+        mg = os.path.join(d, "u10_monthly.grib")
+        req = {"originating_centre": centre, "system": system,
+               "variable": "u_component_of_wind", "pressure_level": "10",
+               "product_type": "monthly_mean", "year": y, "month": m,
+               "leadtime_month": [str(k) for k in range(1, leads + 1)],
+               "data_format": GC}
+        print("   u10 monthly_mean", flush=True)
+        if retrieve("seasonal-monthly-pressure-levels", req, mg, tries=3):
+            rec["u10m"] = grib_info(mg)
+            print("   OK %s" % rec["u10m"], flush=True)
+        else:
+            print("   FAILED", flush=True)
+
+        rec["done"] = True
+        state[tag] = rec
+        json.dump(state, open(p, "w"), indent=1)
+        time.sleep(4)
+
+    json.dump(state, open(p, "w"), indent=1)
+    print("\n=== summary ===")
+    for tag, r in state.items():
+        print("  %-16s init=%-8s snow=%-5s clim=%-5s u10m=%s"
+              % (tag, r.get("init"), bool(r.get("snow")), bool(r.get("clim")),
+                 bool(r.get("u10m"))))
 
 
 if __name__ == "__main__":

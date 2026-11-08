@@ -299,7 +299,9 @@ if(q('m') && MODELS[q('m')]) sel.value=q('m');
 function render(){
   const m=MODELS[sel.value];
   document.getElementById('mName').textContent=m.name;
-  document.getElementById('mMeta').innerHTML=m.note||'';
+  const init=m.init||'';
+  document.getElementById('mMeta').innerHTML=(m.note||'')+
+    (init?(' &middot; <strong>init '+init+'</strong>'):'');
   const vars=[];
   vars.push({
     title:'Snowfall',
