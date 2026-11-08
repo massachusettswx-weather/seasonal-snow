@@ -36,10 +36,13 @@ STATE = os.path.join(DATA, "daily_jobs.json")
 DATASET = "seasonal-original-pressure-levels"
 
 N_DAYS = 215          # 12Z daily, init day -> ~7 months (same as the ECMWF pull)
-CHUNK = 215           # days per job.  The CDS rejects a job when the dataset
-                      # queue is saturated, so we keep ONE job in flight per
-                      # centre rather than many chunks (the queue is the
-                      # scarce resource, not the job size).
+CHUNK = 72            # days per job.  A queued seasonal job is purged from the
+                      # CDS store after roughly 2.7 h without a result, and a
+                      # full 215-day pull needs ~11 min of MARS work *after* it
+                      # is picked up - so a big job can be purged before it
+                      # finishes.  72-day chunks (~700 MB, ~4 min of work)
+                      # survive that window; the chunks are merged back into
+                      # one 215-day series per centre.
 MAX_INFLIGHT = 3      # the CDS queue gate lets ~3 of our jobs sit queued at
                       # once; anything beyond that is rejected outright.
 WEDGE_S = 3 * 3600    # a job that has sat "accepted" this long without a
@@ -80,27 +83,55 @@ def live_jobs(st):
             if j.get("job") and j.get("status") in ("accepted", "running", "queued")]
 
 
-def submit(c, only=None):
-    """Queue one job per centre, up to MAX_INFLIGHT in the queue at a time.
+def chunk_list(n_days=N_DAYS, size=CHUNK):
+    """-> [[hours...], ...] the chunks a centre's 215-day run is split into."""
+    hs = daily_hours(n_days)
+    return [hs[i:i + size] for i in range(0, len(hs), size)]
 
-    The CDS queue gate rejects a job outright when too many of ours are
-    already waiting, so we refill the pool only as jobs come off the queue.
+
+def decoded_chunks(st):
+    """-> {tag: set(chunk index)} already downloaded and merged."""
+    out = {}
+    for j in st["jobs"]:
+        if j.get("status") == "decoded":
+            out.setdefault(j["tag"], set()).add(j.get("chunk", 0))
+    return out
+
+
+def submit(c, only=None):
+    """Keep up to MAX_INFLIGHT chunk jobs queued.
+
+    The CDS queue gate lets only about three of our jobs sit queued at once
+    and rejects anything beyond that outright, and a queued job is purged
+    after ~2.7 h.  So the pool is kept full of small chunks, refreshed
+    constantly, and a chunk is only re-submitted when it is not already
+    queued.
     """
     st = load_state()
-    done = {j["tag"] for j in st["jobs"] if j.get("status") == "decoded"}
+    done = decoded_chunks(st)
     live = live_jobs(st)
-    live_tags = {j["tag"] for j in live}
+    live_keys = {(j["tag"], j.get("chunk", 0)) for j in live}
     new = 0
+
+    # candidate chunks: the ones not yet downloaded and not already queued
+    cands = []
     for tag, centre, sysid, yy, mm in CENTRES:
         if only and tag not in only:
             continue
-        if tag in done or tag in live_tags:
-            continue
+        nch = len(chunk_list())
+        for k in range(nch):
+            if k in done.get(tag, ()) or (tag, k) in live_keys:
+                continue
+            # prefer centres with nothing at all, then the least complete
+            cands.append((len(done.get(tag, ())), tag, centre, sysid, yy, mm, k))
+    cands.sort()
+
+    for _, tag, centre, sysid, yy, mm, k in cands:
         if len(live) + new >= MAX_INFLIGHT:
-            print("-- %s deferred (queue pool full: %d live)" % (tag, len(live) + new),
-                  flush=True)
-            continue
-        hs = daily_hours(N_DAYS)
+            print("-- pool full (%d live) - %d chunk(s) queued behind"
+                  % (len(live) + new, len(cands)), flush=True)
+            break
+        hs = chunk_list()[k]
         req = {"originating_centre": centre, "system": sysid,
                "variable": "u_component_of_wind", "pressure_level": "10",
                "year": str(yy), "month": "%02d" % mm, "day": "01",
@@ -112,20 +143,21 @@ def submit(c, only=None):
             save_state(st)
             continue
         except NoData as e:
-            print("!! %s REJECTED at submit: %s" % (tag, str(e)[:200]), flush=True)
-            st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=0,
+            print("!! %s chunk %d REJECTED: %s" % (tag, k, str(e)[:180]), flush=True)
+            st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=k,
                                    hours=hs, job=None, status="rejected",
                                    init="%04d-%02d" % (yy, mm), note=str(e)[:300]))
             save_state(st)
             continue
-        st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=0,
+        st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=k,
                                hours=hs, job=jid, status="accepted",
                                init="%04d-%02d" % (yy, mm),
                                _t0=time.time()))
         save_state(st)
         new += 1
-        print("submitted %-16s %d steps  job %s" % (tag, len(hs), jid[:8]), flush=True)
-        time.sleep(6)
+        print("submitted %-16s chunk %d/%d  %d steps  job %s"
+              % (tag, k, len(chunk_list()), len(hs), jid[:8]), flush=True)
+        time.sleep(5)
     print("submitted %d new job(s)" % new, flush=True)
     return new
 
