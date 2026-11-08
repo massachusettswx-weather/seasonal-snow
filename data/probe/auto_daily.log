@@ -1620,3 +1620,1617 @@ submitted 0 new job(s)
   ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
   meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
 >> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 4 min
+   cmcc-sps4        waiting 4 min
+   cmcc-sps4        waiting 4 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 5 min
+   cmcc-sps4        waiting 5 min
+   cmcc-sps4        waiting 5 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 6 min
+   cmcc-sps4        waiting 6 min
+   cmcc-sps4        waiting 5 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 6 min
+   cmcc-sps4        waiting 6 min
+   cmcc-sps4        waiting 6 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 7 min
+   cmcc-sps4        waiting 7 min
+   cmcc-sps4        waiting 7 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 8 min
+   cmcc-sps4        waiting 8 min
+   cmcc-sps4        waiting 8 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 8 min
+   cmcc-sps4        waiting 8 min
+   cmcc-sps4        waiting 8 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 9 min
+   cmcc-sps4        waiting 9 min
+   cmcc-sps4        waiting 9 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 10 min
+   cmcc-sps4        waiting 10 min
+   cmcc-sps4        waiting 10 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 10 min
+   cmcc-sps4        waiting 10 min
+   cmcc-sps4        waiting 10 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 11 min
+   cmcc-sps4        waiting 11 min
+   cmcc-sps4        waiting 11 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 12 min
+   cmcc-sps4        waiting 12 min
+   cmcc-sps4        waiting 12 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 12 min
+   cmcc-sps4        waiting 12 min
+   cmcc-sps4        waiting 12 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 13 min
+   cmcc-sps4        waiting 13 min
+   cmcc-sps4        waiting 13 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 14 min
+   cmcc-sps4        waiting 14 min
+   cmcc-sps4        waiting 14 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 14 min
+   cmcc-sps4        waiting 14 min
+   cmcc-sps4        waiting 14 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 15 min
+   cmcc-sps4        waiting 15 min
+   cmcc-sps4        waiting 15 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 16 min
+   cmcc-sps4        waiting 16 min
+   cmcc-sps4        waiting 16 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 17 min
+   cmcc-sps4        waiting 16 min
+   cmcc-sps4        waiting 16 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 17 min
+   cmcc-sps4        waiting 17 min
+   cmcc-sps4        waiting 17 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 18 min
+   cmcc-sps4        waiting 18 min
+   cmcc-sps4        waiting 18 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 19 min
+   cmcc-sps4        waiting 18 min
+   cmcc-sps4        waiting 18 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 19 min
+   cmcc-sps4        waiting 19 min
+   cmcc-sps4        waiting 19 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 20 min
+   cmcc-sps4        waiting 20 min
+   cmcc-sps4        waiting 20 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 21 min
+   cmcc-sps4        waiting 20 min
+   cmcc-sps4        waiting 20 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 21 min
+   cmcc-sps4        waiting 21 min
+   cmcc-sps4        waiting 21 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 22 min
+   cmcc-sps4        waiting 22 min
+   cmcc-sps4        waiting 22 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 23 min
+   cmcc-sps4        waiting 22 min
+   cmcc-sps4        waiting 22 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 23 min
+   cmcc-sps4        waiting 23 min
+   cmcc-sps4        waiting 23 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 24 min
+   cmcc-sps4        waiting 24 min
+   cmcc-sps4        waiting 24 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 25 min
+   cmcc-sps4        waiting 24 min
+   cmcc-sps4        waiting 24 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 25 min
+   cmcc-sps4        waiting 25 min
+   cmcc-sps4        waiting 25 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 26 min
+   cmcc-sps4        waiting 26 min
+   cmcc-sps4        waiting 26 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 27 min
+   cmcc-sps4        waiting 27 min
+   cmcc-sps4        waiting 26 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 27 min
+   cmcc-sps4        waiting 27 min
+   cmcc-sps4        waiting 27 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 28 min
+   cmcc-sps4        waiting 28 min
+   cmcc-sps4        waiting 28 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 29 min
+   cmcc-sps4        waiting 29 min
+   cmcc-sps4        waiting 29 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 29 min
+   cmcc-sps4        waiting 29 min
+   cmcc-sps4        waiting 29 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 30 min
+   cmcc-sps4        waiting 30 min
+   cmcc-sps4        waiting 30 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 31 min
+   cmcc-sps4        waiting 31 min
+   cmcc-sps4        waiting 31 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 31 min
+   cmcc-sps4        waiting 31 min
+   cmcc-sps4        waiting 31 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 32 min
+   cmcc-sps4        waiting 32 min
+   cmcc-sps4        waiting 32 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 33 min
+   cmcc-sps4        waiting 33 min
+   cmcc-sps4        waiting 33 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 33 min
+   cmcc-sps4        waiting 33 min
+   cmcc-sps4        waiting 33 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 34 min
+   cmcc-sps4        waiting 34 min
+   cmcc-sps4        waiting 34 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 35 min
+   cmcc-sps4        waiting 35 min
+   cmcc-sps4        waiting 35 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 35 min
+   cmcc-sps4        waiting 35 min
+   cmcc-sps4        waiting 35 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 36 min
+   cmcc-sps4        waiting 36 min
+   cmcc-sps4        waiting 36 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 37 min
+   cmcc-sps4        waiting 37 min
+   cmcc-sps4        waiting 37 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 37 min
+   cmcc-sps4        waiting 37 min
+   cmcc-sps4        waiting 37 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 38 min
+   cmcc-sps4        waiting 38 min
+   cmcc-sps4        waiting 38 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 39 min
+   cmcc-sps4        waiting 39 min
+   cmcc-sps4        waiting 39 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 40 min
+   cmcc-sps4        waiting 39 min
+   cmcc-sps4        waiting 39 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 40 min
+   cmcc-sps4        waiting 40 min
+   cmcc-sps4        waiting 40 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 41 min
+   cmcc-sps4        waiting 41 min
+   cmcc-sps4        waiting 41 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 42 min
+   cmcc-sps4        waiting 41 min
+   cmcc-sps4        waiting 41 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 42 min
+   cmcc-sps4        waiting 42 min
+   cmcc-sps4        waiting 42 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 54 min
+   cmcc-sps4        waiting 54 min
+   cmcc-sps4        waiting 54 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 55 min
+   cmcc-sps4        waiting 55 min
+   cmcc-sps4        waiting 55 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 56 min
+   cmcc-sps4        waiting 56 min
+   cmcc-sps4        waiting 55 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 56 min
+   cmcc-sps4        waiting 56 min
+   cmcc-sps4        waiting 56 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 57 min
+   cmcc-sps4        waiting 57 min
+   cmcc-sps4        waiting 57 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 58 min
+   cmcc-sps4        waiting 58 min
+   cmcc-sps4        waiting 58 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 58 min
+   cmcc-sps4        waiting 58 min
+   cmcc-sps4        waiting 58 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 59 min
+   cmcc-sps4        waiting 59 min
+   cmcc-sps4        waiting 59 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 60 min
+   cmcc-sps4        waiting 60 min
+   cmcc-sps4        waiting 60 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 60 min
+   cmcc-sps4        waiting 60 min
+   cmcc-sps4        waiting 60 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 61 min
+   cmcc-sps4        waiting 61 min
+   cmcc-sps4        waiting 61 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 62 min
+   cmcc-sps4        waiting 62 min
+   cmcc-sps4        waiting 62 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 62 min
+   cmcc-sps4        waiting 62 min
+   cmcc-sps4        waiting 62 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 63 min
+   cmcc-sps4        waiting 63 min
+   cmcc-sps4        waiting 63 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 64 min
+   cmcc-sps4        waiting 64 min
+   cmcc-sps4        waiting 64 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 64 min
+   cmcc-sps4        waiting 64 min
+   cmcc-sps4        waiting 64 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 65 min
+   cmcc-sps4        waiting 65 min
+   cmcc-sps4        waiting 65 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 66 min
+   cmcc-sps4        waiting 66 min
+   cmcc-sps4        waiting 66 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 66 min
+   cmcc-sps4        waiting 66 min
+   cmcc-sps4        waiting 66 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 67 min
+   cmcc-sps4        waiting 67 min
+   cmcc-sps4        waiting 67 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 68 min
+   cmcc-sps4        waiting 68 min
+   cmcc-sps4        waiting 68 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 68 min
+   cmcc-sps4        waiting 68 min
+   cmcc-sps4        waiting 68 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 69 min
+   cmcc-sps4        waiting 69 min
+   cmcc-sps4        waiting 69 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 70 min
+   cmcc-sps4        waiting 70 min
+   cmcc-sps4        waiting 70 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 70 min
+   cmcc-sps4        waiting 70 min
+   cmcc-sps4        waiting 70 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 71 min
+   cmcc-sps4        waiting 71 min
+   cmcc-sps4        waiting 71 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 72 min
+   cmcc-sps4        waiting 72 min
+   cmcc-sps4        waiting 72 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 73 min
+   cmcc-sps4        waiting 72 min
+   cmcc-sps4        waiting 72 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 73 min
+   cmcc-sps4        waiting 73 min
+   cmcc-sps4        waiting 73 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 74 min
+   cmcc-sps4        waiting 74 min
+   cmcc-sps4        waiting 74 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 75 min
+   cmcc-sps4        waiting 74 min
+   cmcc-sps4        waiting 74 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 75 min
+   cmcc-sps4        waiting 75 min
+   cmcc-sps4        waiting 75 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 76 min
+   cmcc-sps4        waiting 76 min
+   cmcc-sps4        waiting 76 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 77 min
+   cmcc-sps4        waiting 77 min
+   cmcc-sps4        waiting 76 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 77 min
+   cmcc-sps4        waiting 77 min
+   cmcc-sps4        waiting 77 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 78 min
+   cmcc-sps4        waiting 78 min
+   cmcc-sps4        waiting 78 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 79 min
+   cmcc-sps4        waiting 79 min
+   cmcc-sps4        waiting 78 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 79 min
+   cmcc-sps4        waiting 79 min
+   cmcc-sps4        waiting 79 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 80 min
+   cmcc-sps4        waiting 80 min
+   cmcc-sps4        waiting 80 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 81 min
+   cmcc-sps4        waiting 81 min
+   cmcc-sps4        waiting 80 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 81 min
+   cmcc-sps4        waiting 81 min
+   cmcc-sps4        waiting 81 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 82 min
+   cmcc-sps4        waiting 82 min
+   cmcc-sps4        waiting 82 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 83 min
+   cmcc-sps4        waiting 83 min
+   cmcc-sps4        waiting 82 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 83 min
+   cmcc-sps4        waiting 83 min
+   cmcc-sps4        waiting 83 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 84 min
+   cmcc-sps4        waiting 84 min
+   cmcc-sps4        waiting 84 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 85 min
+   cmcc-sps4        waiting 85 min
+   cmcc-sps4        waiting 85 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 85 min
+   cmcc-sps4        waiting 85 min
+   cmcc-sps4        waiting 85 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 86 min
+   cmcc-sps4        waiting 86 min
+   cmcc-sps4        waiting 86 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 87 min
+   cmcc-sps4        waiting 87 min
+   cmcc-sps4        waiting 87 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 87 min
+   cmcc-sps4        waiting 87 min
+   cmcc-sps4        waiting 87 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 105 min
+   cmcc-sps4        waiting 105 min
+   cmcc-sps4        waiting 105 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 106 min
+   cmcc-sps4        waiting 106 min
+   cmcc-sps4        waiting 105 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 106 min
+   cmcc-sps4        waiting 106 min
+   cmcc-sps4        waiting 106 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 107 min
+   cmcc-sps4        waiting 107 min
+   cmcc-sps4        waiting 107 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 108 min
+   cmcc-sps4        waiting 108 min
+   cmcc-sps4        waiting 107 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 108 min
+   cmcc-sps4        waiting 108 min
+   cmcc-sps4        waiting 108 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 109 min
+   cmcc-sps4        waiting 109 min
+   cmcc-sps4        waiting 109 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 110 min
+   cmcc-sps4        waiting 110 min
+   cmcc-sps4        waiting 109 min
+
+--- per-centre daily status
+  cmcc-sps4        chunks 0/3 done, 3 pending, 0 failed
+  dwd-gcfs2        chunks 0/0 done, 0 pending, 0 failed
+  eccc-canesm5     chunks 0/0 done, 0 pending, 0 failed
+  eccc-gem5        chunks 0/0 done, 0 pending, 0 failed
+  ukmo-gloseas6    chunks 0/0 done, 0 pending, 0 failed
+  meteo-france-s9  chunks 0/0 done, 0 pending, 0 failed
+>> still missing: cmcc-sps4, dwd-gcfs2, eccc-canesm5, eccc-gem5, ukmo-gloseas6, meteo-france-s9
+-- pool full (3 live) - 15 chunk(s) queued behind
+submitted 0 new job(s)
+   cmcc-sps4        waiting 110 min
+   cmcc-sps4        waiting 110 min
