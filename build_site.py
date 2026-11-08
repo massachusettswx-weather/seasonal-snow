@@ -38,11 +38,11 @@ def load_registry():
         m["snow_ok"] = False
         m["spv_ok"] = False
         for fr in m.get("frames", []):
-            if os.path.exists(os.path.join(SITE, fr["file"])):
+            if os.path.exists(os.path.join(SITE, fr["file"].split("?")[0])):
                 fr["ok"] = True
                 m["snow_ok"] = True
         for dom, info in m.get("spv", {}).items():
-            if os.path.exists(os.path.join(SITE, info["file"])):
+            if os.path.exists(os.path.join(SITE, info["file"].split("?")[0])):
                 info["ok"] = True
                 m["spv_ok"] = True
     return reg
@@ -202,14 +202,18 @@ def footer():
 </footer>"""
 
 
-def page(title, active, body):
+VER = ""
+
+
+def page(title, active, body, version=""):
+    v = ("?v=%s" % version) if version else ""
     return """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>%s &middot; Seasonal Forecast Graphics</title>
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css%s">
 </head>
 <body>
 %s
@@ -217,7 +221,7 @@ def page(title, active, body):
 %s
 </div>
 </body>
-</html>""" % (title, header(active), body)
+</html>""" % (title, v, header(active), body)
 
 
 # --------------------------------------------------------------------------
@@ -259,7 +263,7 @@ def build_home(reg):
   the 1959&ndash;2020 record bounds and the model's own climate mean where
   one could be built.</p>
 </div>""" % ("".join(cards) or "<p>No models registered yet.</p>")
-    open(os.path.join(SITE, "index.html"), "w").write(page("Home", "index.html", body))
+    open(os.path.join(SITE, "index.html"), "w").write(page("Home", "index.html", body, VER))
 
 
 def build_model_page(reg):
@@ -333,7 +337,7 @@ sel.addEventListener('change',render);
 render();
 </script>"""
     body += js.replace("__MODELS__", json.dumps(public_map(reg)))
-    open(os.path.join(SITE, "model.html"), "w").write(page("Model", "model.html", body))
+    open(os.path.join(SITE, "model.html"), "w").write(page("Model", "model.html", body, VER))
 
 
 def build_snow(reg):
@@ -444,7 +448,7 @@ document.addEventListener('keydown',e=>{
 renderAll();
 </script>"""
     body += js.replace("__MODELS__", json.dumps(public_map(reg)))
-    open(os.path.join(SITE, "snow.html"), "w").write(page("Snowfall", "snow.html", body))
+    open(os.path.join(SITE, "snow.html"), "w").write(page("Snowfall", "snow.html", body, VER))
 
 
 def build_spv(reg):
@@ -505,7 +509,7 @@ sel.addEventListener('change',render); dom.addEventListener('change',render);
 render();
 </script>"""
     body += js.replace("__MODELS__", json.dumps(public_map(reg)))
-    open(os.path.join(SITE, "spv.html"), "w").write(page("Zonal Wind", "spv.html", body))
+    open(os.path.join(SITE, "spv.html"), "w").write(page("Zonal Wind", "spv.html", body, VER))
 
 
 def main():
@@ -513,6 +517,8 @@ def main():
     os.makedirs(DATA, exist_ok=True)
     write_css()
     reg = load_registry()
+    global VER
+    VER = reg.get("version", "")
     build_home(reg)
     build_model_page(reg)
     build_snow(reg)

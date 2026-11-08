@@ -6,7 +6,7 @@ into docs/assets/, and writes the registry the site reads.
 
 Run after any re-render:  python3 build_registry.py
 """
-import os, re, json, shutil
+import os, re, json, shutil, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "output")
@@ -167,6 +167,25 @@ def main():
             if "tbl" in d:
                 info["table"] = json.load(open(os.path.join(OUT, d["tbl"])))
             entry["spv"]["60" if dom == "60N" else "NH"] = info
+
+    # Cache-bust every asset URL.  GitHub Pages serves the PNGs with a long
+    # cache lifetime, so without a version query the browser keeps showing the
+    # previous build even though the files on the server have changed.
+    version = time.strftime("%Y%m%d%H%M%S")
+    reg["version"] = version
+
+    def bust(node):
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k == "file" and isinstance(v, str) and "?" not in v:
+                    node[k] = "%s?v=%s" % (v, version)
+                else:
+                    bust(v)
+        elif isinstance(node, list):
+            for it in node:
+                bust(it)
+
+    bust(reg["models"])
 
     json.dump(reg, open(os.path.join(DATA, "models.json"), "w"), indent=1)
 
