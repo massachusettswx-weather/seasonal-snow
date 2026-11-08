@@ -75,9 +75,16 @@ def read_u10(path):
     return by_date
 
 
-def month_table(times, ens, era):
-    """Lead-month means: model ensemble mean vs the ERA5 climatology over the
-    SAME days, so a partially covered lead month compares like with like."""
+def month_table(times, ens, era, same_days=False):
+    """Lead-month means: model ensemble mean vs the ERA5 climatology.
+
+    same_days=True  - the model has a value for every day, so compare against
+                      the ERA5 mean over exactly those days.
+    same_days=False - the model's value for a lead month is the whole-month
+                      mean, so it must be compared against the full calendar
+                      month of ERA5, not the days that happen to be in the
+                      clipped window.
+    """
     emap = {t.date(): v for t, v in zip(era["t"], era["mean"])}
     buckets = collections.defaultdict(list)
     ebuck = collections.defaultdict(list)
@@ -88,6 +95,12 @@ def month_table(times, ens, era):
     rows = []
     for key in sorted(buckets):
         ev = ebuck.get(key)
+        if not same_days:
+            # full calendar month of ERA5
+            yy, mm = key
+            sel = [v for t, v in zip(era["t"], era["mean"])
+                   if t.year == yy and t.month == mm]
+            ev = sel or None
         rows.append(["%s %d" % (MONTHS[key[1] - 1], key[0]),
                      "%.1f" % float(np.nanmean(buckets[key])),
                      "%.1f" % (float(np.nanmean(ev)) if ev else float("nan"))])
@@ -110,7 +123,7 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
                           "1991–2020" % name,
                    title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"
                          % (name, label))
-        json.dump(month_table(times, np.nanmean(mat, axis=0), era),
+        json.dump(month_table(times, np.nanmean(mat, axis=0), era, same_days=True),
                   open(os.path.join(OUT, "SPV_%s_%s_table.json" % (tag, key)), "w"),
                   indent=1)
         print("wrote %s  (daily, %d members, %d days)" % (fn, mat.shape[0], len(times)))
@@ -149,7 +162,7 @@ def build_ecmwf_daily(name, init):
                           "1991–2020 · lead month 7 model climate reconstructed from "
                           "the model's own past runs",
                    title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)" % (name, label))
-        json.dump(month_table(times, np.nanmean(mem, axis=0), era),
+        json.dump(month_table(times, np.nanmean(mem, axis=0), era, same_days=True),
                   open(os.path.join(OUT, "SPV_ecmwf-seas5_%s_table.json" % key), "w"),
                   indent=1)
         print("wrote %s (daily, %d members)" % (fn, mem.shape[0]))
