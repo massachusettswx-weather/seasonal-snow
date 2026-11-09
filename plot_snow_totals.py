@@ -35,6 +35,9 @@ def wm_colormap():
     d = json.load(open(os.path.join(DATA, "weathermodels_scale.json")))
     levels = np.array(d["levels"], dtype=float)[::-1]
     colors = list(d["colors"])[::-1]
+    # "no snow" must read as white: the bottom of the ramp is white so a
+    # trace of snowfall does not paint the map purple
+    colors = ["#ffffff"] + list(colors[1:])
     cmap = ListedColormap(colors, name="weathermodels")
     return cmap, levels
 
@@ -115,6 +118,10 @@ def draw(fname, title, subtitle, field, X, Y, states, provs, countries, proj,
                       edgecolors="face", linewidth=0.5)
     norm = BoundaryNorm(levels, cmap.N, clip=True)
     fl = np.ma.masked_where(~in_us, field) if in_us is not None else field
+    if in_us is not None:
+        # no snowfall = white
+        fl = np.ma.masked_where(fl < float(levels[0]), fl)
+    cmap = cmap.copy(); cmap.set_bad("white")
     pc = ax.pcolormesh(X, Y, fl, cmap=cmap, norm=norm, shading="nearest",
                        rasterized=True, zorder=2, edgecolors="face", linewidth=0.3)
     frame(ax, X, Y, states, provs, countries, proj)

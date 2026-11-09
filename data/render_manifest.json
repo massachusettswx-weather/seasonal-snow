@@ -574,5 +574,101 @@
  "SNOW_UKMO-GLOSEAS6_March2027_anom_in_we.png": {
   "label": "March 2027",
   "lead": 6
+ },
+ "snow_sfsv1_month01_in.png": {
+  "label": "November 2026",
+  "lead": 1
+ },
+ "snow_sfsv1_month02_in.png": {
+  "label": "December 2026",
+  "lead": 2
+ },
+ "snow_sfsv1_month03_in.png": {
+  "label": "January 2027",
+  "lead": 3
+ },
+ "snow_sfsv1_month04_in.png": {
+  "label": "February 2027",
+  "lead": 4
+ },
+ "snow_sfsv1_month05_in.png": {
+  "label": "March 2027",
+  "lead": 5
+ },
+ "snow_sfsv1_month06_in.png": {
+  "label": "April 2027",
+  "lead": 6
+ },
+ "snow_sfsv1_month07_in.png": {
+  "label": "May 2027",
+  "lead": 7
+ },
+ "snow_sfsv1_month08_in.png": {
+  "label": "June 2027",
+  "lead": 8
+ },
+ "snow_sfsv1_month09_in.png": {
+  "label": "July 2027",
+  "lead": 9
+ },
+ "snow_sfsv1_month10_in.png": {
+  "label": "August 2027",
+  "lead": 10
+ },
+ "snow_sfsv1_month11_in.png": {
+  "label": "September 2027",
+  "lead": 11
+ },
+ "snow_sfsv1_month12_in.png": {
+  "label": "October 2027",
+  "lead": 12
+ },
+ "SNOW_SFSV1_November2026_anom_in.png": {
+  "label": "November 2026",
+  "lead": 1
+ },
+ "SNOW_SFSV1_December2026_anom_in.png": {
+  "label": "December 2026",
+  "lead": 2
+ },
+ "SNOW_SFSV1_January2027_anom_in.png": {
+  "label": "January 2027",
+  "lead": 3
+ },
+ "SNOW_SFSV1_February2027_anom_in.png": {
+  "label": "February 2027",
+  "lead": 4
+ },
+ "SNOW_SFSV1_March2027_anom_in.png": {
+  "label": "March 2027",
+  "lead": 5
+ },
+ "SNOW_SFSV1_April2027_anom_in.png": {
+  "label": "April 2027",
+  "lead": 6
+ },
+ "SNOW_SFSV1_May2027_anom_in.png": {
+  "label": "May 2027",
+  "lead": 7
+ },
+ "SNOW_SFSV1_June2027_anom_in.png": {
+  "label": "June 2027",
+  "lead": 8
+ },
+ "SNOW_SFSV1_July2027_anom_in.png": {
+  "label": "July 2027",
+  "lead": 9
+ },
+ "SNOW_SFSV1_August2027_anom_in.png": {
+  "label": "August 2027",
+  "lead": 10
+ },
+ "SNOW_SFSV1_September2027_anom_in.png": {
+  "label": "September 2027",
+  "lead": 11
+ },
+ "SNOW_SFSV1_October2027_anom_in.png": {
+  "label": "October 2027",
+  "lead": 12
  }
 }

@@ -1,0 +1,7 @@
+{
+ "ncep:1": {
+  "init": "2026-10",
+  "result": "failed",
+  "detail": "{\"results\": {\"type\": \"job results failed\", \"title\": \"The job has failed\", \"status\": 400, \"trace_id\": \"85c3a9fd-ef76-45c1-843a-9e2ea86d6e8b\", \"traceback\": \"MARS returned no data, please check your selection.Request submitted to the MARS server:\\n[{'class': ['c3'], 'database': 'ecmwf', 'date': ['2026-"
+ }
+}

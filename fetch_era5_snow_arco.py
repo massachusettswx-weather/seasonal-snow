@@ -105,6 +105,7 @@ def main():
 
     # month-by-month accumulation (both variables together, chunks are cached)
     accum = {mo: [] for mo in months}
+    accum_p = {mo: [] for mo in months}
     cache_p = {}
     cache_t = {}
     for y in range(args.start, args.end + 1):
@@ -119,22 +120,27 @@ def main():
                 if k not in cache_t:
                     cache_t[k] = fetch_chunk("2m_temperature", k, not args.no_cache)[1]
             total = np.zeros((len(oi), len(li)))
+            totp = np.zeros((len(oi), len(li)))
             for d in range(1, nd + 1):
                 day = datetime.date(y, mo, d)
                 k = step_index(day) // NCHUNK_STEPS
                 off = step_index(day) - k * NCHUNK_STEPS
                 p = cache_p[k][off]                    # (nlon, nlat) 24h precip at 00Z
+                totp = totp + p[np.ix_(oi, li)]
                 temps = cache_t[k][off:off + 4]        # 00/06/12/18Z 2 m temperature
                 frac = (temps < T0).sum(axis=0) / 4.0
                 total += (p * frac)[np.ix_(oi, li)]
             accum[mo].append(total * 1000.0)          # m -> mm w.e.
+            accum_p[mo].append(totp * 1000.0)         # m -> mm of total precip
             for k in ks:
                 cache_p.pop(k, None); cache_t.pop(k, None)
         print("  %d done" % y, flush=True)
 
     clim = np.stack([np.mean(np.array(accum[mo]), axis=0) for mo in months])
+    clim_p = np.stack([np.mean(np.array(accum_p[mo]), axis=0) for mo in months])
     clim = np.transpose(clim, (0, 2, 1))                                       # (6, nlat, nlon)
     np.savez_compressed(out_npz, clim=clim.astype(np.float32),
+                        clim_precip=np.transpose(clim_p, (0, 2, 1)).astype(np.float32),
                         lat=lat[li], lon=lon[oi],
                         months=np.array(months), years=np.array([args.start, args.end]))
     print("saved", out_npz, clim.shape)

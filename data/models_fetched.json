@@ -286,5 +286,12 @@
   },
   "done": true,
   "members": 50
+ },
+ "sfsv1": {
+  "name": "NOAA SFSv1 (SFS Beta beta3)",
+  "init": "2026-11",
+  "members": 31,
+  "source": "NOAA NODD",
+  "leads": 12
  }
 }

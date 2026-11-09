@@ -105,6 +105,7 @@ def panel_scale(hi, lo=0.02):
     idx = np.clip(np.round(np.linspace(0, n - 1, len(levels))).astype(int),
                   0, n - 1)
     colors = [ref_colors[i] for i in idx]
+    colors[0] = "#ffffff"          # 0 of snow is white
     return levels, colors
 
 
@@ -162,9 +163,30 @@ def latlon_to_ij(lat, lon, lats, lons):
     return i, j
 
 
+def read_any(path):
+    """GRIB or npz -> list of (step, (year, month), lat, lon, values).
+
+    The NOAA systems do not come through the C3S archive, so their fields are
+    stored as .npz in exactly the same convention (a rate in m w.e. s-1, the
+    latitudes descending) instead of as GRIB.
+    """
+    if path.endswith(".npz"):
+        d = np.load(path, allow_pickle=True)
+        months = [tuple(int(x) for x in str(m).split("-")) for m in d["months"]]
+        lat = np.asarray(d["lat"], float)
+        lon = np.asarray(d["lon"], float)
+        vals = np.asarray(d["values"], float)
+        out = []
+        for i, ym in enumerate(months):
+            for j in range(vals.shape[0]):
+                out.append((0, ym, lat, lon, vals[j, i].ravel()))
+        return out
+    return read_grib(path)
+
+
 def read_snowfall(path):
     """-> dict (year, month) -> list of (lat, lon, values) records."""
-    recs = read_grib(path)
+    recs = read_any(path)
     if not recs:
         return None
     out = {}
@@ -228,7 +250,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--unit", default="snow", choices=["snow", "we"],
                     help="snow = inches of snow depth (10:1), we = water equivalent")
+    ap.add_argument("--only", default="", help="comma separated model tags")
     args = ap.parse_args()
+    only = [x for x in args.only.split(",") if x]
     UNIT = args.unit
     print("unit: %s (%s)" % (UNIT, unit_label()), flush=True)
     os.makedirs(OUT, exist_ok=True)
@@ -268,9 +292,15 @@ def main():
     anorm = BoundaryNorm(ANOM_LEVELS * unit_mult(), acmap.N, clip=True)
 
     for tag, meta in sorted(state.items()):
+        if only and tag not in only:
+            continue
         d = os.path.join(MDIR, tag)
         fg = os.path.join(d, "snowfall_monthly.grib")
         cg = os.path.join(d, "snowfall_hindcast.grib")
+        if not os.path.exists(fg):          # the NOAA systems arrive as npz
+            fg = os.path.join(d, "snowfall_monthly.npz")
+        if not os.path.exists(cg):
+            cg = os.path.join(d, "snowfall_hindcast.npz")
         if not os.path.exists(fg):
             print("skip %s (no snowfall)" % tag)
             continue
@@ -286,7 +316,7 @@ def main():
         lats, lons, order = grid_axes(by_step[yms[0]][0])
         clim = {}
         if os.path.exists(cg):
-            for step, ym, la0, lo0, v in read_grib(cg):
+            for step, ym, la0, lo0, v in read_any(cg):
                 clim.setdefault(ym, []).append((la0, lo0, v))
 
         # ensemble mean per lead month, in inches
@@ -336,7 +366,8 @@ def main():
                                                  window, len(yms), unit_label()),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
-                 "Accumulated snowfall (%s)" % unit_label())
+                 "Accumulated snowfall (%s)" % unit_label(),
+                 white_below=float(wm_levels[0]))
         for k, lab in enumerate(labels):
             mf = "snow_%s_month%02d_in%s.png" % (tag, k + 1, unit_suffix())
             manifest[mf] = {"label": lab, "lead": k + 1}
@@ -357,7 +388,8 @@ def main():
                                unit_label(), cnote),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
-                     "Accumulated snowfall (%s)" % unit_label())
+                     "Accumulated snowfall (%s)" % unit_label(),
+                     white_below=float(lv[0]))
         for (m, y, lead, a) in anoms:
             af = "SNOW_%s_%s%d_anom_in%s.png" % (tag.upper(), MONTH_NAMES[m - 1], y, unit_suffix())
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
@@ -387,7 +419,7 @@ def main():
 
 
 def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
-             countries, cmap, norm, levels, cbar_label):
+             countries, cmap, norm, levels, cbar_label, white_below=None):
     plt.rcParams.update({"font.family": "DejaVu Sans"})
     xr = float(X.max() - X.min()); yr = float(Y.max() - Y.min())
     fig_w = 13.2
@@ -402,6 +434,10 @@ def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
     ax.pcolormesh(X, Y, relief, shading="nearest", rasterized=True, zorder=1,
                   edgecolors="face", linewidth=0.5)
     fl = np.ma.masked_where(~in_us, field)
+    if white_below is not None:
+        # no snowfall = white, so only real accumulation takes a colour
+        fl = np.ma.masked_where(fl < white_below, fl)
+    cmap = cmap.copy(); cmap.set_bad("white")
     pc = ax.pcolormesh(X, Y, fl, cmap=cmap, norm=norm, shading="nearest",
                        rasterized=True, zorder=2, edgecolors="face", linewidth=0.3)
 
