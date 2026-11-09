@@ -28,7 +28,8 @@ OUT = os.path.join(HERE, "output")
 GRID = 0.05
 
 
-SNOW_SAT_K = 1.35   # the user's colour bar is pastel; this is the boldness factor
+SNOW_SAT_K = 1.35   # the user's colour bar is pastel (mean sat 0.31); 1.7 read as
+                    # over-saturated, 1.35 is the settled value
 
 
 def boost_saturation(colors, k=None):
