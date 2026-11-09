@@ -46,11 +46,12 @@ MODELS = {
                         "(an approximation \u2014 CPC publishes the anomaly only). "
                         "NOAA publishes no 10 hPa winds, so this model has snowfall "
                         "panels only \u2014 no zonal-wind panel."),
-    "sfsv1":           ("NOAA SFSv1 (SFS Beta)",
-                        "NOAA Seasonal Forecast System v1 (SFS Beta beta3) \u00b7 31-member "
-                        "ensemble \u00b7 12-month run \u00b7 init 1 Nov 2026 \u00b7 read "
-                        "directly from NOAA. NOAA publishes no 10 hPa winds, so this "
-                        "model has snowfall panels only \u2014 no zonal-wind panel."),
+    "sfsv1":           ("NOAA SFSv1",
+                        "Experimental \u00b7 NOAA Seasonal Forecast System v1 \u00b7 31-member "
+                        "ensemble \u00b7 0.5\u00b0 grid \u00b7 init 1 Nov 2026 \u00b7 read "
+                        "directly from NOAA. SFSv1 is a pre-operational prototype, so its "
+                        "panels are marked Experimental. NOAA publishes no 10 hPa winds, "
+                        "so this model has snowfall panels only \u2014 no zonal-wind panel."),
 }
 
 # the month label for each rendered file, written by plot_snow_models.py

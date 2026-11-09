@@ -288,11 +288,12 @@
   "members": 50
  },
  "sfsv1": {
-  "name": "NOAA SFSv1 (SFS Beta beta3)",
+  "name": "NOAA SFSv1",
   "init": "2026-11",
   "members": 31,
-  "source": "NOAA NODD",
-  "leads": 12
+  "leads": 12,
+  "experimental": true,
+  "source": "NOAA NODD"
  },
  "cfsv2": {
   "name": "NOAA CFSv2",

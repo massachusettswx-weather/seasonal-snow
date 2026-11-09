@@ -24,13 +24,18 @@ from plot_snow_ref import (load_geo, load_lakes, inside, project, project_path, 
                            MONTH_NAMES, LON0, LON1, LAT0, LAT1, PLATE_COS,
                            hillshade)
 from plot_snow_totals import (bilinear, month_len, wm_colormap, GRID)
+
+# The snowfall panels stop here, whatever the model itself runs to: every
+# model's snowfall season is shown over the same window, ending 01 July 2027.
+from datetime import date, timedelta
+SNOW_END = date(2027, 7, 1)
 import plot_snow_ref as PSR
 
 DATA = os.path.join(HERE, "data")
 
 # Units.
 #   "snow" - inches of SNOW DEPTH, using the standard 10:1 snow-to-water
-#            ratio.  This is the unit the weathermodels colourbar (0-300 in)
+#            ratio.  This is the unit the 0-300 in snow-depth colour bar is
 #            is built for: a 6-month total of 26.7 in w.e. is 267 in of snow,
 #            which lands at 89% of that bar, whereas the water equivalent
 #            itself sits in the bottom 9% and looks far too low.
@@ -44,7 +49,7 @@ def unit_mult():
 
 
 def unit_label():
-    # the weathermodels reference calls this product
+    # the snow-depth product is labelled this way
     # "Total Snowfall [Liquid Equiv x 10:1 inch]" - use its wording
     return "liquid equiv x 10:1 (in)" if UNIT == "snow" else "liquid equiv (in)"
 
@@ -74,7 +79,7 @@ def _nice_ceil(v):
 def panel_scale(hi, lo=0.02):
     """Log ladder + colour list fitted to one panel's own range.
 
-    The reference weathermodels ladder spans 0.01-300 in, which is right for
+    The snow-depth ladder spans 0.01-300 in, which is right for
     a six-month total but leaves a single month crammed into its bottom three
     bins (a monthly maximum of ~5 in lands under the '1 in' tick, so the map
     looks empty and cannot be compared with the total).  This stretches the
@@ -84,7 +89,7 @@ def panel_scale(hi, lo=0.02):
     colourbar ticks stay readable, and the colours are the reference ramp
     resampled evenly over those levels so the panel keeps the same palette.
     """
-    d = json.load(open(os.path.join(DATA, "weathermodels_scale.json")))
+    d = json.load(open(os.path.join(DATA, "snow_depth_scale.json")))
     ref = np.array(d["levels"], dtype=float)[::-1]      # ascending
     ref_colors = list(d["colors"])[::-1]                # ascending with it
     n = len(ref)
@@ -193,6 +198,24 @@ def read_snowfall(path):
     for step, ym, la, lo, v in recs:
         out.setdefault(ym, []).append((la, lo, v.astype(float)))
     return out
+
+
+def grid_res(lats, lons):
+    """The grid resolution of the field being plotted, in degrees."""
+    def f(v):
+        v = abs(float(v))
+        return ("%g" % round(v, 3)) + "\u00b0"
+    dy = abs(lats[1] - lats[0]) if len(lats) > 1 else 0.0
+    dx = abs(lons[1] - lons[0]) if len(lons) > 1 else 0.0
+    if dx == 0 or dy == 0:
+        return ""
+    return "%s \u00d7 %s" % (f(dx), f(dy))
+
+
+def month_end(ym):
+    import calendar
+    y, m = ym
+    return date(y, m, calendar.monthrange(y, m)[1])
 
 
 def grid_axes(rec):
@@ -312,8 +335,12 @@ def main():
         if not by_step:
             print("skip %s (unreadable grib)" % tag)
             continue
-        yms = sorted(by_step)
+        yms = [ym for ym in sorted(by_step) if month_end(ym) < SNOW_END]
+        if not yms:
+            print("skip %s (nothing before %s)" % (tag, SNOW_END))
+            continue
         lats, lons, order = grid_axes(by_step[yms[0]][0])
+        res = grid_res(lats, lons)
         clim = {}
         if os.path.exists(cg):
             for step, ym, la0, lo0, v in read_any(cg):
@@ -355,15 +382,22 @@ def main():
         # month -> last day of the last lead month
         y0, m0 = yms[0]
         y1, m1 = yms[-1]
-        import calendar
-        dlast = calendar.monthrange(y1, m1)[1]
-        window = "%d %s %d – %d %s %d" % (1, MONTH_NAMES[m0 - 1], y0,
-                                          dlast, MONTH_NAMES[m1 - 1], y1)
+        # the run covers the init day up to the end of the last lead month,
+        # and never past the hard 01 July 2027 end
+        end_date = min(SNOW_END, month_end((y1, m1)) + timedelta(days=1))
+        init_date = date(iy, im, 1)
+        window = "%d %s %d to %d %s %d" % (init_date.day, MONTH_NAMES[im - 1], iy,
+                                          end_date.day, MONTH_NAMES[end_date.month - 1],
+                                          end_date.year)
+        title_prefix = "Exper " if meta.get("experimental") else ""
+        dstr = "%02d/%02d/%04d" % (init_date.month, init_date.day, init_date.year)
+        estr = "%02d/%02d/%04d" % (end_date.month, end_date.day, end_date.year)
+        resnote = (" · %s grid" % res) if res else ""
         draw_map(os.path.join(OUT, "snow_%s_total_run_in%s.png" % (tag, unit_suffix())),
-                 "%s  Snowfall Total — Init to End of Run" % name,
-                 "Init %s · %d-member ensemble mean · accumulated %s (%d lead months) · "
+                 "%s%s  Snowfall Total — %s to %s" % (title_prefix, name, dstr, estr),
+                 "Init %s · %d-member ensemble mean%s · accumulated %s (%d lead months) · "
                  "%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
-                         window, len(yms), unit_label()),
+                         resnote, window, len(yms), unit_label()),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                  "Accumulated snowfall (%s)" % unit_label(),
@@ -373,7 +407,7 @@ def main():
             manifest[mf] = {"label": lab, "lead": k + 1}
             vmax = float(np.nanmax(np.where(in_us, monthly_in[k], np.nan)))
             if UNIT == "snow":
-                # the weathermodels 0-300 in bar is a SNOW DEPTH bar, so the
+                # the 0-300 in bar is a SNOW DEPTH bar, so the
                 # depth panels are drawn on that fixed ladder
                 lv, pcmap = wm_levels, wm_cmap
                 cnote = ""
@@ -382,10 +416,10 @@ def main():
                 pcmap = ListedColormap(cols, name="wm_fitted")
                 cnote = " · colour scale fitted to this month"
             draw_map(os.path.join(OUT, mf),
-                     "%s  Snowfall Total — %s" % (name, lab),
-                     "Init %s · %d-member ensemble mean · lead month %d · "
+                     "%s%s  Snowfall Total — %s" % (title_prefix, name, lab),
+                     "Init %s · %d-member ensemble mean%s · lead month %d · "
                      "%s%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
-                               k + 1, unit_label(), cnote),
+                               resnote, k + 1, unit_label(), cnote),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
                      "Accumulated snowfall (%s)" % unit_label(),
@@ -395,14 +429,24 @@ def main():
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
                             "lead": lead}
             draw_map(os.path.join(OUT, af),
-                     "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
-                     "Init %s · %d-member ensemble mean · lead month %d · "
+                     "%s%s Snowfall Anomaly  %s %d" % (title_prefix, name,
+                                                       MONTH_NAMES[m - 1], y),
+                     "Init %s · %d-member ensemble mean%s · lead month %d · "
                      "anomaly vs %s hindcast climate · %s" % (
                          initlabel, int(meta.get("members", len(by_step[yms[0]]))),
-                         lead, name, unit_label()),
+                         resnote, lead, name, unit_label()),
                      a, X, Y, in_us, relief, states, provs, countries,
                      acmap, anorm, ANOM_LEVELS * unit_mult(),
                      "Snowfall anomaly (%s)" % unit_label())
+        # drop any panel left over from an earlier, longer run
+        keep = set(manifest.keys())
+        keep.add("snow_%s_total_run_in%s.png" % (tag, unit_suffix()))
+        for f in os.listdir(OUT):
+            if (f.startswith("snow_%s_" % tag) or
+                    f.startswith("SNOW_%s_" % tag.upper())) and f.endswith(".png"):
+                if f not in keep:
+                    os.remove(os.path.join(OUT, f))
+                    print("  removed stale", f)
         print("rendered %-16s init=%s  months=%d anomalies=%d"
               % (tag, init, len(monthly_in), len(anoms)), flush=True)
 
@@ -473,14 +517,29 @@ def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
     ax.set_xlim(X.min() - dx * 1.6, X.max() + dx * 1.6)
     ax.set_ylim(Y.min() - dy * 1.7, Y.max() + dy * 0.7)
 
-    fig.text(0.013, 1 - 0.38 / fig_h, title, fontsize=19, fontweight="bold",
-             ha="left", va="center", color="#111111")
+    # the title has to stay clear of the max/min stamp in the top right, so it
+    # is measured and shrunk until it fits
+    vm = np.where(in_us, field, np.nan)
+    stamp = ""
+    if np.isfinite(vm).any():
+        stamp = "max %+.2f in   min %+.2f in" % (np.nanmax(vm), np.nanmin(vm))
+    t = fig.text(0.013, 1 - 0.38 / fig_h, title, fontsize=19, fontweight="bold",
+                 ha="left", va="center", color="#111111")
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    maxw = (0.987 - 0.013) * fig_w * 72.0 - 12.0
+    if stamp:
+        sw = rend.get_text_width_height_descent(stamp, t.get_fontproperties(),
+                                                 ismath=False)[0] * 11.5 / 19.0
+        maxw -= sw + 16.0
+    tw = rend.get_text_width_height_descent(title, t.get_fontproperties(),
+                                             ismath=False)[0]
+    if tw > maxw:
+        t.set_fontsize(max(9.5, 19.0 * maxw / tw))
     fig.text(0.013, 1 - 0.72 / fig_h, subtitle, fontsize=10.5, ha="left",
              va="center", color="#4a4a4a")
-    vm = np.where(in_us, field, np.nan)
-    if np.isfinite(vm).any():
-        fig.text(0.987, 1 - 0.38 / fig_h,
-                 "max %+.2f in   min %+.2f in" % (np.nanmax(vm), np.nanmin(vm)),
+    if stamp:
+        fig.text(0.987, 1 - 0.38 / fig_h, stamp,
                  fontsize=11.5, ha="right", va="center", color="#111111")
     cax = fig.add_axes([0.30, 0.62 / fig_h, 0.40, 0.16 / fig_h])
     cb = fig.colorbar(pc, cax=cax, boundaries=levels, spacing="uniform",

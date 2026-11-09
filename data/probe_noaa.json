@@ -8,5 +8,10 @@
   "init": "2026-10",
   "result": "gone",
   "detail": ""
+ },
+ "ncep:3": {
+  "init": "2026-10",
+  "result": "gone",
+  "detail": ""
  }
 }

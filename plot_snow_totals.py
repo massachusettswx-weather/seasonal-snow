@@ -2,7 +2,7 @@
 
 Produces, for one seasonal run:
   * the accumulation from the init to the END of the run (inches w.e.), drawn
-    with the weathermodels.com snow-total colourbar (sampled from their bar)
+    with the 0-300 in snow-depth colour bar
   * the accumulation for each lead month (inches w.e.), same colourbar
 
 Both use the same CONUS frame as plot_snow_ref.py so the site can show them
@@ -29,16 +29,16 @@ GRID = 0.05
 
 
 def wm_colormap():
-    """weathermodels.com snow-total scale.  The published bar runs 300 -> 0.01,
+    """The snow-depth scale.  The bar runs 300 -> 0.01,
     so both the levels and the colours are reversed here to give matplotlib an
     ascending norm."""
-    d = json.load(open(os.path.join(DATA, "weathermodels_scale.json")))
+    d = json.load(open(os.path.join(DATA, "snow_depth_scale.json")))
     levels = np.array(d["levels"], dtype=float)[::-1]
     colors = list(d["colors"])[::-1]
     # "no snow" must read as white: the bottom of the ramp is white so a
     # trace of snowfall does not paint the map purple
     colors = ["#ffffff"] + list(colors[1:])
-    cmap = ListedColormap(colors, name="weathermodels")
+    cmap = ListedColormap(colors, name="snow_depth")
     return cmap, levels
 
 

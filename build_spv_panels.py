@@ -75,6 +75,30 @@ def read_u10(path):
     return by_date
 
 
+def grid_res(path):
+    """The model's source grid resolution in degrees, from its u10 GRIB."""
+    import eccodes
+    if not os.path.exists(path):
+        return ""
+    try:
+        with open(path, "rb") as f:
+            gid = eccodes.codes_grib_new_from_file(f)
+            if gid is None:
+                return ""
+            try:
+                la = np.unique(np.asarray(eccodes.codes_get_array(gid, "latitudes"), float))
+                lo = np.unique(np.asarray(eccodes.codes_get_array(gid, "longitudes"), float))
+                lo = np.where(lo > 180, lo - 360, lo)
+                lo = np.sort(lo)
+                dy = abs(la[1] - la[0])
+                dx = abs(lo[1] - lo[0])
+                return "%g° × %g°" % (round(dx, 3), round(dy, 3))
+            finally:
+                eccodes.codes_release(gid)
+    except Exception:
+        return ""
+
+
 def month_table(times, ens, era, same_days=False):
     """Lead-month means: model ensemble mean vs the ERA5 climatology.
 
@@ -110,16 +134,18 @@ def month_table(times, ens, era, same_days=False):
 def render_daily(tag, name, init, times, m60, mnh, daily_label):
     """Draw the 60N and NH panels from a daily member matrix."""
     nlead = len({(t.year, t.month) for t in times})
+    res = grid_res(os.path.join(MDIR, tag, "u10_monthly.grib"))
+    resnote = (" · %s grid" % res) if res else ""
     for dom, mat, key in (("60", m60, "60N"), ("NH", mnh, "NH")):
         era = load_era5(dom, int(init[:4]))
         label = "60°N" if dom == "60" else "Northern Hemisphere"
         fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
         render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
                    n_members=mat.shape[0],
-                   subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)"
+                   subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
                             " · lead months 1–%d · ERA5 climatology 1991–2020"
                             % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
-                               mat.shape[0], nlead),
+                               mat.shape[0], resnote, nlead),
                    footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
                           "1991–2020" % name,
                    title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"
@@ -155,10 +181,16 @@ def build_ecmwf_daily(name, init):
         render_spv(mem, times, name, fn, domain=dom, era5=era, model_clim=mc,
                    model_clim_label="ECMWF model-climate mean (init Nov)",
                    n_members=mem.shape[0],
-                   subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)"
-                            " · lead months 1–7 · ERA5 climatology 1991–2020"
+                   subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
+                            " · lead months 1–%d · ERA5 climatology 1991–2020"
                             % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
-                               mem.shape[0]),
+                               mem.shape[0],
+                               (" · %s grid" % grid_res(
+                                   os.path.join(MDIR, "ecmwf-seas5",
+                                                "u10_monthly.grib")))
+                               if os.path.exists(os.path.join(MDIR, "ecmwf-seas5",
+                                                             "u10_monthly.grib")) else "",
+                               len({(t.year, t.month) for t in times})),
                    footer="Data: ECMWF seasonal forecast (CDS) · ERA5 climatology "
                           "1991–2020 · lead month 7 model climate reconstructed from "
                           "the model's own past runs",
@@ -237,11 +269,14 @@ def build_one(tag, name, init):
 
             label = "60°N" if dom == "60" else "Northern Hemisphere"
             fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
+            res = grid_res(ug)
+            resnote = (" · %s grid" % res) if res else ""
             render_spv(arr, times, name, fn, domain=dom, era5=era_cut,
                        model_clim=None, n_members=nmem,
                        subtitle="Run init 01 %s %d · %d members · monthly means at "
-                                "10 hPa · ERA5 climatology 1991–2020"
-                                % (MONTHS[int(init[-2:]) - 1], int(init[:4]), nmem),
+                                "10 hPa%s · ERA5 climatology 1991–2020"
+                                % (MONTHS[int(init[-2:]) - 1], int(init[:4]), nmem,
+                                   resnote),
                        footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
                               "1991–2020" % name,
                        title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"

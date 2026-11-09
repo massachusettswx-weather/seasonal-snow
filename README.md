@@ -150,20 +150,20 @@ Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
 ## House style
 
 * **Snowfall** is shown in **inches of snow depth** (standard 10:1 snow-to-water
-  ratio), because that is the unit the weathermodels colourbar is built for:
-  a 6-month total of 26.7 in w.e. is 267 in of snow, which lands at 89% of that
-  0-300 bar, whereas the water equivalent itself sits in the bottom 9% and
-  reads as "far too little snow".  The site has a **Units** toggle that swaps
-  every panel to inches of water equivalent (1 in = 25.4 mm w.e.).  Both
-  renderings are committed; `plot_snow_models.py --unit snow|we` makes them.
-* **Accumulation totals** use the weathermodels.com snow-total colourbar,
-  sampled pixel-exactly from their published bar into
-  `data/weathermodels_scale.json`.
-* **Single-month panels** in snow depth use the fixed weathermodels 0-300 in
-  ladder, the same bar as the total, so the six months add up to the total
-  panel in the same colours.  In **water equivalent** a single month is
-  squeezed into the bottom three bins of that ladder, so the w.e. monthly
-  panels are drawn on a log ladder fitted to that month instead.
+  ratio) on a fixed 0-300 in colour bar, because that is the unit the bar is
+  built for: a 6-month total of 26.7 in w.e. is 267 in of snow, which lands at
+  89% of the bar, whereas the water equivalent itself sits in the bottom 9%
+  and reads as "far too little snow".  There is **no liquid-equivalent option**
+  on the site any more; `plot_snow_models.py --unit snow` makes the panels.
+* **Accumulation totals** use the snow-depth colour bar, sampled into
+  `data/snow_depth_scale.json`.
+* **Single-month panels** use the same fixed 0-300 in ladder as the total, so
+  the months add up to the total panel in the same colours.
+* **No snowfall is white**: the bottom of the ramp is white and everything
+  under the first level is masked, so "no snow" reads as no snow.
+* **Every model's snowfall season ends 01 July 2027** whatever the model
+  itself runs to, so the panels are comparable; the title carries the actual
+  init and end dates and the descriptor line the grid resolution.
 * **Anomalies** use the brown -> white -> teal palette with a signed-log band
   ladder, and each model is measured against **its own** hindcast climate
   (ECMWF's `hindcast_climate_mean`), not a borrowed baseline.

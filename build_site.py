@@ -354,10 +354,10 @@ def build_snow(reg):
     <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
   <p class="lead">Accumulated snowfall over the continental United States, in
-  inches of snow depth (liquid equivalent &times; 10:1, the same convention the
-  weathermodels seasonal product uses &mdash; "Total Snowfall [Liquid Equiv x
-  10:1 inch]") so the panels land on the same 0&ndash;300&nbsp;in colour scale.
-  Anomalies are measured against the model's own hindcast climate.</p>
+  inches of snow depth (the liquid equivalent &times; 10:1, the standard
+  fresh-snow ratio) on a 0&ndash;300&nbsp;in colour scale. Every model's season
+  is shown over the same window, ending 01 July 2027. Anomalies are measured
+  against the model's own hindcast climate.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
@@ -372,11 +372,9 @@ def build_snow(reg):
 
 <div class="card" id="tab-monthly">
   <h2 class="sec">Accumulation by lead month</h2>
-  <p class="lead">One panel per lead month of the run. On the &times;10:1 view
-  the panels use the weathermodels scale (0&ndash;300&nbsp;in), the same bar the
-  totals use, so the six months add up to the total in the same colours. On the
-  plain liquid-equivalent view each month is drawn on its own logarithmic scale
-  fitted to that month.</p>
+  <p class="lead">One panel per lead month of the run. Every month uses the same
+  0&ndash;300&nbsp;in scale as the totals, so the months add up to the total in
+  the same colours. No snowfall is white.</p>
   <div class="grid c2" id="monthlyGrid"></div>
 </div>
 
