@@ -28,6 +28,28 @@ OUT = os.path.join(HERE, "output")
 GRID = 0.05
 
 
+def boost_saturation(colors, k=1.7):
+    """Make the sampled ramp bolder without changing its hue path.
+
+    The colour bar was sampled from a published bar whose colours are pastel
+    (mean saturation ~0.31), which makes the maps read as washed out.  The
+    hues and the lightness ramp are left exactly as sampled; only the
+    saturation is pushed, and a near-neutral grey stays grey because it has
+    no hue to push.
+    """
+    import colorsys
+    out = []
+    for c in colors:
+        r, g, b = [int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)]
+        h, sat, v = colorsys.rgb_to_hsv(r, g, b)
+        if sat > 0.05:
+            sat = min(1.0, sat * k)
+        r2, g2, b2 = colorsys.hsv_to_rgb(h, sat, v)
+        out.append("#%02x%02x%02x" % (int(r2 * 255 + 0.5), int(g2 * 255 + 0.5),
+                                      int(b2 * 255 + 0.5)))
+    return out
+
+
 def wm_colormap():
     """The snow-depth scale.  The bar runs 300 -> 0.01,
     so both the levels and the colours are reversed here to give matplotlib an
@@ -38,6 +60,7 @@ def wm_colormap():
     # "no snow" must read as white: the bottom of the ramp is white so a
     # trace of snowfall does not paint the map purple
     colors = ["#ffffff"] + list(colors[1:])
+    colors = boost_saturation(colors)
     cmap = ListedColormap(colors, name="snow_depth")
     return cmap, levels
 
