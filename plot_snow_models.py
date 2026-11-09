@@ -27,6 +27,28 @@ from plot_snow_totals import (bilinear, month_len, wm_colormap, GRID)
 import plot_snow_ref as PSR
 
 DATA = os.path.join(HERE, "data")
+
+# Units.
+#   "snow" - inches of SNOW DEPTH, using the standard 10:1 snow-to-water
+#            ratio.  This is the unit the weathermodels colourbar (0-300 in)
+#            is built for: a 6-month total of 26.7 in w.e. is 267 in of snow,
+#            which lands at 89% of that bar, whereas the water equivalent
+#            itself sits in the bottom 9% and looks far too low.
+#   "we"   - inches of water equivalent (1 in = 25.4 mm), kept as an option.
+UNIT = "snow"
+SNOW_RATIO = 10.0
+
+
+def unit_mult():
+    return SNOW_RATIO if UNIT == "snow" else 1.0
+
+
+def unit_label():
+    return "in of snow (10:1 ratio)" if UNIT == "snow" else "in w.e."
+
+
+def unit_suffix():
+    return "" if UNIT == "snow" else "_we"
 OUT = os.path.join(HERE, "output")
 MDIR = os.path.join(DATA, "models")
 
@@ -199,6 +221,14 @@ def load_relief_mask(X, Y):
 
 
 def main():
+    global UNIT
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--unit", default="snow", choices=["snow", "we"],
+                    help="snow = inches of snow depth (10:1), we = water equivalent")
+    args = ap.parse_args()
+    UNIT = args.unit
+    print("unit: %s (%s)" % (UNIT, unit_label()), flush=True)
     os.makedirs(OUT, exist_ok=True)
     manifest = {}
     state_p = os.path.join(DATA, "models_fetched.json")
@@ -220,7 +250,7 @@ def main():
 
     wm_cmap, wm_levels = wm_colormap()
     acmap = anom_cmap()
-    anorm = BoundaryNorm(ANOM_LEVELS, acmap.N, clip=True)
+    anorm = BoundaryNorm(ANOM_LEVELS * unit_mult(), acmap.N, clip=True)
 
     for tag, meta in sorted(state.items()):
         d = os.path.join(MDIR, tag)
@@ -255,7 +285,7 @@ def main():
             y, m = ym
             days = month_len(y, m)
             mm = interp_to(LAT.ravel(), LON.ravel(), lats, lons, ens).reshape(LAT.shape)
-            monthly_in.append(mm * days * 86400.0 * 1000.0 / 25.4)
+            monthly_in.append(mm * days * 86400.0 * 1000.0 / 25.4 * unit_mult())
             labels.append("%s %d" % (MONTH_NAMES[m - 1], y))
 
         total_in = np.sum(monthly_in, axis=0)
@@ -271,7 +301,7 @@ def main():
             y, m = ym
             days = month_len(y, m)
             cm_in = interp_to(LAT.ravel(), LON.ravel(), lats, lons, cm).reshape(LAT.shape)
-            cm_in = cm_in * days * 86400.0 * 1000.0 / 25.4
+            cm_in = cm_in * days * 86400.0 * 1000.0 / 25.4 * unit_mult()
             anoms.append((m, y, k + 1, monthly_in[k] - cm_in))
 
         # ---------------- draw ----------------
@@ -284,45 +314,61 @@ def main():
         dlast = calendar.monthrange(y1, m1)[1]
         window = "%d %s %d – %d %s %d" % (1, MONTH_NAMES[m0 - 1], y0,
                                           dlast, MONTH_NAMES[m1 - 1], y1)
-        draw_map(os.path.join(OUT, "snow_%s_total_run_in.png" % tag),
+        draw_map(os.path.join(OUT, "snow_%s_total_run_in%s.png" % (tag, unit_suffix())),
                  "%s  Snowfall Total — Init to End of Run" % name,
                  "Init %s · %d-member ensemble mean · accumulated %s (%d lead months) · "
-                 "inches of water equivalent" % (initlabel, len(by_step[yms[0]]),
-                                                 window, len(yms)),
+                 "%s" % (initlabel, len(by_step[yms[0]]),
+                                                 window, len(yms), unit_label()),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
-                 "Accumulated snowfall (in w.e., log scale)")
+                 "Accumulated snowfall (%s)" % unit_label())
         for k, lab in enumerate(labels):
-            mf = "snow_%s_month%02d_in.png" % (tag, k + 1)
+            mf = "snow_%s_month%02d_in%s.png" % (tag, k + 1, unit_suffix())
             manifest[mf] = {"label": lab, "lead": k + 1}
             vmax = float(np.nanmax(np.where(in_us, monthly_in[k], np.nan)))
-            lv, cols = panel_scale(vmax)
-            pcmap = ListedColormap(cols, name="wm_fitted")
+            if UNIT == "snow":
+                # the weathermodels 0-300 in bar is a SNOW DEPTH bar, so the
+                # depth panels are drawn on that fixed ladder
+                lv, pcmap = wm_levels, wm_cmap
+                cnote = ""
+            else:
+                lv, cols = panel_scale(vmax)
+                pcmap = ListedColormap(cols, name="wm_fitted")
+                cnote = " · colour scale fitted to this month"
             draw_map(os.path.join(OUT, mf),
                      "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean · lead month %d · "
-                     "inches of water equivalent · colour scale fitted to this month"
-                     % (initlabel, len(by_step[yms[0]]), k + 1),
+                     "%s%s" % (initlabel, len(by_step[yms[0]]), k + 1,
+                               unit_label(), cnote),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
-                     "Accumulated snowfall (in w.e., log scale)")
+                     "Accumulated snowfall (%s)" % unit_label())
         for (m, y, lead, a) in anoms:
-            af = "SNOW_%s_%s%d_anom_in.png" % (tag.upper(), MONTH_NAMES[m - 1], y)
+            af = "SNOW_%s_%s%d_anom_in%s.png" % (tag.upper(), MONTH_NAMES[m - 1], y, unit_suffix())
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
                             "lead": lead}
             draw_map(os.path.join(OUT, af),
                      "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
                      "Init %s · %d-member ensemble mean · lead month %d · "
-                     "anomaly vs %s hindcast climate · in w.e." % (
+                     "anomaly vs %s hindcast climate · %s" % (
                          initlabel, len(by_step[yms[0]]),
-                         lead, name),
+                         lead, name, unit_label()),
                      a, X, Y, in_us, relief, states, provs, countries,
-                     acmap, anorm, ANOM_LEVELS, "Snowfall anomaly (in w.e.)")
+                     acmap, anorm, ANOM_LEVELS * unit_mult(),
+                     "Snowfall anomaly (%s)" % unit_label())
         print("rendered %-16s init=%s  months=%d anomalies=%d"
               % (tag, init, len(monthly_in), len(anoms)), flush=True)
 
-    json.dump(manifest, open(os.path.join(DATA, "render_manifest.json"), "w"), indent=1)
-    print("manifest: %d files" % len(manifest))
+    mp = os.path.join(DATA, "render_manifest.json")
+    allm = {}
+    if os.path.exists(mp):
+        try:
+            allm = json.load(open(mp))
+        except Exception:
+            allm = {}
+    allm.update(manifest)
+    json.dump(allm, open(mp, "w"), indent=1)
+    print("manifest: %d files" % len(allm))
 
 
 def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,

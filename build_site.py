@@ -132,6 +132,10 @@ select,button.ctrl{
 button.ctrl{cursor:pointer; background:var(--accent); color:#fff; border-color:var(--accent);
   font-weight:600}
 button.ctrl.ghost{background:#fff; color:var(--accent)}
+.seg{display:inline-flex; gap:6px}
+.seg .segbtn{border-radius:16px; padding:7px 14px; font-size:13px}
+.seg .segbtn.ghost{background:#fff; color:var(--accent)}
+.seg .segbtn.on{background:var(--accent); color:#fff}
 .stage{background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:14px}
 .stage img{width:100%; height:auto; display:block; border-radius:4px}
@@ -349,12 +353,16 @@ def build_snow(reg):
   <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
     <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
-  <p class="lead">Accumulated snowfall over the continental United States,
-  in inches of water equivalent. Anomalies are measured against the model's own
-  hindcast climate.</p>
+  <p class="lead">Accumulated snowfall over the continental United States.
+  Anomalies are measured against the model's own hindcast climate.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
+    <label>Units</label>
+    <span class="seg">
+      <button class="ctrl segbtn on" id="unitSnow" type="button">Snow depth (in)</button>
+      <button class="ctrl ghost segbtn" id="unitWe" type="button">Water equivalent (in)</button>
+    </span>
   </div>
 </div>
 
@@ -366,17 +374,18 @@ def build_snow(reg):
 
 <div class="card" id="tab-monthly">
   <h2 class="sec">Accumulation by lead month</h2>
-  <p class="lead">One panel per lead month of the run. Each monthly panel is
-  drawn on its own logarithmic colour scale, fitted to that month, so the
-  structure stays visible &mdash; the six months add up to the total above.
-  The total panel uses the fixed weathermodels scale (0&ndash;216&nbsp;in).</p>
+  <p class="lead">One panel per lead month of the run. In snow depth the panels
+  use the weathermodels scale (0&ndash;300&nbsp;in), the same bar the totals use;
+  in water equivalent each month is drawn on its own logarithmic scale fitted to
+  that month. Either way the six months add up to the total above.</p>
   <div class="grid c2" id="monthlyGrid"></div>
 </div>
 
 <div class="card" id="tab-anom">
   <h2 class="sec">Monthly anomaly</h2>
   <p class="lead">Drag the bar to step through the lead months. Values are
-  inches of water equivalent above or below the model's hindcast climate.</p>
+  the anomaly against the model's own hindcast climate, in the units selected
+  above.</p>
   <div class="stage"><img id="anomImg" alt="Monthly snowfall anomaly"></div>
   <div class="slider">
     <span class="frameLabel" id="anomLabel">&mdash;</span>
@@ -397,26 +406,39 @@ if(q('m') && MODELS[q('m')]) sel.value=q('m');
 
 function model(){return MODELS[sel.value];}
 
+let UNIT='snow';
+function pick(o){return (UNIT==='snow'?o.file:(o.file_we||o.file))||'';}
+function unitName(){return UNIT==='snow'?'inches of snow (10:1 ratio)':'inches of water equivalent';}
+function setUnit(u){
+  UNIT=u;
+  document.getElementById('unitSnow').className='ctrl segbtn'+(u==='snow'?' on':' ghost');
+  document.getElementById('unitWe').className='ctrl segbtn'+(u==='we'?' on':' ghost');
+  renderTotal(); renderMonthly(); renderAnom(+document.getElementById('anomRange').value);
+}
+document.getElementById('unitSnow').addEventListener('click',()=>setUnit('snow'));
+document.getElementById('unitWe').addEventListener('click',()=>setUnit('we'));
+
 function renderTotal(){
   const m=model();
   const t=m.total;
-  document.getElementById('totalImg').src=t.file;
+  document.getElementById('totalImg').src=pick(t);
   document.getElementById('totalImg').alt=t.caption;
-  document.getElementById('totalCap').textContent=t.caption;
+  document.getElementById('totalCap').textContent=
+    (t.caption||'').replace('inches of snow (10:1 ratio)', unitName());
 }
 
 function renderMonthly(){
   const m=model();
   const g=document.getElementById('monthlyGrid');
   g.innerHTML=m.months.map(x=>
-    `<div class="stage"><img src="${x.file}" alt="${x.label}"><div class="cap">${x.label} &mdash; ${x.caption}</div></div>`
+    `<div class="stage"><img src="${pick(x)}" alt="${x.label}"><div class="cap">${x.label} &mdash; ${x.caption}</div></div>`
   ).join('');
 }
 
 function renderAnom(i){
   const m=model();
   const fr=m.frames[i];
-  document.getElementById('anomImg').src=fr.file;
+  document.getElementById('anomImg').src=pick(fr);
   document.getElementById('anomImg').alt=fr.label;
   document.getElementById('anomLabel').textContent=fr.label;
   document.getElementById('anomCap').textContent=fr.caption||'';

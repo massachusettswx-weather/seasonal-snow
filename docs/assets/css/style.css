@@ -66,6 +66,10 @@ select,button.ctrl{
 button.ctrl{cursor:pointer; background:var(--accent); color:#fff; border-color:var(--accent);
   font-weight:600}
 button.ctrl.ghost{background:#fff; color:var(--accent)}
+.seg{display:inline-flex; gap:6px}
+.seg .segbtn{border-radius:16px; padding:7px 14px; font-size:13px}
+.seg .segbtn.ghost{background:#fff; color:var(--accent)}
+.seg .segbtn.on{background:var(--accent); color:#fff}
 .stage{background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:14px}
 .stage img{width:100%; height:auto; display:block; border-radius:4px}

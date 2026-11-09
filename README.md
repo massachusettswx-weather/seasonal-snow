@@ -131,18 +131,21 @@ Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
 
 ## House style
 
-* **Snowfall** is accumulated water equivalent in inches (1 in = 25.4 mm w.e.),
-  labelled "in w.e." - not snow depth, since that needs a fresh-snow ratio we
-  do not have.
+* **Snowfall** is shown in **inches of snow depth** (standard 10:1 snow-to-water
+  ratio), because that is the unit the weathermodels colourbar is built for:
+  a 6-month total of 26.7 in w.e. is 267 in of snow, which lands at 89% of that
+  0-300 bar, whereas the water equivalent itself sits in the bottom 9% and
+  reads as "far too little snow".  The site has a **Units** toggle that swaps
+  every panel to inches of water equivalent (1 in = 25.4 mm w.e.).  Both
+  renderings are committed; `plot_snow_models.py --unit snow|we` makes them.
 * **Accumulation totals** use the weathermodels.com snow-total colourbar,
   sampled pixel-exactly from their published bar into
   `data/weathermodels_scale.json`.
-* **Single-month panels** are drawn on the *same colour ramp* but on a log
-  ladder fitted to that month (levels rounded to round numbers). The
-  published 0-216 in ladder is right for a six-month total but squeezes a
-  single month into its bottom three bins, which makes the monthly maps look
-  empty and impossible to reconcile with the total. The total panel keeps the
-  fixed weathermodels scale; the six months add up to it.
+* **Single-month panels** in snow depth use the fixed weathermodels 0-300 in
+  ladder, the same bar as the total, so the six months add up to the total
+  panel in the same colours.  In **water equivalent** a single month is
+  squeezed into the bottom three bins of that ladder, so the w.e. monthly
+  panels are drawn on a log ladder fitted to that month instead.
 * **Anomalies** use the brown -> white -> teal palette with a signed-log band
   ladder, and each model is measured against **its own** hindcast climate
   (ECMWF's `hindcast_climate_mean`), not a borrowed baseline.

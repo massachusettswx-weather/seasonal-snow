@@ -47,11 +47,11 @@ def info_of_file(fn):
     return MANIFEST.get(fn, {"label": "", "lead": 0})
 
 
-SNOW_TOTAL_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in\.png$")
-SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in\.png$")
+SNOW_TOTAL_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_total_run_in(?P<we>_we)?\.png$")
+SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in(?P<we>_we)?\.png$")
 SNOW_ANOM_RE = re.compile(
     r"^SNOW_(?P<tag>[A-Z0-9\-]+?)_(?P<mon>January|February|March|April|May|June|July"
-    r"|August|September|October|November|December)(?P<yr>\d{4})_anom_in\.png$")
+    r"|August|September|October|November|December)(?P<yr>\d{4})_anom_in(?P<we>_we)?\.png$")
 SPV_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)\.png$")
 TBL_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)_table\.json$")
 
@@ -79,18 +79,21 @@ def main():
     for fn in sorted(os.listdir(OUT)):
         m = SNOW_TOTAL_RE.match(fn)
         if m:
-            snow.setdefault(m.group("tag"), {})["total"] = fn
+            d = snow.setdefault(m.group("tag"), {})
+            d["total_we" if m.group("we") else "total"] = fn
             continue
         m = SNOW_MONTH_RE.match(fn)
         if m:
-            snow.setdefault(m.group("tag"), {}).setdefault("months", []).append(
-                (int(m.group("m")), fn))
+            d = snow.setdefault(m.group("tag"), {})
+            lst = d.setdefault("months_we" if m.group("we") else "months", [])
+            lst.append((int(m.group("m")), fn))
             continue
         m = SNOW_ANOM_RE.match(fn)
         if m:
             tag = m.group("tag").lower()
-            snow.setdefault(tag, {}).setdefault("anom", []).append(
-                (m.group("mon"), int(m.group("yr")), fn))
+            d = snow.setdefault(tag, {})
+            lst = d.setdefault("anom_we" if m.group("we") else "anom", [])
+            lst.append((m.group("mon"), int(m.group("yr")), fn))
             continue
         m = SPV_RE.match(fn)
         if m:
@@ -120,7 +123,11 @@ def main():
                 "file": copy(os.path.join(OUT, d["total"]),
                              os.path.join(MAPDIR, d["total"])),
                 "caption": "Total accumulation from the init to the end of the run, "
-                           "in inches of water equivalent."}
+                           "in inches of snow (10:1 ratio)."}
+            if d.get("total_we"):
+                entry["total"]["file_we"] = copy(
+                    os.path.join(OUT, d["total_we"]),
+                    os.path.join(MAPDIR, d["total_we"]))
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
@@ -129,18 +136,31 @@ def main():
                            "file": copy(os.path.join(OUT, fn),
                                         os.path.join(MAPDIR, fn)),
                            "caption": "Lead month %d." % info["lead"]})
+            for k, fn in sorted(d.get("months_we", [])):
+                ms[k - 1]["file_we"] = copy(os.path.join(OUT, fn),
+                                            os.path.join(MAPDIR, fn))
             entry["months"] = ms
         frames = []
         if d.get("anom"):
             rev = {v: k for k, v in MONTH_ABBR.items()}   # full -> abbr
+            bybase = {}
             for (mon, yr, fn) in sorted(d["anom"],
                                         key=lambda a: (a[1], list(MONTH_ABBR).index(rev[a[0]]))):
                 info = info_of_file(fn)
-                frames.append({
+                fr = {
                     "label": info["label"] or ("%s %d" % (mon, yr)),
                     "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
                     "caption": "Lead month %d - anomaly vs this model's own "
-                               "hindcast climate." % info["lead"]})
+                               "hindcast climate." % info["lead"]}
+                frames.append(fr)
+                bybase[fn] = fr
+            # the water-equivalent twin of each frame has the same base name
+            for (mon, yr, fn) in d.get("anom_we", []):
+                base = fn[:-len("_we.png")] + ".png"
+                fr = bybase.get(base)
+                if fr is not None:
+                    fr["file_we"] = copy(os.path.join(OUT, fn),
+                                         os.path.join(MAPDIR, fn))
         if frames:
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):
@@ -177,7 +197,7 @@ def main():
     def bust(node):
         if isinstance(node, dict):
             for k, v in node.items():
-                if k == "file" and isinstance(v, str) and "?" not in v:
+                if k in ("file", "file_we") and isinstance(v, str) and "?" not in v:
                     node[k] = "%s?v=%s" % (v, version)
                 else:
                     bust(v)
