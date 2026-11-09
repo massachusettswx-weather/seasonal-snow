@@ -389,19 +389,19 @@ def main():
         window = "%d %s %d to %d %s %d" % (init_date.day, MONTH_NAMES[im - 1], iy,
                                           end_date.day, MONTH_NAMES[end_date.month - 1],
                                           end_date.year)
-        title_prefix = "Exper " if meta.get("experimental") else ""
+        title_prefix = "Experimental " if meta.get("experimental") else ""
         dstr = "%02d/%02d/%04d" % (init_date.month, init_date.day, init_date.year)
         estr = "%02d/%02d/%04d" % (end_date.month, end_date.day, end_date.year)
         resnote = (" · %s grid" % res) if res else ""
         draw_map(os.path.join(OUT, "snow_%s_total_run_in%s.png" % (tag, unit_suffix())),
-                 "%s%s  Snowfall Total — %s to %s" % (title_prefix, name, dstr, estr),
+                 "%s  Snowfall Total — %s to %s" % (name, dstr, estr),
                  "Init %s · %d-member ensemble mean%s · accumulated %s (%d lead months) · "
                  "%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
                          resnote, window, len(yms), unit_label()),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                  "Accumulated snowfall (%s)" % unit_label(),
-                 white_below=float(wm_levels[0]))
+                 white_below=float(wm_levels[0]), prefix=title_prefix)
         for k, lab in enumerate(labels):
             mf = "snow_%s_month%02d_in%s.png" % (tag, k + 1, unit_suffix())
             manifest[mf] = {"label": lab, "lead": k + 1}
@@ -416,28 +416,28 @@ def main():
                 pcmap = ListedColormap(cols, name="wm_fitted")
                 cnote = " · colour scale fitted to this month"
             draw_map(os.path.join(OUT, mf),
-                     "%s%s  Snowfall Total — %s" % (title_prefix, name, lab),
+                     "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean%s · lead month %d · "
                      "%s%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
                                resnote, k + 1, unit_label(), cnote),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
                      "Accumulated snowfall (%s)" % unit_label(),
-                     white_below=float(lv[0]))
+                     white_below=float(lv[0]), prefix=title_prefix)
         for (m, y, lead, a) in anoms:
             af = "SNOW_%s_%s%d_anom_in%s.png" % (tag.upper(), MONTH_NAMES[m - 1], y, unit_suffix())
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
                             "lead": lead}
             draw_map(os.path.join(OUT, af),
-                     "%s%s Snowfall Anomaly  %s %d" % (title_prefix, name,
-                                                       MONTH_NAMES[m - 1], y),
+                     "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
                      "Init %s · %d-member ensemble mean%s · lead month %d · "
                      "anomaly vs %s hindcast climate · %s" % (
                          initlabel, int(meta.get("members", len(by_step[yms[0]]))),
                          resnote, lead, name, unit_label()),
                      a, X, Y, in_us, relief, states, provs, countries,
                      acmap, anorm, ANOM_LEVELS * unit_mult(),
-                     "Snowfall anomaly (%s)" % unit_label())
+                     "Snowfall anomaly (%s)" % unit_label(),
+                     prefix=title_prefix)
         # drop any panel left over from an earlier, longer run
         keep = set(manifest.keys())
         keep.add("snow_%s_total_run_in%s.png" % (tag, unit_suffix()))
@@ -463,10 +463,11 @@ def main():
 
 
 def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
-             countries, cmap, norm, levels, cbar_label, white_below=None):
+             countries, cmap, norm, levels, cbar_label, white_below=None,
+             prefix=""):
     plt.rcParams.update({"font.family": "DejaVu Sans"})
     xr = float(X.max() - X.min()); yr = float(Y.max() - Y.min())
-    fig_w = 13.2
+    fig_w = 14.0
     ax_w = 0.975
     ax_h = ax_w * fig_w / (xr / yr)
     fig_h = ax_h + 1.05 + 1.15
@@ -518,29 +519,47 @@ def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
     ax.set_ylim(Y.min() - dy * 1.7, Y.max() + dy * 0.7)
 
     # the title has to stay clear of the max/min stamp in the top right, so it
-    # is measured and shrunk until it fits
+    # is measured and shrunk until it fits.  A coloured prefix ("Experimental ")
+    # is drawn first and the rest of the title follows it.
     vm = np.where(in_us, field, np.nan)
     stamp = ""
     if np.isfinite(vm).any():
         stamp = "max %+.2f in   min %+.2f in" % (np.nanmax(vm), np.nanmin(vm))
-    t = fig.text(0.013, 1 - 0.38 / fig_h, title, fontsize=19, fontweight="bold",
-                 ha="left", va="center", color="#111111")
+    base_fs = 21.0
+    trest = fig.text(0.013, 1 - 0.40 / fig_h, title, fontsize=base_fs,
+                     fontweight="bold", ha="left", va="center", color="#111111")
+    tpre = None
+    if prefix:
+        tpre = fig.text(0.013, 1 - 0.40 / fig_h, prefix, fontsize=base_fs,
+                        fontweight="bold", ha="left", va="center", color="#c00000")
     fig.canvas.draw()
     rend = fig.canvas.get_renderer()
+    fp = trest.get_fontproperties()
     maxw = (0.987 - 0.013) * fig_w * 72.0 - 12.0
     if stamp:
-        sw = rend.get_text_width_height_descent(stamp, t.get_fontproperties(),
-                                                 ismath=False)[0] * 11.5 / 19.0
-        maxw -= sw + 16.0
-    tw = rend.get_text_width_height_descent(title, t.get_fontproperties(),
-                                             ismath=False)[0]
-    if tw > maxw:
-        t.set_fontsize(max(9.5, 19.0 * maxw / tw))
-    fig.text(0.013, 1 - 0.72 / fig_h, subtitle, fontsize=10.5, ha="left",
+        sw = rend.get_text_width_height_descent(stamp, fp, ismath=False)[0] * 10.5 / base_fs
+        maxw -= sw + 18.0
+    tw = rend.get_text_width_height_descent(title, fp, ismath=False)[0]
+    pw = 0.0
+    if tpre is not None:
+        pw = rend.get_text_width_height_descent(prefix, fp, ismath=False)[0]
+    if tw + pw > maxw:
+        k = maxw / (tw + pw)
+        fs = max(12.0, base_fs * k)
+        trest.set_fontsize(fs)
+        if tpre is not None:
+            tpre.set_fontsize(fs)
+    if tpre is not None:
+        # the rest of the title starts where the coloured prefix actually ends
+        fig.canvas.draw()
+        bb = tpre.get_window_extent(rend)
+        trest.set_x(bb.x1 / (fig_w * fig.dpi))
+        fig.canvas.draw()
+    fig.text(0.013, 1 - 0.76 / fig_h, subtitle, fontsize=10.5, ha="left",
              va="center", color="#4a4a4a")
     if stamp:
-        fig.text(0.987, 1 - 0.38 / fig_h, stamp,
-                 fontsize=11.5, ha="right", va="center", color="#111111")
+        fig.text(0.987, 1 - 0.40 / fig_h, stamp,
+                 fontsize=10.5, ha="right", va="center", color="#111111")
     cax = fig.add_axes([0.30, 0.62 / fig_h, 0.40, 0.16 / fig_h])
     cb = fig.colorbar(pc, cax=cax, boundaries=levels, spacing="uniform",
                       orientation="horizontal")

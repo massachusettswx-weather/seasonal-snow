@@ -141,7 +141,7 @@ def render_spv(members, times, model_name, out_path, domain="60",
 
     fig.text(0.062, 0.955,
              unent(title or ("%s  \u00b7  10 hPa  \u00b7  %s Zonal-Mean Zonal Wind (m/s)" % (model_name, label))),
-             fontsize=15.5, fontweight="bold", color=C_TEXT, va="center")
+             fontsize=18.0, fontweight="bold", color=C_TEXT, va="center")
     fig.text(0.062, 0.905, unent(subtitle or ""), fontsize=9.8, color="#4b5563", va="center")
     fig.text(0.062, 0.032, unent(footer or ""), fontsize=8.2, color="#6b7280",
              ha="left", va="center")
