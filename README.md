@@ -151,6 +151,10 @@ Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
   (ECMWF's `hindcast_climate_mean`), not a borrowed baseline.
 * The field stops exactly at the US/Canada border; Canada is left plain white
   with a faint hint of its provincial boundaries.
+* **Flat white basemap.** The hillshade was removed so that a white area means
+  "no snow" rather than "terrain shading". Mexico is unshaded, and the Great
+  Lakes (Natural Earth lake outlines) are excluded from the field, so Michigan
+  reads as a mitten beside a lake instead of one solid blob.
 * Flat CONUS projection (125W-65W, 24.5-50N), 10 degree labelled graticule,
   black state borders and a heavy black national outline.
 * **SPV** charts show every ensemble member, the ensemble mean, the ERA5

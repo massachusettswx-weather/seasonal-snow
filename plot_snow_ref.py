@@ -82,6 +82,26 @@ def load_geo():
     return countries, states, provs
 
 
+def load_lakes():
+    """Natural Earth lake outlines -> [(name, path)].
+
+    The state polygons of the US include the Great Lakes, so without this the
+    seasonal field is painted over Lake Michigan, Lake Superior, Lake Huron
+    and Lake Erie and Michigan comes out as one solid blob instead of a mitten
+    beside a lake.
+    """
+    p = os.path.join(DATA, "ne_50m_lakes.geojson")
+    if not os.path.exists(p):
+        return []
+    out = []
+    for f in json.load(open(p))["features"]:
+        nm = f["properties"].get("name")
+        pth = _geom_path(f["geometry"])
+        if nm and pth is not None:
+            out.append((nm, pth))
+    return out
+
+
 def in_view(path, lon0=LON0, lon1=LON1, lat0=LAT0, lat1=LAT1, margin=2.0):
     """True if any vertex of the path falls inside (expanded) view window."""
     v = path.vertices

@@ -20,7 +20,7 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from plot_snow_ref import (load_geo, inside, project, project_path, PathPatch,
+from plot_snow_ref import (load_geo, load_lakes, inside, project, project_path, PathPatch,
                            MONTH_NAMES, LON0, LON1, LAT0, LAT1, PLATE_COS,
                            hillshade)
 from plot_snow_totals import (bilinear, month_len, wm_colormap, GRID)
@@ -247,8 +247,21 @@ def main():
         in_us |= inside(pts, pth)
     in_us = in_us.reshape(LAT.shape)
     in_mex = inside(pts, countries["Mexico"]).reshape(LAT.shape)
-    relief = load_relief_mask(X, Y)
-    relief[~(in_us | in_mex)] = 1.0
+    # The US state polygons include the Great Lakes, so the field was being
+    # painted over Lake Michigan / Superior / Huron / Erie and Michigan came
+    # out as one solid blob instead of a mitten beside a lake.
+    in_lake = np.zeros(len(pts), bool)
+    for nm, pth in load_lakes():
+        if nm in ("Lake Michigan", "Lake Superior", "Lake Huron", "Lake Erie",
+                  "Lake Ontario", "Lake St. Clair", "Lake Winnipeg",
+                  "Lake Nipigon", "Lake Temagami", "Lake Simcoe",
+                  "Lake Huron", "Green Bay", "Lake George", "Lake Champlain"):
+            in_lake |= inside(pts, pth)
+    in_lake = in_lake.reshape(LAT.shape)
+    in_us &= ~in_lake
+    # Flat white basemap: the hillshade used to sit under the no-snow areas
+    # and made them impossible to tell apart from a light snowfall.
+    relief = np.ones(LAT.shape + (3,), float)
 
     wm_cmap, wm_levels = wm_colormap()
     acmap = anom_cmap()
