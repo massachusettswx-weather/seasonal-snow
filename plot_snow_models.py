@@ -23,8 +23,8 @@ sys.path.insert(0, HERE)
 from plot_snow_ref import (load_geo, load_lakes, inside, project, project_path, PathPatch,
                            MONTH_NAMES, LON0, LON1, LAT0, LAT1, PLATE_COS,
                            hillshade)
-from plot_snow_totals import (bilinear, boost_saturation, month_len, wm_colormap,
-                             GRID)
+from plot_snow_totals import (SNOW_SAT_K, bilinear, boost_saturation, month_len,
+                             wm_colormap, GRID)
 
 # The snowfall panels stop here, whatever the model itself runs to: every
 # model's snowfall season is shown over the same window, ending 01 July 2027.

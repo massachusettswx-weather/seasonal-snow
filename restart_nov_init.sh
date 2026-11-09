@@ -78,4 +78,9 @@ if [ -n "$TOK" ]; then
 else
     log "no token given - site built but not published"
 fi
-log "done"
+
+# 9. verify the live site and repackage the bundle
+python3 verify_site.py || log "verify_site reported problems"
+rm -f /workspace/seasonal-snow-site.zip
+( cd docs && zip -qr /workspace/seasonal-snow-site.zip . )
+log "done - bundle at /workspace/seasonal-snow-site.zip"

@@ -28,7 +28,10 @@ OUT = os.path.join(HERE, "output")
 GRID = 0.05
 
 
-def boost_saturation(colors, k=1.7):
+SNOW_SAT_K = 1.35   # the user's colour bar is pastel; this is the boldness factor
+
+
+def boost_saturation(colors, k=None):
     """Make the sampled ramp bolder without changing its hue path.
 
     The colour bar was sampled from a published bar whose colours are pastel
@@ -38,6 +41,7 @@ def boost_saturation(colors, k=1.7):
     no hue to push.
     """
     import colorsys
+    k = SNOW_SAT_K if k is None else k
     out = []
     for c in colors:
         r, g, b = [int(c[i:i + 2], 16) / 255.0 for i in (1, 3, 5)]
