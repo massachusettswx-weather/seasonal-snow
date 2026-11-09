@@ -123,11 +123,7 @@ def main():
                 "file": copy(os.path.join(OUT, d["total"]),
                              os.path.join(MAPDIR, d["total"])),
                 "caption": "Total accumulation from the init to the end of the run, "
-                           "in inches of liquid equivalent x 10:1."}
-            if d.get("total_we"):
-                entry["total"]["file_we"] = copy(
-                    os.path.join(OUT, d["total_we"]),
-                    os.path.join(MAPDIR, d["total_we"]))
+                           "in inches of snow depth (liquid equivalent x 10:1)."}
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
@@ -135,10 +131,8 @@ def main():
                 ms.append({"label": info["label"],
                            "file": copy(os.path.join(OUT, fn),
                                         os.path.join(MAPDIR, fn)),
-                           "caption": "Lead month %d." % info["lead"]})
-            for k, fn in sorted(d.get("months_we", [])):
-                ms[k - 1]["file_we"] = copy(os.path.join(OUT, fn),
-                                            os.path.join(MAPDIR, fn))
+                           "caption": "Lead month %d - inches of snow depth "
+                                      "(liquid equivalent x 10:1)." % info["lead"]})
             entry["months"] = ms
         frames = []
         if d.get("anom"):
@@ -151,16 +145,10 @@ def main():
                     "label": info["label"] or ("%s %d" % (mon, yr)),
                     "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
                     "caption": "Lead month %d - anomaly vs this model's own "
-                               "hindcast climate." % info["lead"]}
+                               "hindcast climate, in inches of snow depth "
+                               "(liquid equivalent x 10:1)." % info["lead"]}
                 frames.append(fr)
                 bybase[fn] = fr
-            # the water-equivalent twin of each frame has the same base name
-            for (mon, yr, fn) in d.get("anom_we", []):
-                base = fn[:-len("_we.png")] + ".png"
-                fr = bybase.get(base)
-                if fr is not None:
-                    fr["file_we"] = copy(os.path.join(OUT, fn),
-                                         os.path.join(MAPDIR, fn))
         if frames:
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):
@@ -197,7 +185,7 @@ def main():
     def bust(node):
         if isinstance(node, dict):
             for k, v in node.items():
-                if k in ("file", "file_we") and isinstance(v, str) and "?" not in v:
+                if k == "file" and isinstance(v, str) and "?" not in v:
                     node[k] = "%s?v=%s" % (v, version)
                 else:
                     bust(v)

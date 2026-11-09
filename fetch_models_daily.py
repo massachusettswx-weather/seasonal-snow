@@ -56,6 +56,12 @@ STALL_S = 25 * 60    # if EVERY live job has been waiting this long and none
                       # breathe until the archive recovers.
 
 # tag, originating_centre, system, init year, init month
+# The daily (original) seasonal product reaches leadtime_hour = 5160 h = 215
+# days = 7 lead months, while the MONTHLY product caps at leadtime_month = 6.
+# So the daily pull is what lets a model show its full lead time.
+#
+# The centre list lives in data/daily_centres.json so new systems (NOAA CFSv2
+# and SFSv1) can be added without touching this file.
 CENTRES = [
     ("cmcc-sps4",    "cmcc",         "4",   2026, 10),
     ("dwd-gcfs2",    "dwd",          "22",  2026, 10),
@@ -64,6 +70,31 @@ CENTRES = [
     ("ukmo-gloseas6", "ukmo",        "610", 2026, 10),
     ("meteo-france-s9", "meteo_france", "9", 2026, 10),
 ]
+
+
+# The seasonal products do NOT have one common length: every model is run out
+# to the end of its own seasonal forecast (CFSv2/SFSv1 go to 9 months, the
+# ECMWF/UKMO/CMCC/DWD systems to 7, and so on).  The CDS only *documents*
+# leadtime_hour up to 5160 h, but it happily accepts and serves longer leads,
+# so we ask for a generous ceiling and then trim each model's series to the
+# last date it actually provides.
+N_DAYS_MAX = 365
+
+
+def load_centres():
+    """CENTRES, overridden by data/daily_centres.json when that file exists.
+
+    Each entry: (tag, centre, system, year, month, n_days).
+    """
+    p = os.path.join(DATA, "daily_centres.json")
+    if not os.path.exists(p):
+        return [(t, c, s, y, m, N_DAYS_MAX) for (t, c, s, y, m) in CENTRES]
+    out = []
+    for e in json.load(open(p)):
+        out.append((e["tag"], e["centre"], str(e["system"]),
+                    int(e["year"]), int(e["month"]),
+                    int(e.get("n_days", N_DAYS_MAX))))
+    return out
 
 
 def daily_hours(n=N_DAYS):
@@ -90,8 +121,8 @@ def live_jobs(st):
             if j.get("job") and j.get("status") in ("accepted", "running", "queued")]
 
 
-def chunk_list(n_days=N_DAYS, size=CHUNK):
-    """-> [[hours...], ...] the chunks a centre's 215-day run is split into."""
+def chunk_list(n_days=N_DAYS_MAX, size=CHUNK):
+    """-> [[hours...], ...] the chunks a centre's run is split into."""
     hs = daily_hours(n_days)
     return [hs[i:i + size] for i in range(0, len(hs), size)]
 
@@ -139,10 +170,10 @@ def submit(c, only=None):
 
     # candidate chunks: the ones not yet downloaded and not already queued
     cands = []
-    for tag, centre, sysid, yy, mm in CENTRES:
+    for tag, centre, sysid, yy, mm, ndays in load_centres():
         if only and tag not in only:
             continue
-        nch = len(chunk_list())
+        nch = len(chunk_list(ndays))
         for k in range(nch):
             if k in done.get(tag, ()) or (tag, k) in live_keys:
                 continue
@@ -157,7 +188,7 @@ def submit(c, only=None):
             print("-- pool full (%d live) - %d chunk(s) queued behind"
                   % (len(live) + new, len(cands)), flush=True)
             break
-        hs = chunk_list()[k]
+        hs = chunk_list(ndays)[k]
         req = {"originating_centre": centre, "system": sysid,
                "variable": "u_component_of_wind", "pressure_level": "10",
                "year": str(yy), "month": "%02d" % mm, "day": "01",
@@ -182,7 +213,7 @@ def submit(c, only=None):
         save_state(st)
         new += 1
         print("submitted %-16s chunk %d/%d  %d steps  job %s"
-              % (tag, k, len(chunk_list()), len(hs), jid[:8]), flush=True)
+              % (tag, k, len(chunk_list(ndays)), len(hs), jid[:8]), flush=True)
         time.sleep(5)
     print("submitted %d new job(s)" % new, flush=True)
     return new
@@ -293,7 +324,7 @@ def poll(c):
 
     # summary
     print("\n--- per-centre daily status")
-    for tag, *_ in CENTRES:
+    for tag, centre, sysid, yy, mm, ndays in load_centres():
         js = [j for j in st["jobs"] if j["tag"] == tag]
         done = sum(1 for j in js if j.get("status") == "decoded")
         pend = sum(1 for j in js if j.get("status") in ("accepted", "running", "queued"))
@@ -325,7 +356,7 @@ def main():
             poll(c)
             st = load_state()
             have = {j["tag"] for j in st["jobs"] if j.get("status") == "decoded"}
-            missing = [t for t, *_ in CENTRES if t not in have and
+            missing = [t for t, *_ in load_centres() if t not in have and
                        (not only or t in only)]
             if not missing:
                 print("ALL CENTRES HAVE DAILY DATA", flush=True)

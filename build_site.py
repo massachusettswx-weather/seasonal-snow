@@ -354,19 +354,13 @@ def build_snow(reg):
     <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
   <p class="lead">Accumulated snowfall over the continental United States, in
-  inches of liquid equivalent. The default view multiplies the liquid
-  equivalent by 10:1 &mdash; the same convention the weathermodels seasonal
-  product uses ("Total Snowfall [Liquid Equiv x 10:1 inch]") &mdash; so the
-  panels land on the same 0&ndash;300&nbsp;in colour scale. Anomalies are
-  measured against the model's own hindcast climate.</p>
+  inches of snow depth (liquid equivalent &times; 10:1, the same convention the
+  weathermodels seasonal product uses &mdash; "Total Snowfall [Liquid Equiv x
+  10:1 inch]") so the panels land on the same 0&ndash;300&nbsp;in colour scale.
+  Anomalies are measured against the model's own hindcast climate.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
-    <label>Units</label>
-    <span class="seg">
-      <button class="ctrl segbtn on" id="unitSnow" type="button" title="Liquid equivalent multiplied by 10:1, in inches">Liquid equiv &times; 10:1</button>
-      <button class="ctrl ghost segbtn" id="unitWe" type="button" title="Liquid equivalent, in inches">Liquid equiv</button>
-    </span>
   </div>
 </div>
 
@@ -411,25 +405,14 @@ if(q('m') && MODELS[q('m')]) sel.value=q('m');
 
 function model(){return MODELS[sel.value];}
 
-let UNIT='snow';
-function pick(o){return (UNIT==='snow'?o.file:(o.file_we||o.file))||'';}
-function unitName(){return UNIT==='snow'?'inches of liquid equivalent x 10:1':'inches of liquid equivalent';}
-function setUnit(u){
-  UNIT=u;
-  document.getElementById('unitSnow').className='ctrl segbtn'+(u==='snow'?' on':' ghost');
-  document.getElementById('unitWe').className='ctrl segbtn'+(u==='we'?' on':' ghost');
-  renderTotal(); renderMonthly(); renderAnom(+document.getElementById('anomRange').value);
-}
-document.getElementById('unitSnow').addEventListener('click',()=>setUnit('snow'));
-document.getElementById('unitWe').addEventListener('click',()=>setUnit('we'));
+function pick(o){return o.file||'';}
 
 function renderTotal(){
   const m=model();
   const t=m.total;
   document.getElementById('totalImg').src=pick(t);
   document.getElementById('totalImg').alt=t.caption;
-  document.getElementById('totalCap').textContent=
-    (t.caption||'').replace('inches of liquid equivalent x 10:1', unitName());
+  document.getElementById('totalCap').textContent=(t.caption||'');
 }
 
 function renderMonthly(){

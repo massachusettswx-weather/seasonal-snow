@@ -85,8 +85,11 @@ def main():
     ap.add_argument("--box", default="49,-100,24,-65", help="N,W,S,E")
     ap.add_argument("--workers", type=int, default=24)
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--months", default=",".join(str(m) for m in MONTHS))
+    ap.add_argument("--out", default="era5_snow_clim_arco.npz")
     args = ap.parse_args()
-    out_npz = os.path.join(DATA, "era5_snow_clim_arco.npz")
+    months = [int(x) for x in args.months.split(",")]
+    out_npz = os.path.join(DATA, args.out)
     if os.path.exists(out_npz):
         print("already have", out_npz)
         return
@@ -101,11 +104,11 @@ def main():
              lon[oi].min(), lon[oi].max()), flush=True)
 
     # month-by-month accumulation (both variables together, chunks are cached)
-    accum = {mo: [] for mo in MONTHS}
+    accum = {mo: [] for mo in months}
     cache_p = {}
     cache_t = {}
     for y in range(args.start, args.end + 1):
-        for mo in MONTHS:
+        for mo in months:
             nd = calendar.monthrange(y, mo)[1]
             ks = sorted({step_index(datetime.date(y, mo, d)) // NCHUNK_STEPS
                          for d in range(1, nd + 1)})
@@ -129,13 +132,13 @@ def main():
                 cache_p.pop(k, None); cache_t.pop(k, None)
         print("  %d done" % y, flush=True)
 
-    clim = np.stack([np.mean(np.array(accum[mo]), axis=0) for mo in MONTHS])   # (6, nlon, nlat)
+    clim = np.stack([np.mean(np.array(accum[mo]), axis=0) for mo in months])
     clim = np.transpose(clim, (0, 2, 1))                                       # (6, nlat, nlon)
     np.savez_compressed(out_npz, clim=clim.astype(np.float32),
                         lat=lat[li], lon=lon[oi],
-                        months=np.array(MONTHS), years=np.array([args.start, args.end]))
+                        months=np.array(months), years=np.array([args.start, args.end]))
     print("saved", out_npz, clim.shape)
-    for i, mo in enumerate(MONTHS):
+    for i, mo in enumerate(months):
         print("  month %02d: box mean %.1f mm w.e./month" % (mo, clim[i].mean()))
 
 
