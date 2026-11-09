@@ -132,11 +132,34 @@ def main():
             "init": st.get("init", "?"),
         }
         if d.get("total"):
+            # the window the panels actually cover (init -> the end of the
+            # last lead month)
+            init = st.get("init", "")
+            idate = ("%02d/01/%s" % (int(init[-2:]), init[:4])) if init else ""
+            edate = ""
+            mlabels = [info_of_file(fn)["label"]
+                       for k, fn in sorted(d.get("months", []))]
+            if mlabels:
+                lab = mlabels[-1]                      # e.g. "June 2027"
+                parts = lab.split()
+                mm = None
+                for i, (k, v) in enumerate(MONTH_ABBR.items(), start=1):
+                    if v.lower() == parts[0].lower():
+                        mm = i
+                if mm:
+                    nxt = mm + 1
+                    yr = parts[-1]
+                    if nxt > 12:
+                        nxt, yr = 1, str(int(yr) + 1)
+                    edate = "%02d/01/%s" % (nxt, yr)
             entry["total"] = {
                 "file": copy(os.path.join(OUT, d["total"]),
                              os.path.join(MAPDIR, d["total"])),
-                "caption": "Total accumulation from the init to the end of the run, "
-                           "in inches of snow depth (liquid equivalent x 10:1)."}
+                "caption": ("Total accumulation %s to %s, in inches of snow depth "
+                            "(liquid equivalent x 10:1)." % (idate, edate))
+                           if (idate and edate) else
+                           ("Total accumulation from the init to the end of the run, "
+                            "in inches of snow depth (liquid equivalent x 10:1).")}
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
