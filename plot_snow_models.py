@@ -44,7 +44,9 @@ def unit_mult():
 
 
 def unit_label():
-    return "in of snow (10:1 ratio)" if UNIT == "snow" else "in w.e."
+    # the weathermodels reference calls this product
+    # "Total Snowfall [Liquid Equiv x 10:1 inch]" - use its wording
+    return "liquid equiv x 10:1 (in)" if UNIT == "snow" else "liquid equiv (in)"
 
 
 def unit_suffix():

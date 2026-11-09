@@ -123,7 +123,7 @@ def main():
                 "file": copy(os.path.join(OUT, d["total"]),
                              os.path.join(MAPDIR, d["total"])),
                 "caption": "Total accumulation from the init to the end of the run, "
-                           "in inches of snow (10:1 ratio)."}
+                           "in inches of liquid equivalent x 10:1."}
             if d.get("total_we"):
                 entry["total"]["file_we"] = copy(
                     os.path.join(OUT, d["total_we"]),
