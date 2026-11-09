@@ -63,6 +63,11 @@ MDIR = os.path.join(DATA, "models")
 # the house anomaly palette: deep brown -> white -> deep teal
 ANOM_LEVELS = np.array([-4, -2, -1, -0.5, -0.25, -0.1, 0,
                          0.1, 0.25, 0.5, 1, 2, 4], dtype=float)
+# A snowfall anomaly is only meaningful where the model's own climate expects
+# real snow.  Below this much (inches of snow depth, liquid equiv x 10:1) the
+# anomaly is masked to white, so places that never see snow are not painted
+# as "drier than normal".
+ANOM_MASK_CLIM = 0.5
 
 
 def _nice_ceil(v):
@@ -376,7 +381,7 @@ def main():
             days = month_len(y, m)
             cm_in = interp_to(LAT.ravel(), LON.ravel(), lats, lons, cm).reshape(LAT.shape)
             cm_in = cm_in * days * 86400.0 * 1000.0 / 25.4 * unit_mult()
-            anoms.append((m, y, k + 1, monthly_in[k] - cm_in))
+            anoms.append((m, y, k + 1, monthly_in[k] - cm_in, cm_in))
 
         # ---------------- draw ----------------
         initlabel = "%s-%s-01 00Z" % (init[:4], init[5:7])
@@ -426,7 +431,11 @@ def main():
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
                      "Accumulated snowfall (%s)" % unit_label(),
                      white_below=float(lv[0]), prefix=title_prefix)
-        for (m, y, lead, a) in anoms:
+        for (m, y, lead, a, cl_in) in anoms:
+            # An anomaly where the model itself expects essentially no snow is
+            # noise, not signal: it made the Gulf Coast and Florida look "dry"
+            # on the maps.  Mask it to white below ANOM_MASK_CLIM inches.
+            a = np.where(cl_in >= ANOM_MASK_CLIM, a, np.nan)
             af = "SNOW_%s_%s%d_anom_in%s.png" % (tag.upper(), MONTH_NAMES[m - 1], y, unit_suffix())
             manifest[af] = {"label": "%s %d" % (MONTH_NAMES[m - 1], y),
                             "lead": lead}
