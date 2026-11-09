@@ -50,9 +50,9 @@ def unit_mult():
 
 
 def unit_label():
-    # the snow-depth product is labelled this way
-    # "Total Snowfall [Liquid Equiv x 10:1 inch]" - use its wording
-    return "liquid equiv x 10:1 (in)" if UNIT == "snow" else "liquid equiv (in)"
+    # every panel is in inches of snow (liquid equivalent x 10:1).  The unit
+    # note is kept off the graphics - "inches" says it.
+    return "inches"
 
 
 def unit_suffix():

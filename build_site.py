@@ -260,7 +260,7 @@ def build_home(reg):
 </div>
 <div class="grid c3">%s</div>
 <div class="card">
-  <p class="note">Snowfall is accumulated water equivalent in inches.
+  <p class="note">Snowfall is accumulated snow in inches.
   Anomalies are computed against each model's own hindcast climate.
   The 10&nbsp;hPa charts show every ensemble member, the ensemble mean, the
   ERA5 daily climatology with 10&ndash;90th and 30&ndash;70th percentile bands,
@@ -285,7 +285,7 @@ def build_model_page(reg):
 <div class="varlist" id="varlist"></div>
 
 <div class="card">
-  <p class="note">Snowfall is accumulated water equivalent in inches.
+  <p class="note">Snowfall is accumulated snow in inches.
   Anomalies are measured against the model's own hindcast climate.
   The 10&nbsp;hPa chart shows every ensemble member, the ensemble mean, the
   ERA5 1991&ndash;2020 daily climatology with 10&ndash;90th and 30&ndash;70th
@@ -354,10 +354,9 @@ def build_snow(reg):
     <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
   <p class="lead">Accumulated snowfall over the continental United States, in
-  inches of snow depth (the liquid equivalent &times; 10:1, the standard
-  fresh-snow ratio) on a 0&ndash;300&nbsp;in colour scale. Every model's season
-  is shown over the same window, ending 01 July 2027. Anomalies are measured
-  against the model's own hindcast climate.</p>
+  inches, on a 0&ndash;300&nbsp;in colour scale. Every model's season is shown
+  over the same window, ending 01 July 2027. Anomalies are measured against
+  the model's own hindcast climate.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>

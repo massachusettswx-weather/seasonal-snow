@@ -155,11 +155,11 @@ def main():
             entry["total"] = {
                 "file": copy(os.path.join(OUT, d["total"]),
                              os.path.join(MAPDIR, d["total"])),
-                "caption": ("Total accumulation %s to %s, in inches of snow depth "
-                            "(liquid equivalent x 10:1)." % (idate, edate))
+                "caption": ("Total accumulation %s to %s, in inches."
+                            % (idate, edate))
                            if (idate and edate) else
                            ("Total accumulation from the init to the end of the run, "
-                            "in inches of snow depth (liquid equivalent x 10:1).")}
+                            "in inches.")}
         if d.get("months"):
             ms = []
             for k, fn in sorted(d["months"]):
@@ -167,8 +167,7 @@ def main():
                 ms.append({"label": info["label"],
                            "file": copy(os.path.join(OUT, fn),
                                         os.path.join(MAPDIR, fn)),
-                           "caption": "Lead month %d - inches of snow depth "
-                                      "(liquid equivalent x 10:1)." % info["lead"]})
+                           "caption": "Lead month %d - inches." % info["lead"]})
             entry["months"] = ms
         frames = []
         if d.get("anom"):
@@ -181,8 +180,7 @@ def main():
                     "label": info["label"] or ("%s %d" % (mon, yr)),
                     "file": copy(os.path.join(OUT, fn), os.path.join(MAPDIR, fn)),
                     "caption": "Lead month %d - anomaly vs this model's own "
-                               "hindcast climate, in inches of snow depth "
-                               "(liquid equivalent x 10:1)." % info["lead"]}
+                               "hindcast climate, in inches." % info["lead"]}
                 frames.append(fr)
                 bybase[fn] = fr
         if frames:
