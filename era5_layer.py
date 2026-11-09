@@ -77,7 +77,9 @@ def season_md_list(start_md="10-01", end_md="06-10"):
 
 
 if __name__ == "__main__":
-    mds = season_md_list("10-01", "06-10")
+    # the whole calendar year: a model may now run to its own end (up to
+    # 12 lead months), so every calendar day needs a climatology
+    mds = season_md_list("01-01", "12-31")
     result = {"level": LEVEL, "years": [1991, 2020], "source": "ERA5 ARCO daily 12Z archive (Forecast-charts repo)"}
     for dom, key in (("60", "60N"), ("0", "NH"), ("70", "70N"), ("cap", "cap")):
         result[key] = build(dom, mds)

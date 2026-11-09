@@ -293,5 +293,12 @@
   "members": 31,
   "source": "NOAA NODD",
   "leads": 12
+ },
+ "cfsv2": {
+  "name": "NOAA CFSv2",
+  "init": "2026-11",
+  "members": 40,
+  "source": "NCEP CPC",
+  "leads": 6
  }
 }

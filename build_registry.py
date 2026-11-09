@@ -39,6 +39,13 @@ MODELS = {
                         "DWD GCFS2.2 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "meteo-france-s9": ("METFR System 9",
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "cfsv2":           ("NOAA CFSv2",
+                        "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 1 Nov 2026 \u00b7 read "
+                        "directly from NCEP CPC. The absolute snowfall is ERA5's "
+                        "1991-2020 climatology plus the CFSv2 hindcast anomaly "
+                        "(an approximation \u2014 CPC publishes the anomaly only). "
+                        "NOAA publishes no 10 hPa winds, so this model has snowfall "
+                        "panels only \u2014 no zonal-wind panel."),
     "sfsv1":           ("NOAA SFSv1 (SFS Beta)",
                         "NOAA Seasonal Forecast System v1 (SFS Beta beta3) \u00b7 31-member "
                         "ensemble \u00b7 12-month run \u00b7 init 1 Nov 2026 \u00b7 read "

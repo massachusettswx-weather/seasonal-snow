@@ -362,8 +362,8 @@ def main():
         draw_map(os.path.join(OUT, "snow_%s_total_run_in%s.png" % (tag, unit_suffix())),
                  "%s  Snowfall Total — Init to End of Run" % name,
                  "Init %s · %d-member ensemble mean · accumulated %s (%d lead months) · "
-                 "%s" % (initlabel, len(by_step[yms[0]]),
-                                                 window, len(yms), unit_label()),
+                 "%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
+                         window, len(yms), unit_label()),
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                  "Accumulated snowfall (%s)" % unit_label(),
@@ -384,8 +384,8 @@ def main():
             draw_map(os.path.join(OUT, mf),
                      "%s  Snowfall Total — %s" % (name, lab),
                      "Init %s · %d-member ensemble mean · lead month %d · "
-                     "%s%s" % (initlabel, len(by_step[yms[0]]), k + 1,
-                               unit_label(), cnote),
+                     "%s%s" % (initlabel, int(meta.get("members", len(by_step[yms[0]]))),
+                               k + 1, unit_label(), cnote),
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
                      "Accumulated snowfall (%s)" % unit_label(),
@@ -398,7 +398,7 @@ def main():
                      "%s Snowfall Anomaly  %s %d" % (name, MONTH_NAMES[m - 1], y),
                      "Init %s · %d-member ensemble mean · lead month %d · "
                      "anomaly vs %s hindcast climate · %s" % (
-                         initlabel, len(by_step[yms[0]]),
+                         initlabel, int(meta.get("members", len(by_step[yms[0]]))),
                          lead, name, unit_label()),
                      a, X, Y, in_us, relief, states, provs, countries,
                      acmap, anorm, ANOM_LEVELS * unit_mult(),

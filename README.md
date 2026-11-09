@@ -28,12 +28,30 @@ docs/            the static site (GitHub Pages publishes this directory)
 | ECCC GEM5.2-NEMO | 2026-10 | 20 | yes | yes (monthly) |
 | CMCC SPS4 | 2026-10 | 50 | yes | yes (monthly) |
 | DWD GCFS2.2 | 2026-10 | 50 | yes | yes (monthly) |
+| NOAA SFSv1 (SFS Beta beta3) | 2026-11 | 31 | yes (12 lead months) | no - NOAA publishes no 10 hPa winds |
+| NOAA CFSv2 | 2026-11 | 40 | yes | no - CPC publishes no 10 hPa winds |
 
 **Why the different inits.** The non-ECMWF C3S contributions are date
 restricted: as of 7 Nov 2026 they answer the 1 Nov 2026 init with
 *"Restricted access to current C3S seasonal forecast non-ECMWF contribution"*,
 i.e. the November runs are not released yet. Each model is therefore shown from
 its own most recent released init, and every figure is labelled with it.
+
+**The NOAA systems come from NOAA, not from C3S.** C3S's NCEP entry serves no
+recent data at all, so both NOAA systems are read from NOAA itself:
+
+* `fetch_sfs.py` reads the SFSv1 monthly forecast and reforecast from
+  `s3://noaa-oar-sfsdev-pds` (public, anonymous HTTP + zarr). `beta3` carries
+  the 1 Nov 2026 init and a **12-month run** (1 Nov 2026 - 31 Oct 2027) - the
+  longest on the site.
+* `fetch_cfsv2.py` reads the monthly means CPC publishes for the 1 Nov 2026
+  init (`www.cpc.ncep.noaa.gov/products/CFSv2`). Those files hold the anomaly
+  of the 40-member ensemble mean against the 1991-2020 CFSv2 hindcast
+  climatology, so the absolute snowfall is ERA5's climatology plus that
+  anomaly - an approximation, and the figure says so.
+
+Neither NOAA source publishes a 10 hPa wind, so those two models have snowfall
+panels only.
 
 ## Refreshing after the C3S release (expected 10 Nov 2026)
 
@@ -167,6 +185,8 @@ Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
 
 * Seasonal forecasts: Copernicus CDS (`seasonal-monthly-single-levels`,
   `seasonal-monthly-pressure-levels`, `seasonal-original-pressure-levels`).
+* NOAA SFSv1: `s3://noaa-oar-sfsdev-pds` (zarr). NOAA CFSv2: NCEP CPC monthly
+  means (netCDF).
 * ERA5 climatology 1991-2020 and the 1959-2020 record bounds: the local ERA5
   daily archive, rebuilt from the public reanalysis store.
 * Orography for the shaded relief: ERA5 orography.

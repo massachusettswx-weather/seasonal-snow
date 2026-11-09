@@ -109,6 +109,7 @@ def month_table(times, ens, era, same_days=False):
 
 def render_daily(tag, name, init, times, m60, mnh, daily_label):
     """Draw the 60N and NH panels from a daily member matrix."""
+    nlead = len({(t.year, t.month) for t in times})
     for dom, mat, key in (("60", m60, "60N"), ("NH", mnh, "NH")):
         era = load_era5(dom, int(init[:4]))
         label = "60°N" if dom == "60" else "Northern Hemisphere"
@@ -116,9 +117,9 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
         render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
                    n_members=mat.shape[0],
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)"
-                            " · lead months 1–7 · ERA5 climatology 1991–2020"
+                            " · lead months 1–%d · ERA5 climatology 1991–2020"
                             % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
-                               mat.shape[0]),
+                               mat.shape[0], nlead),
                    footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
                           "1991–2020" % name,
                    title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"
