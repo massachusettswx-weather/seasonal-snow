@@ -427,6 +427,9 @@ function renderMonthly(){
 
 function renderAnom(i){
   const m=model();
+  const card=document.getElementById('tab-anom');
+  if(!m.frames.length){ if(card) card.style.display='none'; return; }
+  if(card) card.style.display='';
   const fr=m.frames[i];
   document.getElementById('anomImg').src=pick(fr);
   document.getElementById('anomImg').alt=fr.label;
