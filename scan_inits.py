@@ -20,12 +20,13 @@ API = "https://cds.climate.copernicus.eu/api"
 S = requests.Session()
 S.headers.update({"PRIVATE-TOKEN": KEY})
 
+# the centres the site publishes.  NCEP and BOM are in the C3S catalogue but
+# are not on the site (NOAA is read from NOAA itself), so probing them only
+# burns queue slots.
 SYSTEMS = [
-    ("ncep-cfsv2",     "NCEP CFSv2",          "ncep",  "2"),
     ("ukmo-gloseas6",  "UKMO GloSeas6-GC5.1", "ukmo",  "610"),
     ("eccc-canesm5",   "ECCC CanESM5.1p1bc",  "eccc",  "4"),
     ("eccc-gem5",      "ECCC GEM5.2-NEMO",    "eccc",  "5"),
-    ("bom-access-s2",  "BOM ACCESS-S2",       "bom",   "2"),
     ("cmcc-sps4",      "CMCC SPS4",           "cmcc",  "4"),
     ("dwd-gcfs2",      "DWD GCFS2.2",         "dwd",   "22"),
     ("meteo-france-s9","METFR System 9",      "meteo_france", "9"),
@@ -46,7 +47,7 @@ def submit(ds, req):
     return r.json().get("jobID"), None
 
 
-def wait(jid, max_s=900):
+def wait(jid, max_s=14400):
     t0 = time.time()
     while time.time() - t0 < max_s:
         time.sleep(10)
@@ -54,6 +55,27 @@ def wait(jid, max_s=900):
             j = S.get("%s/retrieve/v1/jobs/%s" % (API, jid), timeout=60).json()
         except Exception as e:
             return "err", str(e)[:120]
+        st = j.get("status")
+        if st in ("successful", "rejected", "failed"):
+            return st, None
+    return "timeout", None
+
+
+def wait_long(jid, max_s=14400):
+    """Poll one job until it is really finished.
+
+    The CDS queue can hold a job for hours.  A client-side timeout says
+    nothing about the data, so the same job is kept polling instead of
+    being written off as "no data for this init".
+    """
+    t0 = time.time()
+    while time.time() - t0 < max_s:
+        time.sleep(20)
+        try:
+            j = S.get("%s/retrieve/v1/jobs/%s" % (API, jid), timeout=60).json()
+        except Exception as e:
+            print("      poll error: %s" % str(e)[:80], flush=True)
+            continue
         st = j.get("status")
         if st in ("successful", "rejected", "failed"):
             return st, None
@@ -79,7 +101,7 @@ def try_init(ds, centre, system, y, m, var="snowfall"):
     jid, err = submit(ds, req)
     if err:
         return None, err
-    st, err = wait(jid)
+    st, err = wait_long(jid)
     if st == "successful":
         return "OK", None
     tb = traceback(jid)

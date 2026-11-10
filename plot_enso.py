@@ -46,11 +46,10 @@ ZERO = "#8a8a8a"
 
 N_OBS = 12               # how many months of analysis to show
 
-# Only these models are published.  The other C3S centres are staged on disk
-# but their plumes wait for the November init release.  Set ENSO_RELEASE=all
-# once the November init is out for every centre.
-RELEASE = os.environ.get("ENSO_RELEASE", "ecmwf-seas5,cfsv2,sfsv1,ecmwf-s4s")
-if RELEASE.strip().lower() == "all":
+# Every centre that has a plume is published.  ENSO_RELEASE can still restrict
+# the list (a comma separated list of tags) if a centre's data is not ready.
+RELEASE = os.environ.get("ENSO_RELEASE", "all")
+if RELEASE.strip().lower() in ("all", ""):
     RELEASE = []
 
 NAMES = {"ecmwf-seas5": "ECMWF SEAS5", "cmcc-sps4": "CMCC SPS4",

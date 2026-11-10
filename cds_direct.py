@@ -57,7 +57,7 @@ class CDSDirect:
         raise last
 
     # ------------------------------------------------------------------
-    def retrieve(self, dataset, request, target, poll_s=15, max_wait_s=3600):
+    def retrieve(self, dataset, request, target, poll_s=15, max_wait_s=14400):
         """Submit one job, wait for it, download it.  Raises QueueFull/NoData."""
         r = self._request("POST", "/retrieve/v1/processes/%s/execute" % dataset,
                           json={"inputs": request})

@@ -229,7 +229,15 @@ def build_one(tag, name, init):
             render_daily(tag, name, init, times, m60, mnh, "daily")
             return
 
-        # monthly fallback
+        # monthly fallback - but only when there is nothing published yet.
+        # A centre whose daily series has not been re-pulled keeps the daily
+        # panel it already has; the monthly fallback would be a step back.
+        pub = os.path.join(OUT, "SPV_%s_60N.png" % tag)
+        if os.path.exists(pub):
+            print("keep the published daily panel for %s (no daily series yet)"
+                  % tag, flush=True)
+            return
+
         ug = os.path.join(MDIR, tag, "u10_monthly.grib")
         if not os.path.exists(ug):
             print("skip %s (no u10)" % tag)

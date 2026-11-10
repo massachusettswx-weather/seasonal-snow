@@ -45,7 +45,9 @@
    "nlat": 1,
    "nlon": 1
   },
-  "members": 51
+  "members": 51,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10"
  },
  "ukmo-gloseas6": {
   "name": "UKMO GloSeas6-GC5.1",
@@ -93,7 +95,9 @@
    "nlat": 1,
    "nlon": 1
   },
-  "members": 60
+  "members": 60,
+  "expected_leads": 6,
+  "probe_date": "2026-11-10"
  },
  "eccc-canesm5": {
   "name": "ECCC CanESM5.1p1bc",
@@ -141,7 +145,9 @@
    "nlat": 1,
    "nlon": 1
   },
-  "members": 20
+  "members": 20,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10"
  },
  "eccc-gem5": {
   "name": "ECCC GEM5.2-NEMO",
@@ -189,7 +195,9 @@
    "nlat": 1,
    "nlon": 1
   },
-  "members": 20
+  "members": 20,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10"
  },
  "cmcc-sps4": {
   "name": "CMCC SPS4",
@@ -237,7 +245,9 @@
    "nlon": 1
   },
   "done": true,
-  "members": 50
+  "members": 50,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10"
  },
  "dwd-gcfs2": {
   "name": "DWD GCFS2.2",
@@ -285,7 +295,9 @@
    "nlon": 1
   },
   "done": true,
-  "members": 50
+  "members": 50,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10"
  },
  "sfsv1": {
   "name": "NOAA SFSv1",
@@ -307,5 +319,47 @@
   "init": "2026-11",
   "members": 6,
   "note": "mean of the 6 C3S seasonal systems; ECMWF SEAS5 on the 1 Nov 2026 init, the rest on 1 Oct 2026"
+ },
+ "meteo-france-s9": {
+  "name": "METFR System 9",
+  "centre": "meteo_france",
+  "system": "9",
+  "expected_leads": 6,
+  "init": "2026-10",
+  "snow": {
+   "fields": 306,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null
+  },
+  "clim": {
+   "fields": 6,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null
+  },
+  "u10m": {
+   "fields": 306,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ],
+   "grid": null
+  },
+  "done": true,
+  "probe_date": "2026-11-10"
  }
 }

@@ -40,7 +40,7 @@ DATASET = "seasonal-original-single-levels"
 
 CHUNK = 72              # 12-hourly steps per CDS request (= 36 days)
 MAX_INFLIGHT = 3        # the CDS queue gate lets ~3 of our jobs sit queued
-WEDGE_S = 25 * 60
+WEDGE_S = 3 * 3600
 N_DAYS_MAX = 365        # generous ceiling; each model is trimmed to its own end
 
 # CONUS crop for the map panels (a little wider than the display domain)
@@ -65,9 +65,23 @@ def load_centres():
     if not os.path.exists(p):
         return [(t, c, s, y, m, N_DAYS_MAX) for (t, c, s, y, m) in CENTRES]
     out = []
+    # pull each centre at ITS OWN init: the non-ECMWF C3S contributions are
+    # often a month behind the ECMWF one, and fetch_models.py probed and
+    # recorded the freshest init each one actually serves.
+    probed = {}
+    fp = os.path.join(DATA, "models_fetched.json")
+    if os.path.exists(fp):
+        for k, v in json.load(open(fp)).items():
+            if v.get("init"):
+                probed[k] = v["init"]
     for e in json.load(open(p)):
-        out.append((e["tag"], e["centre"], str(e["system"]), int(e["year"]),
-                    int(e["month"]), int(e.get("n_days", N_DAYS_MAX))))
+        init = probed.get(e["tag"])
+        y, m = int(e["year"]), int(e["month"])
+        if init:
+            yy, mm = init.split("-")
+            y, m = int(yy), int(mm)
+        out.append((e["tag"], e["centre"], str(e["system"]), y, m,
+                    int(e.get("n_days", N_DAYS_MAX))))
     return out
 
 
@@ -287,8 +301,26 @@ def submit(c, only=None):
     st = load_state()
     done = decoded_chunks(st)
     live = live_jobs(st)
+    # the stall brake only applies for a while: a queue that is merely slow
+    # must not throttle the pool to a single job for hours
+    if st.get("stall") and time.time() - st.get("stall_at", 0) > 1800:
+        st["stall"] = False
     cap = 1 if st.get("stall") else MAX_INFLIGHT
     live_keys = {(j["tag"], j.get("chunk", 0)) for j in live}
+    # a chunk that failed is past the model's own lead time - it can never
+    # succeed, and neither can the chunks after it.  Do not keep re-submitting
+    # them: that only burns the three queue slots.
+    failed_min = {}
+    for j in st["jobs"]:
+        if j.get("status") in ("failed", "rejected", "dismissed", "gone",
+                               "stalled", "download_failed", "decode_failed"):
+            note = j.get("note") or ""
+            if "Maximum number queued" in note or "queue" in note.lower():
+                # the CDS refused it because our own pool was full - that is
+                # not "no data", so the chunk is still worth submitting
+                continue
+            k = j.get("chunk", 0)
+            failed_min[j["tag"]] = min(failed_min.get(j["tag"], 10 ** 6), k)
     new = 0
     cands = []
     for tag, centre, sysid, yy, mm, ndays in load_centres():
@@ -297,6 +329,8 @@ def submit(c, only=None):
         for k in range(len(chunk_list(ndays))):
             if k in done.get(tag, ()) or (tag, k) in live_keys:
                 continue
+            if k >= failed_min.get(tag, 10 ** 6):
+                continue        # past the model's own lead time
             cands.append((-len(done.get(tag, ())), tag, centre, sysid, yy, mm, ndays, k))
     cands.sort()
     for _, tag, centre, sysid, yy, mm, ndays, k in cands:

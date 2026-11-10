@@ -47,7 +47,7 @@ MAX_INFLIGHT = 3      # the CDS queue gate lets ~3 of our jobs sit queued at
                       # once; anything beyond that is rejected outright.
 WEDGE_S = 3 * 3600    # a job that has sat "accepted" this long without a
                       # worker has wedged - dismiss it and re-queue.
-STALL_S = 25 * 60    # if EVERY live job has been waiting this long and none
+STALL_S = 90 * 60    # if EVERY live job has been waiting this long and none
                       # has been picked up by a MARS worker, the archive is
                       # not processing for us at all.  Holding three queue
                       # slots in that state blocks every other dataset too
@@ -90,9 +90,22 @@ def load_centres():
     if not os.path.exists(p):
         return [(t, c, s, y, m, N_DAYS_MAX) for (t, c, s, y, m) in CENTRES]
     out = []
+    # a centre that is not on the November init yet (the non-ECMWF C3S
+    # contributions usually release later) must be pulled at ITS OWN init,
+    # which fetch_models.py probed and recorded.
+    probed = {}
+    fp = os.path.join(DATA, "models_fetched.json")
+    if os.path.exists(fp):
+        for k, v in json.load(open(fp)).items():
+            if v.get("init"):
+                probed[k] = v["init"]
     for e in json.load(open(p)):
-        out.append((e["tag"], e["centre"], str(e["system"]),
-                    int(e["year"]), int(e["month"]),
+        init = probed.get(e["tag"])
+        y, m = int(e["year"]), int(e["month"])
+        if init:
+            yy, mm = init.split("-")
+            y, m = int(yy), int(mm)
+        out.append((e["tag"], e["centre"], str(e["system"]), y, m,
                     int(e.get("n_days", N_DAYS_MAX))))
     return out
 
@@ -148,6 +161,10 @@ def submit(c, only=None):
     st = load_state()
     done = decoded_chunks(st)
     live = live_jobs(st)
+    # the stall brake only applies for a while: a queue that is merely slow
+    # must not throttle the pool to a single job for hours
+    if st.get("stall") and time.time() - st.get("stall_at", 0) > 1800:
+        st["stall"] = False
     cap = 1 if st.get("stall") else MAX_INFLIGHT
     if live:
         waited = [time.time() - j.get("_t0", time.time()) for j in live]
@@ -162,10 +179,25 @@ def submit(c, only=None):
                     print("   dismiss failed:", str(e)[:120], flush=True)
                 j["status"] = "stalled"
             st["stall"] = True
+            st["stall_at"] = time.time()
             live = []
             cap = 1
             save_state(st)
     live_keys = {(j["tag"], j.get("chunk", 0)) for j in live}
+    # a chunk that failed is past the model's own lead time - it can never
+    # succeed, and neither can the chunks after it.  Do not keep re-submitting
+    # them: that only burns the three queue slots.
+    failed_min = {}
+    for j in st["jobs"]:
+        if j.get("status") in ("failed", "rejected", "dismissed", "gone",
+                               "stalled", "download_failed", "decode_failed"):
+            note = j.get("note") or ""
+            if "Maximum number queued" in note or "queue" in note.lower():
+                # the CDS refused it because our own pool was full - that is
+                # not "no data", so the chunk is still worth submitting
+                continue
+            k = j.get("chunk", 0)
+            failed_min[j["tag"]] = min(failed_min.get(j["tag"], 10 ** 6), k)
     new = 0
 
     # candidate chunks: the ones not yet downloaded and not already queued
@@ -177,6 +209,8 @@ def submit(c, only=None):
         for k in range(nch):
             if k in done.get(tag, ()) or (tag, k) in live_keys:
                 continue
+            if k >= failed_min.get(tag, 10 ** 6):
+                continue        # past the model's own lead time
             # FINISH a centre before starting another: the three queue slots
             # are scarce, and a centre is only publishable once all its chunks
             # are in, so a half-done centre is worth more than a fresh one.

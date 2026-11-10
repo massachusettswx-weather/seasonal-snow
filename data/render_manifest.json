@@ -454,5 +454,53 @@
  "snow_c3s-multi_month05_in.png": {
   "label": "March 2027",
   "lead": 5
+ },
+ "snow_meteo-france-s9_month01_in.png": {
+  "label": "October 2026",
+  "lead": 1
+ },
+ "snow_meteo-france-s9_month02_in.png": {
+  "label": "November 2026",
+  "lead": 2
+ },
+ "snow_meteo-france-s9_month03_in.png": {
+  "label": "December 2026",
+  "lead": 3
+ },
+ "snow_meteo-france-s9_month04_in.png": {
+  "label": "January 2027",
+  "lead": 4
+ },
+ "snow_meteo-france-s9_month05_in.png": {
+  "label": "February 2027",
+  "lead": 5
+ },
+ "snow_meteo-france-s9_month06_in.png": {
+  "label": "March 2027",
+  "lead": 6
+ },
+ "SNOW_METEO-FRANCE-S9_October2026_anom_in.png": {
+  "label": "October 2026",
+  "lead": 1
+ },
+ "SNOW_METEO-FRANCE-S9_November2026_anom_in.png": {
+  "label": "November 2026",
+  "lead": 2
+ },
+ "SNOW_METEO-FRANCE-S9_December2026_anom_in.png": {
+  "label": "December 2026",
+  "lead": 3
+ },
+ "SNOW_METEO-FRANCE-S9_January2027_anom_in.png": {
+  "label": "January 2027",
+  "lead": 4
+ },
+ "SNOW_METEO-FRANCE-S9_February2027_anom_in.png": {
+  "label": "February 2027",
+  "lead": 5
+ },
+ "SNOW_METEO-FRANCE-S9_March2027_anom_in.png": {
+  "label": "March 2027",
+  "lead": 6
  }
 }

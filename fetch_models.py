@@ -47,8 +47,8 @@ SYSTEMS = [
     ("cmcc-sps4",      "CMCC SPS4",            "cmcc",  "4",  7),
     ("dwd-gcfs2",      "DWD GCFS2.2",          "dwd",   "22", 7),
     ("meteo-france-s9","METFR System 9",       "meteo_france", "9", 6),
-    ("ncep-cfsv2",     "NCEP CFSv2",           "ncep",  "2",  7),
-    ("bom-access-s2",  "BOM ACCESS-S2",        "bom",   "2",  7),
+    # NCEP and BOM are in the C3S catalogue but are not site models - NOAA is
+    # read from NOAA itself - so they are not fetched.
 ]
 
 # probe newest first: Nov 2026, then Oct, Sep, ... back a year
@@ -99,7 +99,7 @@ def retrieve(ds, req, out, tries=4):
             continue
         jid = r.json().get("jobID")
         t0 = time.time()
-        while time.time() - t0 < 2400:
+        while time.time() - t0 < 14400:
             time.sleep(12)
             try:
                 st = S.get(API + "/retrieve/v1/jobs/" + jid, timeout=60).json().get("status")
@@ -162,8 +162,18 @@ def grib_info(path):
         return {"error": str(e)[:120]}
 
 
-def probe_init(centre, system):
-    """-> (year, month) of the freshest released init, or None."""
+def probe_init(centre, system, rec=None):
+    """-> (year, month) of the freshest released init, or None.
+
+    A centre probed earlier today is not probed again: the CDS queue is slow
+    and the answer cannot change within the day.  Clearing probe_date in
+    data/models_fetched.json forces a fresh probe.
+    """
+    today = time.strftime("%Y-%m-%d")
+    if rec and rec.get("probe_date") == today and rec.get("init"):
+        y, m = rec["init"].split("-")
+        print("   probe cache: %s (probed today)" % rec["init"], flush=True)
+        return int(y), int(m)
     for (y, m) in MONTHS:
         req = {"originating_centre": centre, "system": system,
                "variable": "snowfall", "product_type": "monthly_mean",
@@ -191,7 +201,7 @@ def main():
         # keep the init we already have, unless we can find a fresher one
         have = rec.get("init")
         print("== %-16s %s:%s  (current init %s)" % (tag, centre, system, have), flush=True)
-        fresh = probe_init(centre, system)
+        fresh = probe_init(centre, system, rec)
         if fresh is None:
             print("   no released init found - skipping", flush=True)
             rec["done"] = False
@@ -206,6 +216,7 @@ def main():
             continue
         init = "%s-%s" % (y, m)
         rec["init"] = init
+        rec["probe_date"] = time.strftime("%Y-%m-%d")
         rec.pop("snow", None); rec.pop("clim", None)
         rec.pop("u10", None); rec.pop("u10m", None)
         for f in ("snowfall_monthly.grib", "snowfall_hindcast.grib",

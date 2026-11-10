@@ -1,0 +1,12 @@
+{
+ "ecmwf-seas5": "2026-11",
+ "ukmo-gloseas6": "2026-10",
+ "eccc-canesm5": "2026-10",
+ "eccc-gem5": "2026-10",
+ "cmcc-sps4": "2026-10",
+ "dwd-gcfs2": "2026-10",
+ "sfsv1": "2026-11",
+ "cfsv2": "2026-11",
+ "c3s-multi": "2026-11",
+ "meteo-france-s9": "2026-10"
+}

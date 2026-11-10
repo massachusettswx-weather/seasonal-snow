@@ -25,12 +25,12 @@ pip install --break-system-packages -q -i https://pypi.org/simple \
     >/dev/null 2>&1
 log "toolchain ready"
 
-# 2. drop every series that came from the October fallback
-rm -f data/models/*/u10_daily.npz data/models/*/snow_daily.npz
-rm -f data/models/*/sst_monthly.grib data/models/*/enso.json
-rm -f data/models/*/sst_hindcast.npz data/models/*/sst_extended.npz
-rm -f data/daily_jobs.json data/snow_daily_jobs.json
-log "October series removed"
+# 2. drop the series of every centre whose init actually moves.
+#    A centre that is still on the October init keeps its data (and its jobs
+#    that are already in the CDS queue), so a restart does not throw away
+#    hours of work.
+python3 -u wipe_changed_inits.py snapshot
+log "init snapshot taken"
 
 # 3. point the daily pulls at the November init (365 d ceiling; each model is
 #    later trimmed to its own last date).  NOAA is deliberately absent - it
@@ -59,10 +59,19 @@ JSON
 log "daily pulls re-pointed at the November init"
 
 # 4. what does C3S actually serve now?
-python3 -u scan_inits.py 2>&1 | tee "data/probe/inits_$(date -u +%m%d).txt"
+#    fetch_models.py probes each centre for its freshest released init anyway,
+#    and the CDS queue is slow today, so the standalone scan is skipped unless
+#    it is asked for (SKIP_SCAN=0) - it would cost one extra queued request
+#    per centre for the same answer.
+if [ "${SKIP_SCAN:-1}" = "0" ]; then
+    python3 -u scan_inits.py 2>&1 | tee "data/probe/inits_$(date -u +%m%d).txt"
+else
+    log "skipping the standalone init scan (fetch_models.py probes each centre)"
+fi
 
 # 5. the data (CDS requests are sequential)
 python3 -u fetch_models.py               # monthly snowfall + hindcast climate + u10
+python3 -u wipe_changed_inits.py wipe     # drop only the centres that moved
 python3 -u fetch_models_daily.py --auto  # daily 10 hPa -> each model's full lead time
 python3 -u fetch_snow_daily.py --auto    # daily snowfall -> snow past lead month 6
 python3 -u fetch_sfs.py                  # NOAA SFSv1 on the current init
