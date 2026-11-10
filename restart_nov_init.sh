@@ -28,6 +28,7 @@ log "toolchain ready"
 # 2. drop every series that came from the October fallback
 rm -f data/models/*/u10_daily.npz data/models/*/snow_daily.npz
 rm -f data/models/*/sst_monthly.grib data/models/*/enso.json
+rm -f data/models/*/sst_hindcast.npz data/models/*/sst_extended.npz
 rm -f data/daily_jobs.json data/snow_daily_jobs.json
 log "October series removed"
 
@@ -80,6 +81,9 @@ python3 -u fetch_ersst.py           # the analysis: NOAA ERSST v6
 python3 -u fetch_oni.py             # the official NOAA/CPC ONI and RONI
 python3 -u fetch_enso.py            # the C3S centres, one request at a time
 python3 -u fetch_enso_noaa.py       # NOAA SFSv1 + NOAA CFSv2
+python3 -u fetch_enso_hc.py         # each centre's own SST hindcast climate
+python3 -u fetch_enso_ext.py        # the extra lead months (the monthly product stops at 6)
+python3 -u fetch_s4s.py             # the ECMWF Subseasonal (needs the Data Store terms)
 ENSO_RELEASE=all python3 -u plot_enso.py
 
 # 7. the site

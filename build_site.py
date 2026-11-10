@@ -357,8 +357,9 @@ render();
 def build_snow(reg):
     """Step 3a: the snowfall page."""
     models = [m for m in reg.get("models", []) if m["snow_ok"]]
-    sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
-                  for m in models)
+    sel = "".join('<option value="%s"%s>%s</option>'
+                  % (m["id"], " selected" if m["id"] == "ecmwf-seas5" else "",
+                     m["name"]) for m in models)
     body = """<div class="card">
   <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
     <a href="model.html">Choose a variable</a></div>
@@ -480,57 +481,65 @@ renderAll();
 
 
 def build_enso(reg):
-    """The ENSO plume page: the ONI and RONI plumes, one per basin."""
+    """The ENSO page: one plume chart, with the model, index and region picked
+    from the menus."""
     models = [m for m in reg.get("models", []) if m.get("enso_ok")]
-    sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
-                  for m in models)
+    sel = "".join('<option value="%s"%s>%s</option>'
+                  % (m["id"], " selected" if m["id"] == "ecmwf-seas5" else "",
+                     m["name"]) for m in models)
+    basins = ["Nino 3.4", "Nino 3", "Nino 4", "Nino 1+2"]
+    bsel = "".join('<option value="%s">%s</option>' % (b, b) for b in basins)
     body = """<div class="card">
   <div class="crumb"><a href="index.html">&larr; All models</a></div>
   <h2 class="sec">ENSO</h2>
   <p class="lead">Sea surface temperature anomaly in each of the four ENSO
   regions, against the 1991&ndash;2020 climatology of the same basin and month.
-  The thick navy line is the ensemble mean, the light lines are the members,
-  the shaded envelope is the member spread, and the black line in front is the
-  observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset NOAA/CPC builds
-  the ONI and the RONI from &mdash; measured against the same baseline.
-  <b>ONI</b> is the plain anomaly; <b>RONI</b> has the tropical-mean
-  (20&deg;S&ndash;20&deg;N) SST anomaly subtracted and is rescaled to the
-  ONI&rsquo;s own spread, so it says whether the Pacific is warm or cold
-  <i>relative to the rest of the ocean</i>.</p>
+  The thick red line is the ensemble mean, the light red lines are the
+  members, the shaded envelope is the member spread, and the black line in
+  front is the observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset
+  NOAA/CPC builds the ONI and the RONI from. <b>ONI</b> is the plain anomaly;
+  <b>RONI</b> has the tropical-mean (20&deg;S&ndash;20&deg;N) SST anomaly
+  subtracted and is rescaled to the ONI&rsquo;s own spread, so it says whether
+  the Pacific is warm or cold <i>relative to the rest of the ocean</i>. The
+  forecast is re-levelled onto the analysis, so the plume continues from the
+  observation instead of starting a degree above it.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
     <label for="indexSel">Index</label>
     <select id="indexSel" class="ctrl">
       <option value="oni">ONI &mdash; absolute anomaly</option>
-      <option value="roni">RONI &mdash; relative anomaly</option>
+      <option value="roni" selected>RONI &mdash; relative anomaly</option>
     </select>
+    <label for="basinSel">Region</label>
+    <select id="basinSel" class="ctrl">%s</select>
   </div>
 </div>
 
 <div class="card">
-  <h2 class="sec">Plume charts</h2>
+  <h2 class="sec">Plume chart</h2>
   <div class="grid c1" id="ensoGrid"></div>
-</div>""" % sel
+</div>""" % (sel, bsel)
 
     js = """
 <script>
 const MODELS = __MODELS__;
 const sel=document.getElementById('modelSel');
 const isel=document.getElementById('indexSel');
+const bsel=document.getElementById('basinSel');
 function render(){
   const m=MODELS[sel.value];
-  const kind=isel.value;
+  const kind=isel.value, basin=bsel.value;
   const g=document.getElementById('ensoGrid');
   if(!m||!m.enso){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
-  const rows=m.enso.filter(e=>e.index===kind);
-  if(!rows.length){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
-  g.innerHTML=rows.map(e=>
-    '<figure class="panel"><img loading="lazy" src="'+e.file+'" alt="'+e.caption+'">'+
-    '<figcaption>'+e.caption+'</figcaption></figure>').join('');
+  const row=m.enso.find(e=>e.index===kind && e.basin===basin);
+  if(!row){g.innerHTML='<p class="lead">No ENSO plume for this model.</p>';return;}
+  g.innerHTML='<figure class="panel"><img loading="lazy" src="'+row.file+'" alt="'+row.caption+'">'+
+    '<figcaption>'+row.caption+'</figcaption></figure>';
 }
 sel.addEventListener('change',render);
 isel.addEventListener('change',render);
+bsel.addEventListener('change',render);
 render();
 </script>"""
 
@@ -543,8 +552,9 @@ render();
 def build_spv(reg):
     """Step 3b: the zonal wind page."""
     models = [m for m in reg.get("models", []) if m["spv_ok"]]
-    sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
-                  for m in models)
+    sel = "".join('<option value="%s"%s>%s</option>'
+                  % (m["id"], " selected" if m["id"] == "ecmwf-seas5" else "",
+                     m["name"]) for m in models)
     body = """<div class="card">
   <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
     <a href="model.html">Choose a variable</a></div>

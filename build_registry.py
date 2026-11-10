@@ -53,6 +53,11 @@ MODELS = {
                         "(an approximation \u2014 CPC publishes the anomaly only). "
                         "NOAA publishes no 10 hPa winds, so this model has snowfall "
                         "panels only \u2014 no zonal-wind panel."),
+    "ecmwf-s4s":       ("ECMWF Subseasonal",
+                        "ECMWF Subseasonal Prediction System (S4S) \u00b7 ensemble "
+                        "\u00b7 weekly means out to 46 days \u00b7 read from ECMWF's own "
+                        "climate store. A sub-seasonal system: its plume covers the "
+                        "first six weeks of the run, not whole seasons."),
     "sfsv1":           ("NOAA SFSv1",
                         "Experimental \u00b7 NOAA Seasonal Forecast System v1 \u00b7 31-member "
                         "ensemble \u00b7 0.5\u00b0 grid \u00b7 init 1 Nov 2026 \u00b7 read "
@@ -205,6 +210,22 @@ def main():
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):
             reg["models"].append(entry)
+
+    # a model that has ENSO plumes but no snowfall panels (the ECMWF
+    # Subseasonal system) still needs its own entry
+    have = {e["id"] for e in reg["models"]}
+    for tag in sorted(enso):
+        if tag in have:
+            continue
+        name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
+        st = fstate.get(tag, {})
+        reg["models"].append({
+            "id": tag,
+            "name": name,
+            "note": note,
+            "members": st.get("members", "?"),
+            "init": st.get("init", "?"),
+        })
 
     # attach the ENSO plume charts
     for entry in reg["models"]:

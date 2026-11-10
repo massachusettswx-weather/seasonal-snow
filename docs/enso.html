@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ENSO &middot; Seasonal Forecast Graphics</title>
-<link rel="stylesheet" href="assets/css/style.css?v=20261110012042">
+<link rel="stylesheet" href="assets/css/style.css?v=20261110055733">
 </head>
 <body>
 <header class="top">
@@ -21,46 +21,50 @@
   <h2 class="sec">ENSO</h2>
   <p class="lead">Sea surface temperature anomaly in each of the four ENSO
   regions, against the 1991&ndash;2020 climatology of the same basin and month.
-  The thick navy line is the ensemble mean, the light lines are the members,
-  the shaded envelope is the member spread, and the black line in front is the
-  observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset NOAA/CPC builds
-  the ONI and the RONI from &mdash; measured against the same baseline.
-  <b>ONI</b> is the plain anomaly; <b>RONI</b> has the tropical-mean
-  (20&deg;S&ndash;20&deg;N) SST anomaly subtracted and is rescaled to the
-  ONI&rsquo;s own spread, so it says whether the Pacific is warm or cold
-  <i>relative to the rest of the ocean</i>.</p>
+  The thick red line is the ensemble mean, the light red lines are the
+  members, the shaded envelope is the member spread, and the black line in
+  front is the observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset
+  NOAA/CPC builds the ONI and the RONI from. <b>ONI</b> is the plain anomaly;
+  <b>RONI</b> has the tropical-mean (20&deg;S&ndash;20&deg;N) SST anomaly
+  subtracted and is rescaled to the ONI&rsquo;s own spread, so it says whether
+  the Pacific is warm or cold <i>relative to the rest of the ocean</i>. The
+  forecast is re-levelled onto the analysis, so the plume continues from the
+  observation instead of starting a degree above it.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
-    <select id="modelSel" class="ctrl"><option value="cfsv2">NOAA CFSv2</option><option value="ecmwf-seas5">ECMWF SEAS5</option><option value="sfsv1">NOAA SFSv1</option></select>
+    <select id="modelSel" class="ctrl"><option value="cfsv2">NOAA CFSv2</option><option value="ecmwf-seas5" selected>ECMWF SEAS5</option><option value="sfsv1">NOAA SFSv1</option></select>
     <label for="indexSel">Index</label>
     <select id="indexSel" class="ctrl">
       <option value="oni">ONI &mdash; absolute anomaly</option>
-      <option value="roni">RONI &mdash; relative anomaly</option>
+      <option value="roni" selected>RONI &mdash; relative anomaly</option>
     </select>
+    <label for="basinSel">Region</label>
+    <select id="basinSel" class="ctrl"><option value="Nino 3.4">Nino 3.4</option><option value="Nino 3">Nino 3</option><option value="Nino 4">Nino 4</option><option value="Nino 1+2">Nino 1+2</option></select>
   </div>
 </div>
 
 <div class="card">
-  <h2 class="sec">Plume charts</h2>
+  <h2 class="sec">Plume chart</h2>
   <div class="grid c1" id="ensoGrid"></div>
 </div>
 <script>
-const MODELS = {"cfsv2": {"name": "NOAA CFSv2", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino3.4_ONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino3.4_RONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino3_ONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino3_RONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino4_ONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino4_RONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino1p2_ONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino1p2_RONI.png?v=20261110012042", "caption": "NOAA CFSv2 \u00b7 Nino 1+2 RONI plume"}]}, "ecmwf-seas5": {"name": "ECMWF SEAS5", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4_ONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4_RONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3_ONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3_RONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4_ONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4_RONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2_ONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2_RONI.png?v=20261110012042", "caption": "ECMWF SEAS5 \u00b7 Nino 1+2 RONI plume"}]}, "sfsv1": {"name": "NOAA SFSv1", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino3.4_ONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino3.4_RONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino3_ONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino3_RONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino4_ONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino4_RONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino1p2_ONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino1p2_RONI.png?v=20261110012042", "caption": "NOAA SFSv1 \u00b7 Nino 1+2 RONI plume"}]}};
+const MODELS = {"cfsv2": {"name": "NOAA CFSv2", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino3.4_ONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino3.4_RONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino3_ONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino3_RONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino4_ONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino4_RONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_CFSV2_Nino1p2_ONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_CFSV2_Nino1p2_RONI.png?v=20261110055733", "caption": "NOAA CFSv2 \u00b7 Nino 1+2 RONI plume"}]}, "ecmwf-seas5": {"name": "ECMWF SEAS5", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4_ONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4_RONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3_ONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3_RONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4_ONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4_RONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2_ONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2_RONI.png?v=20261110055733", "caption": "ECMWF SEAS5 \u00b7 Nino 1+2 RONI plume"}]}, "sfsv1": {"name": "NOAA SFSv1", "enso": [{"basin": "Nino 3.4", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino3.4_ONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 3.4 ONI plume"}, {"basin": "Nino 3.4", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino3.4_RONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 3.4 RONI plume"}, {"basin": "Nino 3", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino3_ONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 3 ONI plume"}, {"basin": "Nino 3", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino3_RONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 3 RONI plume"}, {"basin": "Nino 4", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino4_ONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 4 ONI plume"}, {"basin": "Nino 4", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino4_RONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 4 RONI plume"}, {"basin": "Nino 1+2", "index": "oni", "file": "assets/enso/ENSO_SFSV1_Nino1p2_ONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 1+2 ONI plume"}, {"basin": "Nino 1+2", "index": "roni", "file": "assets/enso/ENSO_SFSV1_Nino1p2_RONI.png?v=20261110055733", "caption": "NOAA SFSv1 \u00b7 Nino 1+2 RONI plume"}]}};
 const sel=document.getElementById('modelSel');
 const isel=document.getElementById('indexSel');
+const bsel=document.getElementById('basinSel');
 function render(){
   const m=MODELS[sel.value];
-  const kind=isel.value;
+  const kind=isel.value, basin=bsel.value;
   const g=document.getElementById('ensoGrid');
   if(!m||!m.enso){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
-  const rows=m.enso.filter(e=>e.index===kind);
-  if(!rows.length){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
-  g.innerHTML=rows.map(e=>
-    '<figure class="panel"><img loading="lazy" src="'+e.file+'" alt="'+e.caption+'">'+
-    '<figcaption>'+e.caption+'</figcaption></figure>').join('');
+  const row=m.enso.find(e=>e.index===kind && e.basin===basin);
+  if(!row){g.innerHTML='<p class="lead">No ENSO plume for this model.</p>';return;}
+  g.innerHTML='<figure class="panel"><img loading="lazy" src="'+row.file+'" alt="'+row.caption+'">'+
+    '<figcaption>'+row.caption+'</figcaption></figure>';
 }
 sel.addEventListener('change',render);
 isel.addEventListener('change',render);
+bsel.addEventListener('change',render);
 render();
 </script>
 </div>
