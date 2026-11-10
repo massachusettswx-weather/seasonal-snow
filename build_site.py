@@ -499,9 +499,9 @@ sel.addEventListener('change',render);
 render();
 </script>"""
 
+    body = body + js
     body = body.replace("__MODELS__", json.dumps(
         {m["id"]: {"name": m["name"], "enso": m.get("enso", [])} for m in models}))
-    body = body + js
     open(os.path.join(SITE, "enso.html"), "w").write(page("ENSO", "enso.html", body, VER))
 
 
