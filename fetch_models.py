@@ -219,8 +219,12 @@ def main():
         rec["probe_date"] = time.strftime("%Y-%m-%d")
         rec.pop("snow", None); rec.pop("clim", None)
         rec.pop("u10", None); rec.pop("u10m", None)
-        for f in ("snowfall_monthly.grib", "snowfall_hindcast.grib",
-                  "u10_daily.grib", "u10_monthly.grib"):
+        # the monthly forecast may already have been fetched for this init
+        # (the November fetch runs ahead of this script) - keep it, the
+        # hindcast climate is the model's own climate and does not change
+        # from one init to the next, but the 10 hPa wind does.
+        keep_forecast = os.path.exists(os.path.join(d, "snowfall_monthly.grib"))
+        for f in ("u10_daily.grib", "u10_monthly.grib"):
             fp = os.path.join(d, f)
             if os.path.exists(fp):
                 os.remove(fp)
@@ -233,7 +237,11 @@ def main():
                "leadtime_month": [str(k) for k in range(1, leads + 1)],
                "data_format": GC}
         print("   snowfall monthly_mean %s" % init, flush=True)
-        if retrieve("seasonal-monthly-single-levels", req, fg):
+        if keep_forecast:
+            rec["snow"] = grib_info(fg)
+            print("   OK (the forecast for %s was already fetched) %s"
+                  % (init, rec["snow"]), flush=True)
+        elif retrieve("seasonal-monthly-single-levels", req, fg):
             rec["snow"] = grib_info(fg)
             print("   OK %s" % rec["snow"], flush=True)
         else:
@@ -250,7 +258,11 @@ def main():
                "leadtime_month": [str(k) for k in range(1, leads + 1)],
                "data_format": GC}
         print("   snowfall hindcast_climate_mean", flush=True)
-        if retrieve("seasonal-monthly-single-levels", req, cg):
+        if os.path.exists(cg) and os.path.getsize(cg) > 10000:
+            rec["clim"] = grib_info(cg)
+            print("   OK (the model's own climate, unchanged between inits) %s"
+                  % rec["clim"], flush=True)
+        elif retrieve("seasonal-monthly-single-levels", req, cg):
             rec["clim"] = grib_info(cg)
             print("   OK %s" % rec["clim"], flush=True)
         else:
@@ -263,12 +275,10 @@ def main():
                "year": y, "month": m,
                "leadtime_hour": [str(h) for h in range(12, 24 * 210, 24)],
                "data_format": GC}
-        print("   u10 daily", flush=True)
-        if retrieve("seasonal-original-pressure-levels", req, ug, tries=2):
-            rec["u10"] = grib_info(ug)
-            print("   OK (daily) %s" % rec["u10"], flush=True)
-        else:
-            print("   daily unavailable (ECMWF-only dataset)", flush=True)
+        # the daily 10 hPa wind comes from the chunked puller
+        # (fetch_models_daily.py): one job per 72 days, which the CDS queue
+        # accepts reliably - a single 210-step request is refused as too big
+        print("   u10 daily -> chunked puller", flush=True)
         mg = os.path.join(d, "u10_monthly.grib")
         req = {"originating_centre": centre, "system": system,
                "variable": "u_component_of_wind", "pressure_level": "10",

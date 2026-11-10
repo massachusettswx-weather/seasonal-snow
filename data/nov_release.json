@@ -1,0 +1,16 @@
+{
+ "ukmo-gloseas6": {
+  "init": null
+ },
+ "cmcc-sps4": {
+  "init": "2026-11",
+  "centre": "cmcc",
+  "system": "4"
+ },
+ "dwd-gcfs2": {
+  "init": "2026-11"
+ },
+ "meteo-france-s9": {
+  "init": "2026-11"
+ }
+}

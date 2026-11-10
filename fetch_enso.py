@@ -89,9 +89,22 @@ def fetch_c3s_sst(tag, centre, system, leads, init=None):
            "data_format": GC}
     print("  %s: requesting SST %s leads 1-%d" % (tag, init, leads), flush=True)
     c = cds_direct.CDSDirect()
+    import time
     try:
-        jid = c.submit("seasonal-monthly-single-levels", req)
-        import time
+        # the CDS queue is account-wide and only takes a few jobs at a time,
+        # so a submission can be refused - wait for a slot and try again
+        jid = None
+        for attempt in range(40):
+            try:
+                jid = c.submit("seasonal-monthly-single-levels", req)
+                break
+            except cds_direct.QueueFull:
+                if attempt == 0:
+                    print("  %s: queue full, waiting for a slot" % tag, flush=True)
+                time.sleep(120)
+        if jid is None:
+            print("  %s: no queue slot after 80 min - skipping" % tag, flush=True)
+            return None
         for _ in range(240):
             st = c.job_status(jid)
             if st == "successful":

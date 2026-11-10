@@ -234,6 +234,12 @@ def submit(c, only=None):
             save_state(st)
             continue
         except NoData as e:
+            if "Maximum number queued" in str(e):
+                # our own pool is full - not a data failure, and not worth a
+                # state entry: the chunk is retried on the next pass
+                print("   (pool full at %s chunk %d - will retry)" % (tag, k),
+                      flush=True)
+                continue
             print("!! %s chunk %d REJECTED: %s" % (tag, k, str(e)[:180]), flush=True)
             st["jobs"].append(dict(tag=tag, centre=centre, system=sysid, chunk=k,
                                    hours=hs, job=None, status="rejected",

@@ -136,8 +136,19 @@ class CDSDirect:
         return job.get("jobID") or job.get("processID")
 
     # ------------------------------------------------------------------
+    def resolve_job(self, jid):
+        """A partial job id -> the full uuid (the CDS answers 404 for a prefix,
+        which used to look like the job had vanished)."""
+        if len(jid) >= 36:
+            return jid
+        r = self._request("GET", "/retrieve/v1/jobs?limit=60")
+        for j in r.json().get("jobs", []):
+            if j.get("jobID", "").startswith(jid):
+                return j["jobID"]
+        return jid
+
     def job_status(self, jid):
-        r = self._request("GET", "/retrieve/v1/jobs/%s" % jid)
+        r = self._request("GET", "/retrieve/v1/jobs/%s" % self.resolve_job(jid))
         if r.status_code == 404:
             return "gone"
         return r.json().get("status")

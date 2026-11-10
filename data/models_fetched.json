@@ -53,20 +53,22 @@
   "name": "UKMO GloSeas6-GC5.1",
   "centre": "ukmo",
   "system": "610",
-  "init": "2026-10",
+  "init": "2026-11",
   "leads": 6,
+  "done": true,
+  "members": 60,
+  "expected_leads": 6,
+  "probe_date": "2026-11-10",
   "snow": {
-   "fields": 360,
+   "fields": 372,
    "steps": [
+    720,
     744,
     768,
     792,
-    816,
-    840
+    816
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
+   "grid": null
   },
   "clim": {
    "fields": 6,
@@ -77,27 +79,19 @@
     2952,
     3624
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
+   "grid": null
   },
-  "done": true,
   "u10m": {
-   "fields": 360,
+   "fields": 372,
    "steps": [
+    720,
     744,
     768,
     792,
-    816,
-    840
+    816
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "members": 60,
-  "expected_leads": 6,
-  "probe_date": "2026-11-10"
+   "grid": null
+  }
  },
  "eccc-canesm5": {
   "name": "ECCC CanESM5.1p1bc",
@@ -203,20 +197,22 @@
   "name": "CMCC SPS4",
   "centre": "cmcc",
   "system": "4",
-  "init": "2026-10",
+  "init": "2026-11",
   "leads": 7,
+  "done": true,
+  "members": 50,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10",
   "snow": {
    "fields": 300,
    "steps": [
-    744,
+    720,
     1464,
     2208,
-    2952,
+    2880,
     3624
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
+   "grid": null
   },
   "clim": {
    "fields": 6,
@@ -227,46 +223,29 @@
     2952,
     3624
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "u10m": {
-   "fields": 300,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "done": true,
-  "members": 50,
-  "expected_leads": 7,
-  "probe_date": "2026-11-10"
+   "grid": null
+  }
  },
  "dwd-gcfs2": {
   "name": "DWD GCFS2.2",
   "centre": "dwd",
   "system": "22",
-  "init": "2026-10",
+  "init": "2026-11",
   "leads": 7,
+  "done": true,
+  "members": 50,
+  "expected_leads": 7,
+  "probe_date": "2026-11-10",
   "snow": {
    "fields": 300,
    "steps": [
-    744,
+    720,
     1464,
     2208,
-    2952,
+    2880,
     3624
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
+   "grid": null
   },
   "clim": {
    "fields": 6,
@@ -277,27 +256,8 @@
     2952,
     3624
    ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "u10m": {
-   "fields": 300,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "done": true,
-  "members": 50,
-  "expected_leads": 7,
-  "probe_date": "2026-11-10"
+   "grid": null
+  }
  },
  "sfsv1": {
   "name": "NOAA SFSv1",
@@ -325,14 +285,16 @@
   "centre": "meteo_france",
   "system": "9",
   "expected_leads": 6,
-  "init": "2026-10",
+  "init": "2026-11",
+  "done": true,
+  "probe_date": "2026-11-10",
   "snow": {
    "fields": 306,
    "steps": [
-    744,
+    720,
     1464,
     2208,
-    2952,
+    2880,
     3624
    ],
    "grid": null
@@ -351,15 +313,13 @@
   "u10m": {
    "fields": 306,
    "steps": [
-    744,
+    720,
     1464,
     2208,
-    2952,
+    2880,
     3624
    ],
    "grid": null
-  },
-  "done": true,
-  "probe_date": "2026-11-10"
+  }
  }
 }

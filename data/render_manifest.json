@@ -1,26 +1,26 @@
 {
  "snow_cmcc-sps4_month01_in.png": {
-  "label": "October 2026",
+  "label": "November 2026",
   "lead": 1
  },
  "snow_cmcc-sps4_month02_in.png": {
-  "label": "November 2026",
+  "label": "December 2026",
   "lead": 2
  },
  "snow_cmcc-sps4_month03_in.png": {
-  "label": "December 2026",
+  "label": "January 2027",
   "lead": 3
  },
  "snow_cmcc-sps4_month04_in.png": {
-  "label": "January 2027",
+  "label": "February 2027",
   "lead": 4
  },
  "snow_cmcc-sps4_month05_in.png": {
-  "label": "February 2027",
+  "label": "March 2027",
   "lead": 5
  },
  "snow_cmcc-sps4_month06_in.png": {
-  "label": "March 2027",
+  "label": "April 2027",
   "lead": 6
  },
  "SNOW_CMCC-SPS4_October2026_anom_in.png": {
@@ -29,46 +29,46 @@
  },
  "SNOW_CMCC-SPS4_November2026_anom_in.png": {
   "label": "November 2026",
-  "lead": 2
+  "lead": 1
  },
  "SNOW_CMCC-SPS4_December2026_anom_in.png": {
   "label": "December 2026",
-  "lead": 3
+  "lead": 2
  },
  "SNOW_CMCC-SPS4_January2027_anom_in.png": {
   "label": "January 2027",
-  "lead": 4
+  "lead": 3
  },
  "SNOW_CMCC-SPS4_February2027_anom_in.png": {
   "label": "February 2027",
-  "lead": 5
+  "lead": 4
  },
  "SNOW_CMCC-SPS4_March2027_anom_in.png": {
   "label": "March 2027",
-  "lead": 6
+  "lead": 5
  },
  "snow_dwd-gcfs2_month01_in.png": {
-  "label": "October 2026",
+  "label": "November 2026",
   "lead": 1
  },
  "snow_dwd-gcfs2_month02_in.png": {
-  "label": "November 2026",
+  "label": "December 2026",
   "lead": 2
  },
  "snow_dwd-gcfs2_month03_in.png": {
-  "label": "December 2026",
+  "label": "January 2027",
   "lead": 3
  },
  "snow_dwd-gcfs2_month04_in.png": {
-  "label": "January 2027",
+  "label": "February 2027",
   "lead": 4
  },
  "snow_dwd-gcfs2_month05_in.png": {
-  "label": "February 2027",
+  "label": "March 2027",
   "lead": 5
  },
  "snow_dwd-gcfs2_month06_in.png": {
-  "label": "March 2027",
+  "label": "April 2027",
   "lead": 6
  },
  "SNOW_DWD-GCFS2_October2026_anom_in.png": {
@@ -77,23 +77,23 @@
  },
  "SNOW_DWD-GCFS2_November2026_anom_in.png": {
   "label": "November 2026",
-  "lead": 2
+  "lead": 1
  },
  "SNOW_DWD-GCFS2_December2026_anom_in.png": {
   "label": "December 2026",
-  "lead": 3
+  "lead": 2
  },
  "SNOW_DWD-GCFS2_January2027_anom_in.png": {
   "label": "January 2027",
-  "lead": 4
+  "lead": 3
  },
  "SNOW_DWD-GCFS2_February2027_anom_in.png": {
   "label": "February 2027",
-  "lead": 5
+  "lead": 4
  },
  "SNOW_DWD-GCFS2_March2027_anom_in.png": {
   "label": "March 2027",
-  "lead": 6
+  "lead": 5
  },
  "snow_eccc-canesm5_month01_in.png": {
   "label": "October 2026",
@@ -240,27 +240,27 @@
   "lead": 6
  },
  "snow_ukmo-gloseas6_month01_in.png": {
-  "label": "October 2026",
+  "label": "November 2026",
   "lead": 1
  },
  "snow_ukmo-gloseas6_month02_in.png": {
-  "label": "November 2026",
+  "label": "December 2026",
   "lead": 2
  },
  "snow_ukmo-gloseas6_month03_in.png": {
-  "label": "December 2026",
+  "label": "January 2027",
   "lead": 3
  },
  "snow_ukmo-gloseas6_month04_in.png": {
-  "label": "January 2027",
+  "label": "February 2027",
   "lead": 4
  },
  "snow_ukmo-gloseas6_month05_in.png": {
-  "label": "February 2027",
+  "label": "March 2027",
   "lead": 5
  },
  "snow_ukmo-gloseas6_month06_in.png": {
-  "label": "March 2027",
+  "label": "April 2027",
   "lead": 6
  },
  "SNOW_UKMO-GLOSEAS6_October2026_anom_in.png": {
@@ -269,23 +269,23 @@
  },
  "SNOW_UKMO-GLOSEAS6_November2026_anom_in.png": {
   "label": "November 2026",
-  "lead": 2
+  "lead": 1
  },
  "SNOW_UKMO-GLOSEAS6_December2026_anom_in.png": {
   "label": "December 2026",
-  "lead": 3
+  "lead": 2
  },
  "SNOW_UKMO-GLOSEAS6_January2027_anom_in.png": {
   "label": "January 2027",
-  "lead": 4
+  "lead": 3
  },
  "SNOW_UKMO-GLOSEAS6_February2027_anom_in.png": {
   "label": "February 2027",
-  "lead": 5
+  "lead": 4
  },
  "SNOW_UKMO-GLOSEAS6_March2027_anom_in.png": {
   "label": "March 2027",
-  "lead": 6
+  "lead": 5
  },
  "snow_sfsv1_month01_in.png": {
   "label": "November 2026",
@@ -456,27 +456,27 @@
   "lead": 5
  },
  "snow_meteo-france-s9_month01_in.png": {
-  "label": "October 2026",
+  "label": "November 2026",
   "lead": 1
  },
  "snow_meteo-france-s9_month02_in.png": {
-  "label": "November 2026",
+  "label": "December 2026",
   "lead": 2
  },
  "snow_meteo-france-s9_month03_in.png": {
-  "label": "December 2026",
+  "label": "January 2027",
   "lead": 3
  },
  "snow_meteo-france-s9_month04_in.png": {
-  "label": "January 2027",
+  "label": "February 2027",
   "lead": 4
  },
  "snow_meteo-france-s9_month05_in.png": {
-  "label": "February 2027",
+  "label": "March 2027",
   "lead": 5
  },
  "snow_meteo-france-s9_month06_in.png": {
-  "label": "March 2027",
+  "label": "April 2027",
   "lead": 6
  },
  "SNOW_METEO-FRANCE-S9_October2026_anom_in.png": {
@@ -485,22 +485,22 @@
  },
  "SNOW_METEO-FRANCE-S9_November2026_anom_in.png": {
   "label": "November 2026",
-  "lead": 2
+  "lead": 1
  },
  "SNOW_METEO-FRANCE-S9_December2026_anom_in.png": {
   "label": "December 2026",
-  "lead": 3
+  "lead": 2
  },
  "SNOW_METEO-FRANCE-S9_January2027_anom_in.png": {
   "label": "January 2027",
-  "lead": 4
+  "lead": 3
  },
  "SNOW_METEO-FRANCE-S9_February2027_anom_in.png": {
   "label": "February 2027",
-  "lead": 5
+  "lead": 4
  },
  "SNOW_METEO-FRANCE-S9_March2027_anom_in.png": {
   "label": "March 2027",
-  "lead": 6
+  "lead": 5
  }
 }

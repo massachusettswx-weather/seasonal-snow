@@ -106,7 +106,12 @@ def render_spv(members, times, model_name, out_path, domain="60",
 
     ax.set_ylabel("Zonal Wind (m/s) — %s" % label, fontsize=11.5, color=C_TEXT)
     ax.set_xlabel("Valid Days", fontsize=11.5, color=C_TEXT, labelpad=8)
-    x0 = min(times[0], era5["t"][0])
+    # the chart starts at the model's init - the ERA5 climatology layer runs
+    # over the whole calendar year, but showing it before the run starts
+    # leaves a month of empty space on the left
+    from datetime import timedelta as _td
+    _x0 = times[0] - _td(days=2)        # a hair of room so the "01 Nov" tick
+    x0 = _x0 if _x0 >= era5["t"][0] else era5["t"][0]
     x1 = max(times[-1], era5["t"][-1])
     ax.set_xlim(x0, x1)
     ax.xaxis.set_major_locator(mdates.DayLocator(bymonthday=range(1, 29, 14)))
