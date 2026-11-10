@@ -33,3 +33,7 @@ preview/
 
 # transient fetch logs / job dumps
 data/probe/
+
+# local logs and previews
+*.log
+preview_*.png

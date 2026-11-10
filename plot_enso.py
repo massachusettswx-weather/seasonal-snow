@@ -44,7 +44,10 @@ N_OBS = 12               # how many months of analysis to show
 
 # Only these models are published.  The other C3S centres are staged on disk
 # but their plumes wait for the November init release.
-RELEASE = ["ecmwf-seas5", "cfsv2", "sfsv1"]
+# Set ENSO_RELEASE=all once the November init is out for every centre.
+RELEASE = os.environ.get("ENSO_RELEASE", "ecmwf-seas5,cfsv2,sfsv1")
+if RELEASE.strip().lower() == "all":
+    RELEASE = []
 
 NAMES = {"ecmwf-seas5": "ECMWF SEAS5", "cmcc-sps4": "CMCC SPS4",
          "dwd-gcfs2": "DWD GCFS2.2", "eccc-canesm5": "ECCC CanESM5.1",
@@ -59,15 +62,11 @@ KINDNAME = {"oni": "ONI", "roni": "RONI"}
 # ----------------------------------------------------------------------
 def load():
     clim = np.load(os.path.join(DATA, "era5_enso_clim.npz"), allow_pickle=True)
-    # the analysis: ERA5 where it is available, otherwise ERSST v6
-    p_era = os.path.join(DATA, "era5_enso_obs.npz")
-    p_ers = os.path.join(DATA, "ersst_enso.npz")
-    if os.path.exists(p_era):
-        ana = np.load(p_era, allow_pickle=True)
-        ana_src = "ERA5"
-    else:
-        ana = np.load(p_ers, allow_pickle=True)
-        ana_src = "NOAA ERSST v6"
+    # the analysis: NOAA's ERSST v6 - the dataset CPC builds the ONI and
+    # the RONI from.  It is measured against the same 1991-2020 basin
+    # climatology as the forecast, so the observed line and the plume join.
+    ana = np.load(os.path.join(DATA, "ersst_enso.npz"), allow_pickle=True)
+    ana_src = "NOAA ERSST v6"
     models = {}
     d = os.path.join(DATA, "models")
     for tag in sorted(os.listdir(d)):

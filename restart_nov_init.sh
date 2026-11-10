@@ -27,6 +27,7 @@ log "toolchain ready"
 
 # 2. drop every series that came from the October fallback
 rm -f data/models/*/u10_daily.npz data/models/*/snow_daily.npz
+rm -f data/models/*/sst_monthly.grib data/models/*/enso.json
 rm -f data/daily_jobs.json data/snow_daily_jobs.json
 log "October series removed"
 
@@ -74,10 +75,12 @@ python3 -u build_spv_panels.py
 # 6b. the ENSO plumes: the ERA5 1991-2020 basin climatology, the seasonal SST
 #     for every C3S centre, the NOAA systems straight from NOAA, and the
 #     charts.  This is what brings the remaining centres onto the site.
-python3 -u fetch_era5_enso.py
+python3 -u fetch_era5_enso.py      # the ERA5 1991-2020 basin climatology
+python3 -u fetch_ersst.py           # the analysis: NOAA ERSST v6
+python3 -u fetch_oni.py             # the official NOAA/CPC ONI and RONI
 python3 -u fetch_enso.py            # the C3S centres, one request at a time
 python3 -u fetch_enso_noaa.py       # NOAA SFSv1 + NOAA CFSv2
-python3 -u plot_enso.py
+ENSO_RELEASE=all python3 -u plot_enso.py
 
 # 7. the site
 python3 build_registry.py
