@@ -23,6 +23,11 @@ BAND = "#d9d9d9"
 GRID = "#e8e8e8"
 
 
+# Only these models are published.  The other C3S centres are staged on disk
+# but their plumes wait for the November init release.
+RELEASE = ["ecmwf-seas5", "cfsv2", "sfsv1"]
+
+
 def load():
     z = np.load(os.path.join(DATA, "era5_enso_clim.npz"), allow_pickle=True)
     clim = {"sst": z["sst"], "t2m": z["t2m"],
@@ -111,6 +116,9 @@ def main():
     notes = {"ecmwf-seas5": "C3S seasonal-monthly-single-levels",
              "sfsv1": "NOAA SFSv1 (NODD)", "cfsv2": "NOAA CFSv2 (NCEP CPC)"}
     for tag, rec in models.items():
+        if RELEASE and tag not in RELEASE:
+            print("== %s: staged, not published yet" % tag, flush=True)
+            continue
         note = notes.get(tag, rec.get("note", "C3S seasonal"))
         print("== %s" % tag, flush=True)
         plot_model(tag, names.get(tag, tag), rec, clim, note)

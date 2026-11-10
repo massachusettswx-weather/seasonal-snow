@@ -87,7 +87,16 @@ def fetch_c3s_sst(tag, centre, system, leads, init=None):
     c = cds_direct.CDSDirect()
     try:
         jid = c.submit("seasonal-monthly-single-levels", req)
-        c.download_job(jid, out)
+        import time
+        for _ in range(240):
+            st = c.job_status(jid)
+            if st == "successful":
+                c.download_job(jid, out)
+                break
+            if st in ("failed", "error"):
+                print("  %s: job %s" % (tag, st), flush=True)
+                return None
+            time.sleep(15)
     except Exception as e:
         print("  %s: FAILED %s" % (tag, str(e)[:160]), flush=True)
         return None
