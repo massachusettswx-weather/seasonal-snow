@@ -435,7 +435,8 @@ function renderAnom(i){
     return;
   }
   if(card) card.style.display='';
-  const fr=m.frames[i];
+  const fr=(m.frames||[])[i];
+  if(!fr) return;
   document.getElementById('anomImg').src=pick(fr);
   document.getElementById('anomImg').alt=fr.label;
   document.getElementById('anomLabel').textContent=fr.label;
@@ -445,7 +446,8 @@ function renderAnom(i){
 function setFrame(i){
   const m=model();
   const r=document.getElementById('anomRange');
-  i=Math.max(0,Math.min(m.frames.length-1,i));
+  const nf=(m.frames||[]).length;
+  i=Math.max(0,Math.min(nf-1,i));
   r.value=i; renderAnom(i);
 }
 
@@ -453,7 +455,8 @@ function renderAll(){
   renderTotal(); renderMonthly();
   const m=model();
   const r=document.getElementById('anomRange');
-  r.max=String(m.frames.length-1);
+  const nf=(m.frames||[]).length;
+  r.max=String(Math.max(0,nf-1));
   setFrame(0);
 }
 
