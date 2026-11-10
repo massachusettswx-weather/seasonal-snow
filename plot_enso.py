@@ -54,7 +54,7 @@ def anomalies(rec, clim):
             for b in basins:
                 out[b].append([float(v) for v in rec["series"][b][i]])
         return out, "2 m air temperature"
-    key = "sst" if kind == "c3s-sst" else "t2m"
+    key = "sst" if kind in ("c3s-sst", "noaa-sst") else "t2m"
     ci = basins.index
     for i, m in enumerate(months):
         mm = int(m[5:7])

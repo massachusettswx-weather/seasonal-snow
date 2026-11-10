@@ -38,18 +38,23 @@ def write(tag, months, series, kind, note):
 
 
 def sfs():
+    """The SFSv1 sea surface temperature from NOAA's ocean store.
+
+    The atmosphere store has no SST - it is in the coupled ocean store
+    (ocn_monthly.zarr), 31 members, 12 lead months, 1 degree.
+    """
     import s3fs
     import zarr
     fs = s3fs.S3FileSystem(anon=True)
     z = zarr.open_group(fs.get_mapper(
-        "%s/experiments/beta3/forecast/202611/atm_monthly.zarr" % BUCKET), mode="r")
-    v = z["tmp2m"]
-    la = np.asarray(z["lat"][:], float)
-    lo = np.asarray(z["lon"][:], float)
+        "%s/experiments/beta3/forecast/202611/ocn_monthly.zarr" % BUCKET), mode="r")
+    v = z["SST"]
+    la = np.asarray(z["latitude"][:], float)
+    lo = np.asarray(z["longitude"][:], float)
     # the basin boxes are defined on 0..360, so the longitudes stay there
     land = land_mask_on(la, lo)
     months, series = [], {n: [] for n in BASIN_NAMES}
-    nm = z["tmp2m"].shape[1]
+    nm = z["SST"].shape[1]
     names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
              "Oct", "Nov", "Dec"]
     for lead in range(nm):
@@ -60,6 +65,11 @@ def sfs():
             ym, mm = 2027, mm - 12
         months.append("%04d-%02d" % (ym, mm))
         block = np.asarray(v[:, lead, :, :], float)      # (member, lat, lon)
+        # the ocean store keeps the SST in Celsius and fills the land and the
+        # cells the ocean model does not cover with a huge negative number
+        if np.nanmax(block) < 200.0:
+            block = block + 273.15
+        block = np.where((block > 250.0) & (block < 330.0), block, np.nan)
         stack = block.reshape(block.shape[0], block.shape[1], block.shape[2])
         for i in range(stack.shape[0]):
             bm = basin_mean(la, lo, stack[i], land)
@@ -68,16 +78,20 @@ def sfs():
     # transpose to per-month lists of members
     out = {n: [[series[n][i * stack.shape[0] + j] for j in range(stack.shape[0])]
                for i in range(len(months))] for n in BASIN_NAMES}
-    write("sfsv1", months, out, "noaa-t2m",
-          "NOAA SFSv1 2 m air temperature from the NODD zarr, 31 members")
+    write("sfsv1", months, out, "noaa-sst",
+          "NOAA SFSv1 sea surface temperature from the NODD ocean store, 31 members")
 
 
 def cfsv2():
+    """The CFSv2 global SST monthly means from NCEP CPC (40-member mean)."""
     import h5netcdf
-    p = os.path.join(MDIR, "cfsv2", "glbT2mMon.nc")
+    import urllib.request
+    p = os.path.join(MDIR, "cfsv2", "glbSSTMon.nc")
     if not os.path.exists(p):
-        print("cfsv2: no CPC file yet - skipping", flush=True)
-        return
+        url = ("https://www.cpc.ncep.noaa.gov/products/CFSv2/dataInd1/"
+               "glbSSTMon.nc")
+        print("  downloading", url, flush=True)
+        urllib.request.urlretrieve(url, p)
     with h5netcdf.File(p, "r") as f:
         anom = np.asarray(f["anom"][0, :, 0], float)      # (time, lat, lon)
         lat = np.asarray(f["lat"][:], float)
@@ -96,7 +110,7 @@ def cfsv2():
     for j, n in enumerate(BASIN_NAMES):
         series[n] = [[row[j]] for row in orig]
     write("cfsv2", months, series, "noaa-anom",
-          "NOAA CFSv2 published 2 m air temperature anomaly (40-member mean)")
+          "NOAA CFSv2 published sea surface temperature anomaly (40-member mean)")
 
 
 if __name__ == "__main__":

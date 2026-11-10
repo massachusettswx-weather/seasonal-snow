@@ -7,33 +7,33 @@
    "members": 6,
    "init": "2026-11",
    "total": {
-    "file": "assets/maps/snow_c3s-multi_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_c3s-multi_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 11/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_c3s-multi_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_c3s-multi_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_c3s-multi_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_c3s-multi_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_c3s-multi_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_c3s-multi_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_c3s-multi_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_c3s-multi_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_c3s-multi_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_c3s-multi_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     }
    ]
@@ -45,92 +45,92 @@
    "members": 40,
    "init": "2026-11",
    "total": {
-    "file": "assets/maps/snow_cfsv2_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_cfsv2_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 11/01/2026 to 05/01/2027, in inches."
    },
    "months": [
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_cfsv2_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_cfsv2_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_cfsv2_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_cfsv2_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_cfsv2_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/snow_cfsv2_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cfsv2_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_CFSV2_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_CFSV2_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_CFSV2_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_CFSV2_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_CFSV2_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/SNOW_CFSV2_April2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CFSV2_April2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "enso": [
     {
      "basin": "Nino 3.4",
-     "file": "assets/enso/ENSO_CFSV2_Nino3.4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_CFSV2_Nino3.4.png?v=20261110004625",
      "caption": "NOAA CFSv2 \u00b7 Nino 3.4"
     },
     {
      "basin": "Nino 3",
-     "file": "assets/enso/ENSO_CFSV2_Nino3.png?v=20261110001806",
+     "file": "assets/enso/ENSO_CFSV2_Nino3.png?v=20261110004625",
      "caption": "NOAA CFSv2 \u00b7 Nino 3"
     },
     {
      "basin": "Nino 4",
-     "file": "assets/enso/ENSO_CFSV2_Nino4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_CFSV2_Nino4.png?v=20261110004625",
      "caption": "NOAA CFSv2 \u00b7 Nino 4"
     },
     {
      "basin": "Nino 1+2",
-     "file": "assets/enso/ENSO_CFSV2_Nino1p2.png?v=20261110001806",
+     "file": "assets/enso/ENSO_CFSV2_Nino1p2.png?v=20261110004625",
      "caption": "NOAA CFSv2 \u00b7 Nino 1+2"
     }
    ],
@@ -143,76 +143,76 @@
    "members": 50,
    "init": "2026-10",
    "total": {
-    "file": "assets/maps/snow_cmcc-sps4_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_cmcc-sps4_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 10/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "October 2026",
-     "file": "assets/maps/snow_cmcc-sps4_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_cmcc-sps4_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_cmcc-sps4_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_cmcc-sps4_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_cmcc-sps4_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_cmcc-sps4_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_cmcc-sps4_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
-     "file": "assets/maps/SNOW_CMCC-SPS4_October2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_October2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_CMCC-SPS4_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_CMCC-SPS4_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_CMCC-SPS4_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_CMCC-SPS4_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_CMCC-SPS4_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_CMCC-SPS4_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_cmcc-sps4_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_cmcc-sps4_60N.png?v=20261110004625",
      "caption": "CMCC SPS4 \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
@@ -267,76 +267,76 @@
    "members": 50,
    "init": "2026-10",
    "total": {
-    "file": "assets/maps/snow_dwd-gcfs2_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_dwd-gcfs2_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 10/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "October 2026",
-     "file": "assets/maps/snow_dwd-gcfs2_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_dwd-gcfs2_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_dwd-gcfs2_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_dwd-gcfs2_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_dwd-gcfs2_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_dwd-gcfs2_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_dwd-gcfs2_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
-     "file": "assets/maps/SNOW_DWD-GCFS2_October2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_October2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_DWD-GCFS2_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_DWD-GCFS2_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_DWD-GCFS2_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_DWD-GCFS2_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_DWD-GCFS2_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_DWD-GCFS2_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_dwd-gcfs2_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_dwd-gcfs2_60N.png?v=20261110004625",
      "caption": "DWD GCFS2.2 \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
@@ -386,76 +386,76 @@
    "members": 20,
    "init": "2026-10",
    "total": {
-    "file": "assets/maps/snow_eccc-canesm5_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_eccc-canesm5_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 10/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "October 2026",
-     "file": "assets/maps/snow_eccc-canesm5_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_eccc-canesm5_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_eccc-canesm5_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_eccc-canesm5_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_eccc-canesm5_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_eccc-canesm5_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-canesm5_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_October2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_October2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_ECCC-CANESM5_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-CANESM5_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_eccc-canesm5_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_eccc-canesm5_60N.png?v=20261110004625",
      "caption": "ECCC CanESM5.1p1bc \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
@@ -505,76 +505,76 @@
    "members": 20,
    "init": "2026-10",
    "total": {
-    "file": "assets/maps/snow_eccc-gem5_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_eccc-gem5_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 10/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "October 2026",
-     "file": "assets/maps/snow_eccc-gem5_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_eccc-gem5_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_eccc-gem5_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_eccc-gem5_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_eccc-gem5_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_eccc-gem5_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_eccc-gem5_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
-     "file": "assets/maps/SNOW_ECCC-GEM5_October2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_October2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_ECCC-GEM5_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_ECCC-GEM5_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_ECCC-GEM5_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_ECCC-GEM5_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_ECCC-GEM5_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECCC-GEM5_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_eccc-gem5_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_eccc-gem5_60N.png?v=20261110004625",
      "caption": "ECCC GEM5.2-NEMO \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
@@ -624,99 +624,99 @@
    "members": 51,
    "init": "2026-11",
    "total": {
-    "file": "assets/maps/snow_ecmwf-seas5_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_ecmwf-seas5_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 11/01/2026 to 05/01/2027, in inches."
    },
    "months": [
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_ecmwf-seas5_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_ecmwf-seas5_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_ecmwf-seas5_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_ecmwf-seas5_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_ecmwf-seas5_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/snow_ecmwf-seas5_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ecmwf-seas5_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/SNOW_ECMWF-SEAS5_April2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_ECMWF-SEAS5_April2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "enso": [
     {
      "basin": "Nino 3.4",
-     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.4.png?v=20261110004625",
      "caption": "ECMWF SEAS5 \u00b7 Nino 3.4"
     },
     {
      "basin": "Nino 3",
-     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.png?v=20261110001806",
+     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino3.png?v=20261110004625",
      "caption": "ECMWF SEAS5 \u00b7 Nino 3"
     },
     {
      "basin": "Nino 4",
-     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino4.png?v=20261110004625",
      "caption": "ECMWF SEAS5 \u00b7 Nino 4"
     },
     {
      "basin": "Nino 1+2",
-     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2.png?v=20261110001806",
+     "file": "assets/enso/ENSO_ECMWF_SEAS5_Nino1p2.png?v=20261110004625",
      "caption": "ECMWF SEAS5 \u00b7 Nino 1+2"
     }
    ],
    "enso_ok": true,
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_ecmwf-seas5_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_ecmwf-seas5_60N.png?v=20261110004625",
      "caption": "ECMWF SEAS5 \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
@@ -776,112 +776,112 @@
    "members": 31,
    "init": "2026-11",
    "total": {
-    "file": "assets/maps/snow_sfsv1_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_sfsv1_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 11/01/2026 to 07/01/2027, in inches."
    },
    "months": [
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_sfsv1_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_sfsv1_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_sfsv1_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_sfsv1_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_sfsv1_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/snow_sfsv1_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     },
     {
      "label": "May 2027",
-     "file": "assets/maps/snow_sfsv1_month07_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month07_in.png?v=20261110004625",
      "caption": "Lead month 7 - inches."
     },
     {
      "label": "June 2027",
-     "file": "assets/maps/snow_sfsv1_month08_in.png?v=20261110001806",
+     "file": "assets/maps/snow_sfsv1_month08_in.png?v=20261110004625",
      "caption": "Lead month 8 - inches."
     }
    ],
    "frames": [
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_SFSV1_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_SFSV1_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_SFSV1_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_SFSV1_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_SFSV1_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "April 2027",
-     "file": "assets/maps/SNOW_SFSV1_April2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_April2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "May 2027",
-     "file": "assets/maps/SNOW_SFSV1_May2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_May2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 7 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "June 2027",
-     "file": "assets/maps/SNOW_SFSV1_June2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_SFSV1_June2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 8 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "enso": [
     {
      "basin": "Nino 3.4",
-     "file": "assets/enso/ENSO_SFSV1_Nino3.4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_SFSV1_Nino3.4.png?v=20261110004625",
      "caption": "NOAA SFSv1 \u00b7 Nino 3.4"
     },
     {
      "basin": "Nino 3",
-     "file": "assets/enso/ENSO_SFSV1_Nino3.png?v=20261110001806",
+     "file": "assets/enso/ENSO_SFSV1_Nino3.png?v=20261110004625",
      "caption": "NOAA SFSv1 \u00b7 Nino 3"
     },
     {
      "basin": "Nino 4",
-     "file": "assets/enso/ENSO_SFSV1_Nino4.png?v=20261110001806",
+     "file": "assets/enso/ENSO_SFSV1_Nino4.png?v=20261110004625",
      "caption": "NOAA SFSv1 \u00b7 Nino 4"
     },
     {
      "basin": "Nino 1+2",
-     "file": "assets/enso/ENSO_SFSV1_Nino1p2.png?v=20261110001806",
+     "file": "assets/enso/ENSO_SFSV1_Nino1p2.png?v=20261110004625",
      "caption": "NOAA SFSv1 \u00b7 Nino 1+2"
     }
    ],
@@ -894,76 +894,76 @@
    "members": 60,
    "init": "2026-10",
    "total": {
-    "file": "assets/maps/snow_ukmo-gloseas6_total_run_in.png?v=20261110001806",
+    "file": "assets/maps/snow_ukmo-gloseas6_total_run_in.png?v=20261110004625",
     "caption": "Total accumulation 10/01/2026 to 04/01/2027, in inches."
    },
    "months": [
     {
      "label": "October 2026",
-     "file": "assets/maps/snow_ukmo-gloseas6_month01_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month01_in.png?v=20261110004625",
      "caption": "Lead month 1 - inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/snow_ukmo-gloseas6_month02_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month02_in.png?v=20261110004625",
      "caption": "Lead month 2 - inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/snow_ukmo-gloseas6_month03_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month03_in.png?v=20261110004625",
      "caption": "Lead month 3 - inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/snow_ukmo-gloseas6_month04_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month04_in.png?v=20261110004625",
      "caption": "Lead month 4 - inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/snow_ukmo-gloseas6_month05_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month05_in.png?v=20261110004625",
      "caption": "Lead month 5 - inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/snow_ukmo-gloseas6_month06_in.png?v=20261110001806",
+     "file": "assets/maps/snow_ukmo-gloseas6_month06_in.png?v=20261110004625",
      "caption": "Lead month 6 - inches."
     }
    ],
    "frames": [
     {
      "label": "October 2026",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_October2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_October2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 1 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "November 2026",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_November2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_November2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 2 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "December 2026",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_December2026_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_December2026_anom_in.png?v=20261110004625",
      "caption": "Lead month 3 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "January 2027",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_January2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_January2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 4 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "February 2027",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_February2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_February2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 5 - anomaly vs this model's own hindcast climate, in inches."
     },
     {
      "label": "March 2027",
-     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_March2027_anom_in.png?v=20261110001806",
+     "file": "assets/maps/SNOW_UKMO-GLOSEAS6_March2027_anom_in.png?v=20261110004625",
      "caption": "Lead month 6 - anomaly vs this model's own hindcast climate, in inches."
     }
    ],
    "spv": {
     "60": {
-     "file": "assets/spv/SPV_ukmo-gloseas6_60N.png?v=20261110001806",
+     "file": "assets/spv/SPV_ukmo-gloseas6_60N.png?v=20261110004625",
      "caption": "UKMO GloSeas6-GC5.1 \u00b7 10 hPa zonal-mean zonal wind (60\u00b0N)",
      "table": {
       "head": [
