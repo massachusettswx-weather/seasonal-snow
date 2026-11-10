@@ -41,6 +41,9 @@ def load_registry():
             if os.path.exists(os.path.join(SITE, fr["file"].split("?")[0])):
                 fr["ok"] = True
                 m["snow_ok"] = True
+        tot = m.get("total")
+        if tot and os.path.exists(os.path.join(SITE, tot["file"].split("?")[0])):
+            m["snow_ok"] = True
         for dom, info in m.get("spv", {}).items():
             if os.path.exists(os.path.join(SITE, info["file"].split("?")[0])):
                 info["ok"] = True
