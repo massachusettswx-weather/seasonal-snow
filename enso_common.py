@@ -27,7 +27,7 @@ def basin_weights(lat, lon, land=None):
 def basin_mean(lat, lon, field, land=None):
     """-> {basin: area-weighted mean of a 2-D field}."""
     out = {}
-    ok = np.isfinite(field)
+    ok = np.isfinite(field) & (field > -50.0)      # fill values are missing
     for name, (w, m) in basin_weights(lat, lon, land).items():
         ww = np.where(ok, w, 0.0)          # ignore the land fill values
         ff = np.where(ok, field, 0.0)
@@ -45,6 +45,27 @@ def basin_means_stack(lat, lon, stack, land=None):
             s = w.sum()
             out[name].append(float(np.sum(f * w) / s) if s > 0 else np.nan)
     return out
+
+
+def tropical_mean(lat, lon, field, land=None):
+    """Area-weighted mean SST over the whole tropics (20S-20N, all longitudes).
+
+    This is the term the relative index (RONI) subtracts from the basin
+    anomaly to strip out the global warming signal.
+    """
+    lat = np.asarray(lat, float)
+    lon = np.asarray(lon, float)
+    w = np.cos(np.deg2rad(lat))[:, None] * np.ones((1, len(lon)))
+    # the tropical mean is 20S-20N, every longitude
+    band = (lat[:, None] >= -20.0) & (lat[:, None] <= 20.0)
+    w = w * band
+    ok = np.isfinite(field) & (field > -50.0)      # fill values are missing
+    if land is not None:
+        w = np.where(land > 0.5, 0.0, w)
+    w = np.where(ok, w, 0.0)
+    f = np.where(ok, field, 0.0)
+    t = w.sum()
+    return float(np.sum(f * w) / t) if t > 0 else np.nan
 
 
 def month_label(ym):

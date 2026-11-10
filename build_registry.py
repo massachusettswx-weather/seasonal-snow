@@ -72,7 +72,7 @@ SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in(?P<
 SNOW_ANOM_RE = re.compile(
     r"^SNOW_(?P<tag>[A-Z0-9\-]+?)_(?P<mon>January|February|March|April|May|June|July"
     r"|August|September|October|November|December)(?P<yr>\d{4})_anom_in(?P<we>_we)?\.png$")
-ENSO_RE = re.compile(r"^ENSO_(?P<tag>[A-Z0-9_]+?)_(?P<basin>Nino3\.4|Nino3|Nino4|Nino1p2)\.png$")
+ENSO_RE = re.compile(r"^ENSO_(?P<tag>[A-Z0-9_]+?)_(?P<basin>Nino3\.4|Nino3|Nino4|Nino1p2)_(?P<kind>ONI|RONI)\.png$")
 SPV_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)\.png$")
 TBL_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)_table\.json$")
 
@@ -123,7 +123,8 @@ def main():
             basin = m.group("basin").replace("Nino3.4", "Nino 3.4").replace(
                 "Nino1p2", "Nino 1+2").replace("Nino3", "Nino 3").replace(
                 "Nino4", "Nino 4")
-            enso.setdefault(tag, {})[basin] = fn
+            enso.setdefault(tag, {}).setdefault(basin, {})[
+                m.group("kind").lower()] = fn
             continue
         m = SPV_RE.match(fn)
         if m:
@@ -214,13 +215,19 @@ def main():
         order = ["Nino 3.4", "Nino 3", "Nino 4", "Nino 1+2"]
         lst = []
         for b in order:
-            fn = ed.get(b)
-            if not fn:
+            d = ed.get(b)
+            if not d:
                 continue
-            lst.append({
-                "basin": b,
-                "file": copy(os.path.join(OUT, fn), os.path.join(ENSODIR, fn)),
-                "caption": "%s \u00b7 %s" % (entry["name"], b)})
+            for kind in ("oni", "roni"):
+                fn = d.get(kind)
+                if not fn:
+                    continue
+                lst.append({
+                    "basin": b,
+                    "index": kind,
+                    "file": copy(os.path.join(OUT, fn), os.path.join(ENSODIR, fn)),
+                    "caption": "%s \u00b7 %s %s plume" %
+                               (entry["name"], b, kind.upper())})
         if lst:
             entry["enso"] = lst
             entry["enso_ok"] = True

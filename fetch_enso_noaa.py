@@ -18,17 +18,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 MDIR = os.path.join(DATA, "models")
 sys.path.insert(0, HERE)
-from enso_common import BASIN_NAMES, basin_mean, land_mask_on  # noqa: E402
+from enso_common import (BASIN_NAMES, basin_mean, land_mask_on,  # noqa: E402
+                         tropical_mean)
 
 BUCKET = "noaa-oar-sfsdev-pds"
 
 
-def write(tag, months, series, kind, note):
+def write(tag, months, series, kind, note, tropical=None, init=None):
     d = os.path.join(MDIR, tag)
     os.makedirs(d, exist_ok=True)
     # series: {basin: [per month: [member values]]}
-    out = {"kind": kind, "note": note,
+    out = {"kind": kind, "note": note, "init": init,
            "months": months, "basins": BASIN_NAMES, "series": series}
+    if tropical is not None:
+        # the tropical mean (20S-20N, all longitudes): the term the relative
+        # index (RONI) subtracts from the basin anomaly
+        out["tropical"] = tropical
     json.dump(out, open(os.path.join(d, "enso.json"), "w"), indent=1)
     for i, n in enumerate(BASIN_NAMES):
         s = out["series"][n]
@@ -54,6 +59,7 @@ def sfs():
     # the basin boxes are defined on 0..360, so the longitudes stay there
     land = land_mask_on(la, lo)
     months, series = [], {n: [] for n in BASIN_NAMES}
+    trop = []
     nm = z["SST"].shape[1]
     names = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
              "Oct", "Nov", "Dec"]
@@ -75,11 +81,15 @@ def sfs():
             bm = basin_mean(la, lo, stack[i], land)
             for n in BASIN_NAMES:
                 series[n].append(bm[n])
+            trop.append(tropical_mean(la, lo, stack[i], land))
     # transpose to per-month lists of members
-    out = {n: [[series[n][i * stack.shape[0] + j] for j in range(stack.shape[0])]
+    nmem = stack.shape[0]
+    out = {n: [[series[n][i * nmem + j] for j in range(nmem)]
                for i in range(len(months))] for n in BASIN_NAMES}
+    out_t = [[trop[i * nmem + j] for j in range(nmem)] for i in range(len(months))]
     write("sfsv1", months, out, "noaa-sst",
-          "NOAA SFSv1 sea surface temperature from the NODD ocean store, 31 members")
+          "NOAA SFSv1 sea surface temperature from the NODD ocean store, 31 members",
+          tropical=out_t, init="2026-11")
 
 
 def cfsv2():
@@ -99,18 +109,23 @@ def cfsv2():
         t = np.asarray(f["time"][:], float)
     land = land_mask_on(lat, lon)
     months, series = [], []
+    trop = []
     import datetime
     for i in range(anom.shape[0]):
         dt = datetime.date(2021, 1, 1) + datetime.timedelta(days=int(t[i]))
         months.append("%04d-%02d" % (dt.year, dt.month))
         bm = basin_mean(lat, lon, anom[i], land)
         series.append([bm[n] for n in BASIN_NAMES])
+        # the CPC field is already an anomaly against a 1991-2020
+        # climatology, so its tropical mean is the tropical-mean anomaly
+        trop.append([tropical_mean(lat, lon, anom[i], land)])
     orig = series
     series = {}
     for j, n in enumerate(BASIN_NAMES):
         series[n] = [[row[j]] for row in orig]
     write("cfsv2", months, series, "noaa-anom",
-          "NOAA CFSv2 published sea surface temperature anomaly (40-member mean)")
+          "NOAA CFSv2 published sea surface temperature anomaly (40-member mean)",
+          tropical=trop, init="2026-10")
 
 
 if __name__ == "__main__":

@@ -46,18 +46,22 @@ BASINS = [
 ]
 
 
-def basin_means(lat, lon, field):
+def basin_means(lat, lon, field, land=None):
     """-> {basin: area-weighted mean} for a 2-D field (lat, lon)."""
     out = {}
+    ok = np.isfinite(field)
     for name, la0, la1, lo0, lo1 in BASINS:
         m = (lat[:, None] >= min(la0, la1)) & (lat[:, None] <= max(la0, la1)) & \
             (lon[None, :] >= min(lo0, lo1)) & (lon[None, :] <= max(lo0, lo1))
+        if land is not None:
+            m = m & (land < 0.5)
         if not m.any():
             out[name] = np.nan
             continue
         w = np.cos(np.deg2rad(lat[:, None]))
-        out[name] = float(np.sum(field[m] * np.broadcast_to(w, field.shape)[m]) /
-                          np.sum(np.broadcast_to(w, field.shape)[m]))
+        ww = np.broadcast_to(w, field.shape) * m * ok
+        tot = ww.sum()
+        out[name] = float(np.sum(np.where(ok, field, 0.0) * ww) / tot) if tot > 0 else np.nan
     return out
 
 
@@ -105,9 +109,15 @@ def fetch_c3s_sst(tag, centre, system, leads, init=None):
 
 
 def indices_from_grib(path):
-    """-> (months, {basin: [member values]}, members) for a seasonal SST GRIB."""
+    """-> (months, {basin: [member values]}, {tropical: [member values]}).
+
+    The C3S SST field fills land with 9999, so every mean has to exclude the
+    land - the Nino 1+2 box straddles the South American coast and without the
+    mask its mean is garbage.
+    """
     import eccodes
     from datetime import datetime as _dt, timedelta as _td
+    from enso_common import land_mask_on, tropical_mean
     recs = []
     with open(path, "rb") as f:
         while True:
@@ -137,18 +147,24 @@ def indices_from_grib(path):
     # Nino 4 straddles the date line
     lon = np.unique(recs[0][2])
     order = np.argsort(lon)
+    land = land_mask_on(lat, lon)
     per_month = {}
     for (ym, la, lo, vals) in recs:
         v = vals.reshape(len(lat), len(lon))[:, order]
+        # the C3S land fill is 9999
+        v = np.where(v > 1000.0, np.nan, v)
         per_month.setdefault(ym, []).append(v)
     out = {}
+    trop = {}
     for ym, lst in sorted(per_month.items()):
         stack = np.array(lst)
         mem = []
         for i in range(stack.shape[0]):
-            mem.append(basin_means(lat, lon, stack[i]))
+            mem.append(basin_means(lat, lon, stack[i], land))
+            trop.setdefault(ym, []).append(
+                tropical_mean(lat, lon, stack[i], land))
         out[ym] = mem
-    return out
+    return out, trop
 
 
 def main():
@@ -164,25 +180,35 @@ def main():
         print("== %s" % tag, flush=True)
         p = fetch_c3s_sst(tag, centre, system, leads)
         if p:
-            idx = indices_from_grib(p)
-            if idx:
-                save(tag, idx, "c3s-sst")
+            got = indices_from_grib(p)
+            if got:
+                idx, trop = got
+                save(tag, idx, trop, "c3s-sst")
     print("done", flush=True)
 
 
-def save(tag, idx, kind):
+def save(tag, idx, trop, kind):
     d = os.path.join(MDIR, tag)
     os.makedirs(d, exist_ok=True)
     months = sorted(idx)
     names = [b[0] for b in BASINS]
+    st = json.load(open(os.path.join(DATA, "models_fetched.json"))) \
+        if os.path.exists(os.path.join(DATA, "models_fetched.json")) else {}
     out = {"kind": kind,
+           "init": st.get(tag, {}).get("init"),
            "months": ["%04d-%02d" % ym for ym in months],
            "basins": names,
            "series": {n: [[mem[n] for mem in idx[ym]] for ym in months]
-                      for n in names}}
+                      for n in names},
+           # the tropical mean (20S-20N, all longitudes) for the relative index
+           "tropical": [trop[ym] for ym in months]}
     json.dump(out, open(os.path.join(d, "enso.json"), "w"), indent=1)
     print("  %s: wrote enso.json (%d months, %d members)" %
           (tag, len(months), len(out["series"][names[0]][0])), flush=True)
+    for i, n in enumerate(names):
+        mm = np.array(out["series"][n])
+        print("    %-9s %s" % (n, " ".join("%.2f" % (v.mean() - 273.15)
+                                         for v in mm)), flush=True)
 
 
 if __name__ == "__main__":

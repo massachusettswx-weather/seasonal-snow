@@ -101,6 +101,7 @@ nav.tabs a.active{color:var(--accent); border-bottom-color:var(--accent)}
 h2.sec{font-size:16.5px; margin:0 0 4px; letter-spacing:.2px}
 p.lead{color:var(--muted); font-size:13.5px; margin:0 0 16px}
 .grid{display:grid; gap:16px}
+.grid.c1{grid-template-columns:1fr}
 .grid.c2{grid-template-columns:repeat(auto-fit,minmax(380px,1fr))}
 .grid.c3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
 .grid.c4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
@@ -142,6 +143,9 @@ button.ctrl.ghost{background:#fff; color:var(--accent)}
 .stage{background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:14px}
 .stage img{width:100%; height:auto; display:block; border-radius:4px}
+.panel{margin:0 0 6px}
+.panel img{width:100%; height:auto; display:block; border-radius:4px}
+.panel figcaption{font-size:12px; color:var(--muted); margin:6px 0 16px}
 .cap{font-size:12.5px; color:var(--muted); margin-top:10px}
 .slider{display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap}
 input[type=range]{flex:1; min-width:220px; accent-color:var(--accent); height:22px}
@@ -258,8 +262,9 @@ def build_home(reg):
   (ECMWF SEAS5 from 1 November 2026, the other centres from 1 October 2026
   &mdash; their November runs are not released yet).
   Pick a model and you will be taken to its list of variables &mdash;
-  accumulated snowfall over the continental United States, ENSO temperature
-  anomaly plumes for the four ENSO regions, and the 10 hPa zonal-mean zonal
+  accumulated snowfall over the continental United States, ONI and RONI sea
+  surface temperature plumes for the four ENSO regions, and the 10 hPa
+  zonal-mean zonal
   wind (the stratospheric polar vortex proxy) against the ERA5
   1991&ndash;2020 climatology.</p>
 </div>
@@ -475,20 +480,31 @@ renderAll();
 
 
 def build_enso(reg):
-    """The ENSO plume page: one chart per basin per model."""
+    """The ENSO plume page: the ONI and RONI plumes, one per basin."""
     models = [m for m in reg.get("models", []) if m.get("enso_ok")]
     sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
                   for m in models)
     body = """<div class="card">
   <div class="crumb"><a href="index.html">&larr; All models</a></div>
   <h2 class="sec">ENSO</h2>
-  <p class="lead">Every ensemble member's temperature anomaly in each of the
-  four ENSO regions, against the ERA5 1991&ndash;2020 climatology for the same
-  basin and month. The thick line is the ensemble mean, the light lines are the
-  members, and the shaded envelope is the member spread.</p>
+  <p class="lead">Sea surface temperature anomaly in each of the four ENSO
+  regions, against the 1991&ndash;2020 climatology of the same basin and month.
+  The thick navy line is the ensemble mean, the light lines are the members,
+  the shaded envelope is the member spread, and the black line in front is the
+  observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset NOAA/CPC builds
+  the ONI and the RONI from &mdash; measured against the same baseline.
+  <b>ONI</b> is the plain anomaly; <b>RONI</b> has the tropical-mean
+  (20&deg;S&ndash;20&deg;N) SST anomaly subtracted and is rescaled to the
+  ONI&rsquo;s own spread, so it says whether the Pacific is warm or cold
+  <i>relative to the rest of the ocean</i>.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
+    <label for="indexSel">Index</label>
+    <select id="indexSel" class="ctrl">
+      <option value="oni">ONI &mdash; absolute anomaly</option>
+      <option value="roni">RONI &mdash; relative anomaly</option>
+    </select>
   </div>
 </div>
 
@@ -501,15 +517,20 @@ def build_enso(reg):
 <script>
 const MODELS = __MODELS__;
 const sel=document.getElementById('modelSel');
+const isel=document.getElementById('indexSel');
 function render(){
   const m=MODELS[sel.value];
+  const kind=isel.value;
   const g=document.getElementById('ensoGrid');
   if(!m||!m.enso){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
-  g.innerHTML=m.enso.map(e=>
+  const rows=m.enso.filter(e=>e.index===kind);
+  if(!rows.length){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
+  g.innerHTML=rows.map(e=>
     '<figure class="panel"><img loading="lazy" src="'+e.file+'" alt="'+e.caption+'">'+
     '<figcaption>'+e.caption+'</figcaption></figure>').join('');
 }
 sel.addEventListener('change',render);
+isel.addEventListener('change',render);
 render();
 </script>"""
 
