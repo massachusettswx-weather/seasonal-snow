@@ -428,7 +428,12 @@ function renderMonthly(){
 function renderAnom(i){
   const m=model();
   const card=document.getElementById('tab-anom');
-  if(!m.frames.length){ if(card) card.style.display='none'; return; }
+  if(!m.frames.length){
+    if(card) card.style.display='none';
+    const im=document.getElementById('anomImg');
+    if(im) im.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    return;
+  }
   if(card) card.style.display='';
   const fr=m.frames[i];
   document.getElementById('anomImg').src=pick(fr);
