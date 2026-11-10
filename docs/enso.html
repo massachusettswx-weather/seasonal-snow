@@ -62,6 +62,10 @@ function render(){
   g.innerHTML='<figure class="panel"><img loading="lazy" src="'+row.file+'" alt="'+row.caption+'">'+
     '<figcaption>'+row.caption+'</figcaption></figure>';
 }
+if((new URLSearchParams(location.search).get('m'))&&
+   MODELS[new URLSearchParams(location.search).get('m')]){
+  sel.value=new URLSearchParams(location.search).get('m');
+}
 sel.addEventListener('change',render);
 isel.addEventListener('change',render);
 bsel.addEventListener('change',render);

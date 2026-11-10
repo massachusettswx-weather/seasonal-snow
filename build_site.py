@@ -335,6 +335,13 @@ function render(){
     img:(m.spv&&m.spv['60']&&m.spv['60'].file)||'',
     on:!!m.spv_ok
   });
+  vars.push({
+    title:'ENSO plumes',
+    desc:'The sea surface temperature plume for the four ENSO regions, with the observed analysis in front of it.',
+    href:'enso.html?m='+m.id,
+    img:(m.enso&&m.enso.length)?m.enso[0].file:'',
+    on:!!m.enso_ok
+  });
   document.getElementById('varlist').innerHTML=vars.map(v=>
     `<div class="var ${v.on?'':'off'}">
        <div class="thumb">${v.img?'<img src="'+v.img+'" alt="">':''}</div>
@@ -536,6 +543,10 @@ function render(){
   if(!row){g.innerHTML='<p class="lead">No ENSO plume for this model.</p>';return;}
   g.innerHTML='<figure class="panel"><img loading="lazy" src="'+row.file+'" alt="'+row.caption+'">'+
     '<figcaption>'+row.caption+'</figcaption></figure>';
+}
+if((new URLSearchParams(location.search).get('m'))&&
+   MODELS[new URLSearchParams(location.search).get('m')]){
+  sel.value=new URLSearchParams(location.search).get('m');
 }
 sel.addEventListener('change',render);
 isel.addEventListener('change',render);
