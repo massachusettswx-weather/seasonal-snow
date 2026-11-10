@@ -301,5 +301,11 @@
   "members": 40,
   "source": "NCEP CPC",
   "leads": 6
+ },
+ "c3s-multi": {
+  "name": "C3S Multi-Model Mean",
+  "init": "2026-11",
+  "members": 6,
+  "note": "mean of the 6 C3S seasonal systems; ECMWF SEAS5 on the 1 Nov 2026 init, the rest on 1 Oct 2026"
  }
 }

@@ -63,10 +63,21 @@ python3 -u scan_inits.py 2>&1 | tee "data/probe/inits_$(date -u +%m%d).txt"
 python3 -u fetch_models.py               # monthly snowfall + hindcast climate + u10
 python3 -u fetch_models_daily.py --auto  # daily 10 hPa -> each model's full lead time
 python3 -u fetch_snow_daily.py --auto    # daily snowfall -> snow past lead month 6
+python3 -u fetch_sfs.py                  # NOAA SFSv1 on the current init
+python3 -u fetch_cfsv2.py                # NOAA CFSv2 on the current init
 
 # 6. the graphics
 python3 -u plot_snow_models.py --unit snow
+python3 -u plot_snow_multi.py
 python3 -u build_spv_panels.py
+
+# 6b. the ENSO plumes: the ERA5 1991-2020 basin climatology, the seasonal SST
+#     for every C3S centre, the NOAA systems straight from NOAA, and the
+#     charts.  This is what brings the remaining centres onto the site.
+python3 -u fetch_era5_enso.py
+python3 -u fetch_enso.py            # the C3S centres, one request at a time
+python3 -u fetch_enso_noaa.py       # NOAA SFSv1 + NOAA CFSv2
+python3 -u plot_enso.py
 
 # 7. the site
 python3 build_registry.py

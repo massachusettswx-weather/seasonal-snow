@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENSO &middot; Seasonal Forecast Graphics</title>
+<link rel="stylesheet" href="assets/css/style.css?v=20261110000549">
+</head>
+<body>
+<header class="top">
+  <h1>Seasonal Forecast Graphics</h1>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; Nov 2026 &amp; Oct 2026 inits</span>
+  <span class="spacer"></span>
+  <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
+     rel="noopener">GitHub</a>
+</header>
+<nav class="tabs"><a href="index.html">Home</a><a href="model.html">Model</a><a href="snow.html">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a><a href="enso.html" class="active">ENSO</a></nav>
+<div class="wrap">
+<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a></div>
+  <h2 class="sec">ENSO</h2>
+  <p class="lead">Every ensemble member's temperature anomaly in each of the
+  four ENSO regions, against the ERA5 1991&ndash;2020 climatology for the same
+  basin and month. The thick line is the ensemble mean, the light lines are the
+  members, and the shaded envelope is the member spread.</p>
+  <div class="picker">
+    <label for="modelSel">Model</label>
+    <select id="modelSel" class="ctrl"><option value="cfsv2">NOAA CFSv2</option><option value="ecmwf-seas5">ECMWF SEAS5</option><option value="sfsv1">NOAA SFSv1</option></select>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="sec">Plume charts</h2>
+  <div class="grid c1" id="ensoGrid"></div>
+</div>
+<script>
+const MODELS = __MODELS__;
+const sel=document.getElementById('modelSel');
+function render(){
+  const m=MODELS[sel.value];
+  const g=document.getElementById('ensoGrid');
+  if(!m||!m.enso){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
+  g.innerHTML=m.enso.map(e=>
+    '<figure class="panel"><img loading="lazy" src="'+e.file+'" alt="'+e.caption+'">'+
+    '<figcaption>'+e.caption+'</figcaption></figure>').join('');
+}
+sel.addEventListener('change',render);
+render();
+</script>
+</div>
+</body>
+</html>

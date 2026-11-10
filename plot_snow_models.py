@@ -274,23 +274,9 @@ def load_relief_mask(X, Y):
     return relief
 
 
-def main():
-    global UNIT
-    import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--unit", default="snow", choices=["snow", "we"],
-                    help="snow = inches of snow depth (10:1), we = water equivalent")
-    ap.add_argument("--only", default="", help="comma separated model tags")
-    args = ap.parse_args()
-    only = [x for x in args.only.split(",") if x]
-    UNIT = args.unit
-    print("unit: %s (%s)" % (UNIT, unit_label()), flush=True)
-    os.makedirs(OUT, exist_ok=True)
-    manifest = {}
-    state_p = os.path.join(DATA, "models_fetched.json")
-    state = json.load(open(state_p)) if os.path.exists(state_p) else {}
+def setup_grid():
+    """The display grid, the US mask and the basemap pieces."""
     countries, states, provs = load_geo()
-
     lo = np.arange(LON0, LON1 + GRID / 2, GRID)
     la = np.arange(LAT0, LAT1 + GRID / 2, GRID)
     LON, LAT = np.meshgrid(lo, la)
@@ -309,13 +295,32 @@ def main():
         if nm in ("Lake Michigan", "Lake Superior", "Lake Huron", "Lake Erie",
                   "Lake Ontario", "Lake St. Clair", "Lake Winnipeg",
                   "Lake Nipigon", "Lake Temagami", "Lake Simcoe",
-                  "Lake Huron", "Green Bay", "Lake George", "Lake Champlain"):
+                  "Green Bay", "Lake George", "Lake Champlain"):
             in_lake |= inside(pts, pth)
     in_lake = in_lake.reshape(LAT.shape)
     in_us &= ~in_lake
     # Flat white basemap: the hillshade used to sit under the no-snow areas
     # and made them impossible to tell apart from a light snowfall.
     relief = np.ones(LAT.shape + (3,), float)
+    return X, Y, LAT, LON, in_us, in_mex, relief, countries, states, provs
+
+
+def main():
+    global UNIT
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--unit", default="snow", choices=["snow", "we"],
+                    help="snow = inches of snow depth (10:1), we = water equivalent")
+    ap.add_argument("--only", default="", help="comma separated model tags")
+    args = ap.parse_args()
+    only = [x for x in args.only.split(",") if x]
+    UNIT = args.unit
+    print("unit: %s (%s)" % (UNIT, unit_label()), flush=True)
+    os.makedirs(OUT, exist_ok=True)
+    manifest = {}
+    state_p = os.path.join(DATA, "models_fetched.json")
+    state = json.load(open(state_p)) if os.path.exists(state_p) else {}
+    X, Y, LAT, LON, in_us, in_mex, relief, countries, states, provs = setup_grid()
 
     wm_cmap, wm_levels = wm_colormap()
     acmap = anom_cmap()

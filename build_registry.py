@@ -13,6 +13,9 @@ OUT = os.path.join(HERE, "output")
 SITE = os.path.join(HERE, "docs")
 ASSETS = os.path.join(SITE, "assets")
 MAPDIR = os.path.join(ASSETS, "maps")
+
+ENSODIR = os.path.join(SITE, "assets", "enso")
+os.makedirs(ENSODIR, exist_ok=True)
 SPVDIR = os.path.join(ASSETS, "spv")
 DATA = os.path.join(SITE, "data")
 
@@ -39,8 +42,12 @@ MODELS = {
                         "DWD GCFS2.2 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "meteo-france-s9": ("METFR System 9",
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "c3s-multi":       ("C3S Multi-Model Mean",
+                        "Mean of the 6 C3S seasonal systems (ECMWF SEAS5, CMCC SPS4, "
+                        "DWD GCFS2.2, ECCC CanESM5, ECCC GEM5.2, UKMO GloSeas6) "
+                        "\u00b7 init 1 Nov 2026 (ECMWF) / 1 Oct 2026 (the rest)"),
     "cfsv2":           ("NOAA CFSv2",
-                        "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 1 Nov 2026 \u00b7 read "
+                        "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 10 Oct 2026 \u00b7 read "
                         "directly from NCEP CPC. The absolute snowfall is ERA5's "
                         "1991-2020 climatology plus the CFSv2 hindcast anomaly "
                         "(an approximation \u2014 CPC publishes the anomaly only). "
@@ -65,6 +72,7 @@ SNOW_MONTH_RE = re.compile(r"^snow_(?P<tag>[a-z0-9\-]+)_month(?P<m>\d{2})_in(?P<
 SNOW_ANOM_RE = re.compile(
     r"^SNOW_(?P<tag>[A-Z0-9\-]+?)_(?P<mon>January|February|March|April|May|June|July"
     r"|August|September|October|November|December)(?P<yr>\d{4})_anom_in(?P<we>_we)?\.png$")
+ENSO_RE = re.compile(r"^ENSO_(?P<tag>[A-Z0-9_]+?)_(?P<basin>Nino3\.4|Nino3|Nino4|Nino1p2)\.png$")
 SPV_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)\.png$")
 TBL_RE = re.compile(r"^SPV_(?P<tag>[a-z0-9\-]+)_(?P<dom>60N|NH)_table\.json$")
 
@@ -87,6 +95,7 @@ def main():
 
     reg = {"models": []}
     snow = {}
+    enso = {}
     spv = {}
 
     for fn in sorted(os.listdir(OUT)):
@@ -107,6 +116,14 @@ def main():
             d = snow.setdefault(tag, {})
             lst = d.setdefault("anom_we" if m.group("we") else "anom", [])
             lst.append((m.group("mon"), int(m.group("yr")), fn))
+            continue
+        m = ENSO_RE.match(fn)
+        if m:
+            tag = m.group("tag").lower().replace("_", "-")
+            basin = m.group("basin").replace("Nino3.4", "Nino 3.4").replace(
+                "Nino1p2", "Nino 1+2").replace("Nino3", "Nino 3").replace(
+                "Nino4", "Nino 4")
+            enso.setdefault(tag, {})[basin] = fn
             continue
         m = SPV_RE.match(fn)
         if m:
@@ -187,6 +204,26 @@ def main():
             entry["frames"] = frames
         if entry.get("total") or entry.get("frames"):
             reg["models"].append(entry)
+
+    # attach the ENSO plume charts
+    for entry in reg["models"]:
+        tag = entry["id"]
+        ed = enso.get(tag)
+        if not ed:
+            continue
+        order = ["Nino 3.4", "Nino 3", "Nino 4", "Nino 1+2"]
+        lst = []
+        for b in order:
+            fn = ed.get(b)
+            if not fn:
+                continue
+            lst.append({
+                "basin": b,
+                "file": copy(os.path.join(OUT, fn), os.path.join(ENSODIR, fn)),
+                "caption": "%s \u00b7 %s" % (entry["name"], b)})
+        if lst:
+            entry["enso"] = lst
+            entry["enso_ok"] = True
 
     # attach the SPV panels
     for entry in reg["models"]:

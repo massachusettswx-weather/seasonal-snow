@@ -184,7 +184,8 @@ def header(active):
     tabs = [("index.html", "Home"),
             ("model.html", "Model"),
             ("snow.html", "Snowfall"),
-            ("spv.html", "Zonal Wind (10 hPa)")]
+            ("spv.html", "Zonal Wind (10 hPa)"),
+            ("enso.html", "ENSO")]
     links = "".join(
         '<a href="%s"%s>%s</a>' % (h, ' class="active"' if h == active else "", t)
         for h, t in tabs)
@@ -254,9 +255,10 @@ def build_home(reg):
   (ECMWF SEAS5 from 1 November 2026, the other centres from 1 October 2026
   &mdash; their November runs are not released yet).
   Pick a model and you will be taken to its list of variables &mdash;
-  accumulated snowfall over the continental United States, and the 10 hPa
-  zonal-mean zonal wind (the stratospheric polar vortex proxy) against the
-  ERA5 1991&ndash;2020 climatology.</p>
+  accumulated snowfall over the continental United States, ENSO temperature
+  anomaly plumes for the four ENSO regions, and the 10 hPa zonal-mean zonal
+  wind (the stratospheric polar vortex proxy) against the ERA5
+  1991&ndash;2020 climatology.</p>
 </div>
 <div class="grid c3">%s</div>
 <div class="card">
@@ -458,6 +460,51 @@ renderAll();
     open(os.path.join(SITE, "snow.html"), "w").write(page("Snowfall", "snow.html", body, VER))
 
 
+def build_enso(reg):
+    """The ENSO plume page: one chart per basin per model."""
+    models = [m for m in reg.get("models", []) if m.get("enso_ok")]
+    sel = "".join('<option value="%s">%s</option>' % (m["id"], m["name"])
+                  for m in models)
+    body = """<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a></div>
+  <h2 class="sec">ENSO</h2>
+  <p class="lead">Every ensemble member's temperature anomaly in each of the
+  four ENSO regions, against the ERA5 1991&ndash;2020 climatology for the same
+  basin and month. The thick line is the ensemble mean, the light lines are the
+  members, and the shaded envelope is the member spread.</p>
+  <div class="picker">
+    <label for="modelSel">Model</label>
+    <select id="modelSel" class="ctrl">%s</select>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="sec">Plume charts</h2>
+  <div class="grid c1" id="ensoGrid"></div>
+</div>""" % sel
+
+    js = """
+<script>
+const MODELS = __MODELS__;
+const sel=document.getElementById('modelSel');
+function render(){
+  const m=MODELS[sel.value];
+  const g=document.getElementById('ensoGrid');
+  if(!m||!m.enso){g.innerHTML='<p class="lead">No ENSO plumes for this model.</p>';return;}
+  g.innerHTML=m.enso.map(e=>
+    '<figure class="panel"><img loading="lazy" src="'+e.file+'" alt="'+e.caption+'">'+
+    '<figcaption>'+e.caption+'</figcaption></figure>').join('');
+}
+sel.addEventListener('change',render);
+render();
+</script>"""
+
+    body = body.replace("__MODELS__", json.dumps(
+        {m["id"]: {"name": m["name"], "enso": m.get("enso", [])} for m in models}))
+    body = body + js
+    open(os.path.join(SITE, "enso.html"), "w").write(page("ENSO", "enso.html", body, VER))
+
+
 def build_spv(reg):
     """Step 3b: the zonal wind page."""
     models = [m for m in reg.get("models", []) if m["spv_ok"]]
@@ -529,6 +576,7 @@ def main():
     build_home(reg)
     build_model_page(reg)
     build_snow(reg)
+    build_enso(reg)
     build_spv(reg)
     print("site built:", SITE)
     for m in reg.get("models", []):

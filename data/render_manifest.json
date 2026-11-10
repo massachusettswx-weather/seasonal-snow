@@ -430,5 +430,29 @@
  "SNOW_CFSV2_April2027_anom_in.png": {
   "label": "April 2027",
   "lead": 6
+ },
+ "snow_c3s-multi_total_run_in.png": {
+  "label": "",
+  "lead": 0
+ },
+ "snow_c3s-multi_month01_in.png": {
+  "label": "November 2026",
+  "lead": 1
+ },
+ "snow_c3s-multi_month02_in.png": {
+  "label": "December 2026",
+  "lead": 2
+ },
+ "snow_c3s-multi_month03_in.png": {
+  "label": "January 2027",
+  "lead": 3
+ },
+ "snow_c3s-multi_month04_in.png": {
+  "label": "February 2027",
+  "lead": 4
+ },
+ "snow_c3s-multi_month05_in.png": {
+  "label": "March 2027",
+  "lead": 5
  }
 }
