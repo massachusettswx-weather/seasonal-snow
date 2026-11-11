@@ -81,6 +81,11 @@ MODELS = {
                         "so this model has snowfall panels only \u2014 no zonal-wind panel."),
 }
 
+# The two ECCC systems are pooled into the official canSIPS ensemble, so
+# they are one card on the site, not two.  Their own panels are not
+# published and their assets are cleared away.
+POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
+
 # the month label for each rendered file, written by plot_snow_models.py
 def count_members(tag):
     """How many ensemble members a centre's snowfall actually has.
@@ -218,20 +223,25 @@ def main():
         except Exception:
             pass
 
-    # The two ECCC systems are pooled into the official canSIPS ensemble,
-    # so they are one card on the site, not two.
-    POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
     for tag in sorted(snow.keys()):
         if tag in POOLED_INTO:
             # and its panels are not left behind in the published assets
             for fn in os.listdir(OUT):
                 if fn.startswith("snow_%s_" % tag) or \
-                   fn.startswith("SNOW_%s_" % tag.upper()):
+                   fn.startswith("SNOW_%s_" % tag.upper()) or \
+                   fn.startswith("SPV_%s_" % tag) or \
+                   fn.startswith("ENSO_%s_" % tag.upper().replace("-", "_")):
                     os.remove(os.path.join(OUT, fn))
             for fn in os.listdir(MAPDIR):
                 if fn.startswith("snow_%s_" % tag) or \
                    fn.startswith("SNOW_%s_" % tag.upper()):
                     os.remove(os.path.join(MAPDIR, fn))
+            for d, pref in ((SPVDIR, "SPV_%s_" % tag),
+                            (ENSODIR, "ENSO_%s_" % tag.upper().replace("-", "_"))):
+                if os.path.isdir(d):
+                    for fn in os.listdir(d):
+                        if fn.startswith(pref):
+                            os.remove(os.path.join(d, fn))
             continue
         d = snow[tag]
         name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
@@ -314,6 +324,8 @@ def main():
     for tag in sorted(enso):
         if tag in have:
             continue
+        if tag in POOLED_INTO:
+            continue           # pooled into the canSIPS card
         name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
         st = fstate.get(tag, {})
         reg["models"].append({

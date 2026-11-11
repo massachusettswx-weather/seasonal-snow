@@ -133,7 +133,15 @@ def month_table(times, ens, era, same_days=False):
 
 def render_daily(tag, name, init, times, m60, mnh, daily_label):
     """Draw the 60N and NH panels from a daily member matrix."""
-    nlead = len({(t.year, t.month) for t in times})
+    # A lead month the run only covered for a couple of days is not a lead
+    # month: the ECCC's run ends two days into June, and calling that eight
+    # lead months would overstate what the chart shows.  The count is of
+    # whole months, and the end date is given so the reader can see exactly
+    # how far the run goes.
+    from collections import Counter as _C
+    _cnt = _C((t.year, t.month) for t in times)
+    nlead = sum(1 for k, v in _cnt.items() if v >= 20)
+    last = times[-1]
     res = grid_res(os.path.join(MDIR, tag, "u10_monthly.grib"))
     resnote = (" · %s grid" % res) if res else ""
     for dom, mat, key in (("60", m60, "60N"), ("NH", mnh, "NH")):
@@ -143,9 +151,11 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
         render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
                    n_members=mat.shape[0],
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
-                            " · lead months 1–%d · ERA5 climatology 1991–2020"
+                            " · lead months 1–%d (through %d %s %d) · "
+                            "ERA5 climatology 1991–2020"
                             % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
-                               mat.shape[0], resnote, nlead),
+                               mat.shape[0], resnote, nlead,
+                               last.day, MONTHS[last.month - 1], last.year),
                    footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
                           "1991–2020" % name,
                    title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"
@@ -206,6 +216,10 @@ def main():
     state = json.load(open(fp)) if os.path.exists(fp) else {}
 
     for tag, meta in sorted(state.items()):
+        if tag in POOLED_INTO:
+            # pooled into the official canSIPS ensemble - its own wind chart
+            # is not published
+            continue
         name = meta.get("name", tag)
         init = meta.get("init", "2026-11")
         try:
@@ -214,6 +228,10 @@ def main():
             # one bad download must not stop the other centres from rendering
             print("!! %s failed: %s" % (tag, str(e)[:300]), flush=True)
 
+
+# The two ECCC systems are shown on the site as the official canSIPS
+# multi-model ensemble, so they are not rendered on their own.
+POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
 
 KIND_FILE = os.path.join(DATA, "spv_panel_kind.json")
 

@@ -58,6 +58,9 @@ NAMES = {"ecmwf-seas5": "ECMWF SEAS5", "cmcc-sps4": "CMCC SPS4",
          "sfsv1": "NOAA SFSv1", "cfsv2": "NOAA CFSv2",
          "ecmwf-s4s": "ECMWF Subseasonal",
          "jma-jra3": "JMA CPS4", "bom-access-s2": "BOM ACCESS-S2"}
+# The two ECCC systems are shown on the site as the official canSIPS
+# multi-model ensemble, so they are not plotted on their own.
+POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
 NOTES = {"ecmwf-seas5": "C3S seasonal-monthly-single-levels",
          "sfsv1": "NOAA SFSv1 (NODD ocean store)",
          "cfsv2": "NOAA CFSv2 (NCEP CPC)",
@@ -326,6 +329,10 @@ def main():
     print("relative-index rescaling factor k = %.3f" % k, flush=True)
 
     for tag, rec in sorted(models.items()):
+        if tag in POOLED_INTO:
+            # pooled into the official canSIPS ensemble - its own plume is
+            # not published
+            continue
         if not args.all and RELEASE and tag not in RELEASE:
             print("== %s: staged, not published yet" % tag, flush=True)
             continue

@@ -2,11 +2,7 @@
  "ecmwf-seas5": "daily",
  "cmcc-sps4": "daily",
  "dwd-gcfs2": "daily",
- "eccc-canesm5": "daily",
- "eccc-gem5": "daily",
  "ukmo-gloseas6": "monthly",
  "meteo-france-s9": "daily",
- "bom-access-s2": "monthly",
- "eccc-cansips": "daily",
- "jma-jra3": "monthly"
+ "eccc-cansips": "daily"
 }

@@ -63,6 +63,10 @@ MDIR = os.path.join(DATA, "models")
 # the house anomaly palette: deep brown -> white -> deep teal
 ANOM_LEVELS = np.array([-4, -2, -1, -0.5, -0.25, -0.1, 0,
                          0.1, 0.25, 0.5, 1, 2, 4], dtype=float)
+# The two ECCC systems are shown on the site as the official canSIPS
+# multi-model ensemble, so they are not rendered on their own.
+POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
+
 # A snowfall anomaly is only meaningful where the model's own climate expects
 # real snow.  Below this much (inches of snow depth, liquid equiv x 10:1) the
 # anomaly is masked to white, so places that never see snow are not painted
@@ -369,6 +373,10 @@ def main():
 
     for tag, meta in sorted(state.items()):
         if only and tag not in only:
+            continue
+        if tag in POOLED_INTO and not only:
+            # pooled into the official canSIPS ensemble - its own panels are
+            # not published, and rendering them would only waste a cycle
             continue
         d = os.path.join(MDIR, tag)
         fg = os.path.join(d, "snowfall_monthly.grib")
