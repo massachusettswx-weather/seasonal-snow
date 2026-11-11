@@ -1,27 +1,30 @@
-"""Keep a few C3S requests in flight and act on each as it completes.
+"""Work the C3S seasonal queue: keep exactly TWO requests in flight, each
+carrying as much as possible.
 
-The CDS behaviour that matters (measured on 11 Nov 2026):
+What the CDS actually does (measured on 11 Nov 2026, against the C3S
+seasonal datasets):
 
   * A request is admitted with HTTP 201 and then, 20-45 s later, is REJECTED
-    with "Maximum number queued requests for this dataset has been reached."
-    The rejection is fast and costs nothing - the slot comes straight back.
-  * A request that is NOT rejected stays "accepted" for hours and then
-    completes.  Two of ours have been queued for eight hours and are still
-    good.
-  * The number that can be held at once is small, and a request is refused
-    while we are already holding our share of the slots.
+    with "Maximum number queued requests for this dataset has been reached.
+    Please configure your scripts to request data sequentially."  The
+    admission is not what fails - the request is judged afterwards.
+  * The limit is on how many requests THIS ACCOUNT holds, and it is
+    ACCOUNT-WIDE, not per dataset: with two held, a third is refused whether
+    it targets the same dataset or a different one; dismiss one and a new
+    request is admitted at once.
+  * A request that survives is queued for HOURS - one has been waiting since
+    21:18 - and then completes.
+  * The seasonal dataset accepts a LIST of variables, so a centre's snowfall
+    and its sea-surface temperature travel in one request.
+  * The November init is far more congested than the October one: the same
+    centre, the same shape, the same dataset serves in 12 s for October and
+    is refused in 24 s for November.  That is a property of the archive, not
+    of the request.
 
-So the strategy is: keep a small pool of requests in flight, one per
-dataset where possible, re-submit the ones that get refused, and act the
-moment one completes.  Never hold one request open and wait for it - the
-other slots go unused that way.
-
-Each request carries as much as possible, because a slot is the scarce
-thing: the CDS takes a LIST of variables, so a centre's snowfall and its
-sea-surface temperature come back in one request.
+So the pool holds two requests, each as valuable as possible, and when one
+finishes it asks for the next thing in the priority order.
 
     python3 run_nov_queue.py [--only step,step] [--step step] [--dry-run]
-    python3 run_nov_queue.py --watch JOBID,STEP[,JOBID,STEP ...]
 """
 import os
 import sys
@@ -36,7 +39,7 @@ import cds_direct                                       # noqa: E402
 DATA = os.path.join(HERE, "data")
 MDIR = os.path.join(DATA, "models")
 STATE = os.path.join(DATA, "models_fetched.json")
-POOL = os.path.join(DATA, "nov_pool.json")
+PENDING = os.path.join(DATA, "nov_pending.json")
 
 # The init every centre is being moved onto.
 INIT = "2026-11"
@@ -45,29 +48,27 @@ LEADS = [str(k) for k in range(1, 7)]
 DS_MONTHLY_SL = "seasonal-monthly-single-levels"
 DS_MONTHLY_PL = "seasonal-monthly-pressure-levels"
 DS_ORIGINAL_SL = "seasonal-original-single-levels"
+DS_ORIGINAL_PL = "seasonal-original-pressure-levels"
 
-# How many requests to keep in flight at once.  Measured on 11 Nov: with two
-# of ours outstanding a third is often refused after ~30 s, but three have
-# been held at once (21:18, 00:14 and 04:25 all sat queued together).  A
-# refusal is free - the slot comes straight back - so the pool asks again.
-POOL_SIZE = 3
+# How many requests to hold at once.  Measured: two is what the account
+# gets, and a third is refused.  A refusal is free - the slot comes straight
+# back - so the pool asks again rather than giving up.
+POOL_SIZE = 2
 
 # How long to wait before asking again after a refusal.  The cap is on how
-# many requests we hold, so asking again too soon only collects more
-# refusals.
-REFUSED_WAIT = 300
-
-# Requests that were submitted earlier and are still queued.  They hold a
-# slot, so the pool must not submit the same step again - and when one of
-# them completes it is acted on like any other.
-PENDING = os.path.join(DATA, "nov_pending.json")
+# many requests we hold, so asking again too soon only collects refusals.
+REFUSED_WAIT = 240
 
 # (step, tag, name, centre, system, kind, fields)
+#
+# The order is the priority order: the centres that are NOT yet on the
+# November init come first, because a centre is on the init only once its
+# own forecast for that init is on disk.
 STEPS = [
-    ("bom-snow", "bom-access-s2", "BOM ACCESS-S2", "bom", "2", "snow", ["snow"]),
+    ("eccc-gem", "eccc-gem5", "ECCC GEM5.2-NEMO", "eccc", "5", "snow", ["snow"]),
     ("eccc-can", "eccc-canesm5", "ECCC CanESM5.1p1bc", "eccc", "4", "snow", ["snow"]),
     ("jma-snow", "jma-jra3", "JMA JRA3-25", "jma", "7", "snow", ["snow"]),
-    ("eccc-gem", "eccc-gem5", "ECCC GEM5.2-NEMO", "eccc", "5", "snow", ["snow"]),
+    ("bom-snow", "bom-access-s2", "BOM ACCESS-S2", "bom", "2", "snow", ["snow"]),
     ("jma-rest", "jma-jra3", "JMA JRA3-25", "jma", "7", "clim+u10", ["clim", "u10"]),
     ("ecmwf-ext", "ecmwf-seas5", "ECMWF SEAS5", "ecmwf", "51", "ext", ["ext"]),
     ("ukmo-ext", "ukmo-gloseas6", "UKMO GloSeas6-GC5.1", "ukmo", "610", "ext", ["ext"]),
@@ -106,7 +107,8 @@ def build_requests(kind, centre, system):
               "year": INIT[:4], "month": INIT[5:7], "data_format": "grib"}
     if kind == "snow":
         # the snowfall and the SST of a centre come from the same dataset and
-        # the same leads, so they travel in ONE request
+        # the same leads, so they travel in ONE request - a slot is the
+        # scarce thing, and this halves what a centre costs
         return [(DS_MONTHLY_SL,
                  dict(common, variable=["snowfall", "sea_surface_temperature"],
                       product_type="monthly_mean", leadtime_month=LEADS),
@@ -163,7 +165,7 @@ def split_combined(path, tag, kinds):
     try:
         outs, counts = split_grib.split(tmp, os.path.dirname(path),
                                         [k for k, _ in kinds])
-    except Exception as e:
+    except Exception:
         os.replace(tmp, path)          # put it back
         raise
     ok = True
@@ -190,7 +192,8 @@ def download(c, jid, tag, kinds):
     c.download_job(jid, tmp)
     if len(kinds) > 1:
         split_combined(tmp, tag, kinds)
-        os.remove(tmp) if os.path.exists(tmp) else None
+        if os.path.exists(tmp):
+            os.remove(tmp)
     else:
         os.replace(tmp, outs[0])
     for p in outs:
@@ -217,12 +220,7 @@ def status_of(c, jid):
 
 # -------------------------------------------------------------------- pool
 class Pool(object):
-    """A small set of requests in flight, acted on as each completes.
-
-    The CDS judges a request 20-45 s after it is admitted, so the pool waits
-    for that verdict before drawing its next one: submitting a burst just
-    means most of the burst is thrown away.
-    """
+    """Two requests in flight, acted on as each completes."""
 
     def __init__(self, c, steps):
         self.c = c
@@ -230,6 +228,7 @@ class Pool(object):
         self.live = {}          # job id -> (step, dataset, kinds, since)
         self.next_at = {}       # step -> when it may be submitted again
         self.last_submit = 0.0  # when the last request was put in
+        self.finished = []
 
     def submit(self, step, tag, name, centre, system, kind, fields):
         """Try to start one request for this step.  True if one is now live."""
@@ -258,13 +257,13 @@ class Pool(object):
         return False
 
     def poll(self):
-        """Act on the live requests.  Returns True when something finished."""
+        """Act on the live requests."""
         acted = False
         self.finished = []
         for jid in list(self.live):
             step, dataset, kinds, since = self.live[jid]
             # a request is admitted and then judged 20-45 s later, so give it
-            # that long before asking - asking early just adds noise
+            # that long before asking - asking early only adds noise
             if time.time() - since < 60:
                 continue
             s = status_of(self.c, jid)
@@ -296,9 +295,8 @@ class Pool(object):
 def load_pending(steps):
     """Requests submitted earlier that are still queued.  They hold a slot,
     so their step must not be submitted again."""
-    pend = {}
     if not os.path.exists(PENDING):
-        return pend
+        return {}
     try:
         pend = json.load(open(PENDING))
     except Exception:
@@ -389,36 +387,6 @@ def run_pool(c, steps, only_step=None, only=None, dry=False):
         time.sleep(25)
 
 
-def watch(c, pairs):
-    """Act on requests that were submitted elsewhere."""
-    live = {}
-    for jid, step in pairs:
-        live[jid] = step
-    while live:
-        for jid in list(live):
-            step = live[jid]
-            s = status_of(c, jid)
-            if s == "successful":
-                st = json.load(open(STATE)) if os.path.exists(STATE) else {}
-                for k, v in st.items():
-                    if v.get("name", "").lower() in step.lower() or k in step:
-                        tag = k
-                        break
-                else:
-                    tag = None
-                if tag:
-                    kinds = [("snow", "snowfall_monthly.grib")]
-                    try:
-                        download(c, jid, tag, kinds)
-                    except Exception as e:
-                        print("   %s: download failed (%s)" % (step, str(e)[:80]), flush=True)
-                del live[jid]
-            elif s in ("failed", "rejected", "dismissed", "gone"):
-                print("   %s: %s" % (step, s), flush=True)
-                del live[jid]
-        time.sleep(30)
-
-
 def main():
     dry = "--dry-run" in sys.argv
     only = []
@@ -429,15 +397,6 @@ def main():
         only_step = sys.argv[sys.argv.index("--step") + 1]
     c = cds_direct.CDSDirect()
     steps = {s[0]: s for s in STEPS}
-
-    if "--watch" in sys.argv:
-        pairs = []
-        for item in sys.argv[sys.argv.index("--watch") + 1].split(","):
-            if ":" in item:
-                j, s = item.split(":", 1)
-                pairs.append((j, s))
-        watch(c, pairs)
-        return
 
     if dry:
         for step, tag, name, centre, system, kind, fields in STEPS:
