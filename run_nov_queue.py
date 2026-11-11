@@ -415,6 +415,10 @@ class Pool(object):
         self.next_at = {}       # step id -> when it may be asked again
         self.last_submit = 0.0
         self.done_steps = []
+        # after a refusal the whole pool waits, not just the step that was
+        # refused: asking the next step straight away is the "large batch
+        # of requests" that ECMWF's protection measures warn about
+        self.cooldown_until = 0.0
 
     def held(self, step):
         return any(v[0] == step for v in self.live.values())
@@ -424,6 +428,8 @@ class Pool(object):
         if step in self.next_at and time.time() < self.next_at[step]:
             return False
         if time.time() - self.last_submit < SUBMIT_GAP:
+            return False
+        if time.time() < self.cooldown_until:
             return False
         chunk = None
         if kind == "u10d":
@@ -437,8 +443,10 @@ class Pool(object):
                 # A refusal is free - the slot comes straight back - so ask
                 # again soon rather than waiting the full back-off.  The
                 # ceiling drifts, and a slot sometimes opens in between.
-                print("   %s: the queue is full - will ask again" % step, flush=True)
+                print("   %s: the queue is full - the pool waits %d min"
+                      % (step, REFUSED_WAIT // 60), flush=True)
                 self.next_at[step] = time.time() + REFUSED_WAIT
+                self.cooldown_until = time.time() + REFUSED_WAIT
                 return False
             print("   %s: refused (%s)" % (step, msg[:90]), flush=True)
             self.next_at[step] = time.time() + 300
@@ -565,6 +573,10 @@ class Pool(object):
                 # for a job that simply failed
                 wait = REFUSED_WAIT if s == "rejected" else 90
                 self.next_at[step] = time.time() + wait
+                if s == "rejected":
+                    # the account is over its allowance - back off for the
+                    # whole pool, not just this step
+                    self.cooldown_until = time.time() + wait
             elif s == "accepted" and time.time() - since > STUCK_S:
                 # THIS REQUEST HAS BEEN ACCEPTED FOR A LONG TIME AND
                 # NOTHING HAS COME BACK FROM IT.
