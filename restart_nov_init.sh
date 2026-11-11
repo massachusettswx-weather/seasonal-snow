@@ -69,10 +69,12 @@ else
     log "skipping the standalone init scan (fetch_models.py probes each centre)"
 fi
 
-# 5. the data (CDS requests are sequential)
-python3 -u fetch_models.py               # monthly snowfall + hindcast climate + u10
+# 5. the data (ONE submitter - the account only has two queue slots, so two
+#    submitters would fight over them)
+python3 -u run_nov_queue.py              # monthly snow+sst, the hindcast climate,
+                                         # the lead-month-7 extension and the
+                                         # daily 10 hPa wind, in priority order
 python3 -u wipe_changed_inits.py wipe     # drop only the centres that moved
-python3 -u fetch_models_daily.py --auto  # daily 10 hPa -> each model's full lead time
 python3 -u fetch_snow_daily.py --auto    # daily snowfall -> snow past lead month 6
 python3 -u fetch_sfs.py                  # NOAA SFSv1 on the current init
 python3 -u fetch_cfsv2.py                # NOAA CFSv2 on the current init

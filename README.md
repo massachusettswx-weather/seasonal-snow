@@ -84,40 +84,69 @@ SPV chart. The C3S **original (subdaily)** product carries every ensemble
 member at 12-hourly resolution, so the same daily chart as the ECMWF panel can
 be drawn for every centre.
 
-```bash
-python3 fetch_models_daily.py --auto   # queue, download and decode (self-healing)
-```
-
-Each centre lands in `data/models/<tag>/u10_daily.npz` as a
+The daily wind is pulled by the same pool as everything else - see
+**The queue** below. Each centre lands in `data/models/<tag>/u10_daily.npz` as a
 `members x days` matrix for 60N and the NH. `build_spv_panels.py` uses it
 automatically when it is present and falls back to the monthly GRIB otherwise.
 
+The daily series is pulled in **72-day chunks** and merged. A 72-day chunk
+completes; 143 days and up are refused, so one request for the whole run does
+not work. One centre is finished before the next one is started, because a
+half-pulled centre cannot be published.
+
 Three things bite when doing this:
 
-* **The queue gate.** The CDS rejects a request outright when too many of ours
-  are already waiting ("Maximum number queued requests for this dataset"), and
-  it applies across datasets. The exact rule is in the job response's own
-  `qos` block: **1 running + 3 queued per user**, against a C3S MARS archive
-  with 65 running and ~1300 queued, so the wait is measured in hours. The
-  fetcher keeps a pool of three and refills it as jobs come off. Request
-  *size* is irrelevant - even a one-step request is rejected.
+* **The queue gate.** The CDS refuses a request when too many of ours are
+  already waiting ("Maximum number queued requests for this dataset"), and the
+  limit is on what *this account* holds - it applies across datasets. See
+  **The queue** below for the measured behaviour.
 * **Stale jobs count.** Jobs left behind by an earlier probe storm keep the
   account blocked for hours. `python3 dismiss_jobs.py` clears them
   (`DELETE /retrieve/v1/jobs/{jobID}`). It only touches rejected/failed jobs,
-  never the live ones. A job of ours that has been *accepted* but has not
-  started for hours is a wedge: dismiss it too, otherwise it keeps a queue
-  slot and blocks every other request, ERA5 included.
+  never the live ones.
 * **An accepted job is not a lost job.** The job list returns only the most
   recent requests, so an old job that is still queued can look as if it were
   purged - it is not. Always check a job by its full UUID (`GET
   /retrieve/v1/jobs/{jobID}`) before assuming it is gone, and keep a watcher
   on it.
-* **One request at a time.** The per-user allowance is three queued requests,
-  and every extra submitter competes for those three. `run_nov_queue.py` is
-  the single runner for the November rebuild: one request in flight, walked
-  in priority order, re-submitted until a job actually completes.
-* **Disk.** A 215-day pull is ~2.5 GB, so each download is decoded to a small
+* **Disk.** A 72-day chunk is ~700 MB, so each download is decoded to a small
   `.npz` and the raw GRIB is deleted straight away.
+
+## The queue
+
+Everything that goes into the seasonal archive goes through **one** submitter,
+`run_nov_queue.py`. Two submitters would simply fight over the same slots.
+The behaviour below was measured on 11 November 2026, not read off a
+manual.
+
+* **A request is admitted, then judged.** Submission returns HTTP 201 and the
+  verdict arrives 20-45 s later. A refusal is therefore *not* a bad payload -
+  a bad payload is a 400 at submission time. The refusal message is
+  "Maximum number queued requests for this dataset has been reached".
+* **The limit is on what this account holds**, and it applies across
+  datasets: with two requests held, a third is refused whether it targets the
+  same dataset or a different one. The ceiling drifts with the archive's
+  global queue depth, so a third does slip in now and then.
+* **A refusal is free** - the slot comes straight back. The pool keeps asking
+  rather than giving up, so a refusal is never a reason to stop.
+* **The init month matters more than anything else.** The same centre, the
+  same shape and the same dataset serves in 12 s for the October init and is
+  refused in 24 s for the November one. That is a property of the archive.
+  October is used as a fast probe of *payload validity* only - never as a
+  substitute for the November init.
+* **Pack each request with everything the dataset allows.** One request
+  carries a centre's snowfall *and* its sea-surface temperature
+  (`variable` as a list), which halves the slots a centre costs.
+* **Never dismiss a queued request** to make room for another. Two of ours
+  have sat queued for hours and both completed.
+
+The pool's work list, in priority order, is the monthly snowfall and SST of
+the centres that are missing from the site or off the November init; their
+hindcast climate (without it their anomaly panels cannot be drawn); the
+extension past the sixth lead month (it is what carries the multi-model mean
+out to the end of the C3S range); and then the daily 10 hPa wind in 72-day
+chunks.
+
 
 `u10_daily.py` is the shared decoder. It groups records by *valid date*
 rather than by lead time, because UKMO perturbs the member start dates, and
@@ -157,14 +186,17 @@ to mint the token.
 | script | what it does |
 |---|---|
 | `cds_direct.py` | a small direct CDS client (the stock one retries for hours) |
+| **`run_nov_queue.py`** | **the single CDS submitter** - the monthly fields, the hindcast climate, the lead-month-7 extension and the daily 10 hPa wind, in priority order |
+| `run_nov_pool.sh` | the supervisor that restarts `run_nov_queue.py` if it exits |
 | `fetch_models.py` | downloads snowfall (forecast + the model's own hindcast climate) and 10 hPa u for every released system, at its own init |
-| `fetch_new_centre.py` | the single entry point for a centre: any of snow / sst / clim / u10, or `--watch <job-id>` for a job already queued |
-| `fetch_models_daily.py` | the chunked daily 10 hPa puller (one job per 72 days) |
+| `fetch_new_centre.py` | a one-off entry point for a single centre: any of snow / sst / clim / u10, or `--watch <job-id>` for a job already queued |
+| `fetch_models_daily.py` | the chunked daily 10 hPa puller, now driven by `run_nov_queue.py` |
 | `fetch_snow_daily.py` | the chunked daily snowfall puller (the decoder it shares) |
 | `fetch_snow_ext.py` | the lead months past the sixth, from the sub-daily product |
 | `fetch_enso.py` | the SST for the ENSO plumes, and the plume indices |
 | `fetch_ersst.py`, `fetch_oni.py`, `fetch_era5_enso.py` | the observed analysis and the ERA5 basin climatology the plumes are drawn against |
 | `fetch_sfs.py`, `fetch_cfsv2.py` | the two NOAA systems, read from NOAA itself |
+| `model_clim_m7.py` | rebuilds the ECMWF lead-month-7 model climate from the model's own past runs |
 | `plot_snow_models.py` | renders the accumulation totals, the per-lead-month totals and the monthly anomalies for every model |
 | `plot_snow_multi.py` | the C3S multi-model mean snowfall |
 | `build_spv_panels.py` | renders the 10 hPa SPV chart and the lead-month table for every model |
@@ -177,7 +209,8 @@ to mint the token.
 the colour scale; `u10_daily.py` and `enso_common.py` are the shared decoders.
 The ECMWF's lead month 7 model climate is a build artefact,
 `data/model_clim_m7_month<MM>.npz`, reconstructed from the model's own past
-runs and spliced into the daily climate curve by `plot_spv.py`.
+runs by `model_clim_m7.py` and spliced into the daily climate curve by
+`plot_spv.py`.
 
 ## House style
 
