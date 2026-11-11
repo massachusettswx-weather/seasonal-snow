@@ -42,10 +42,18 @@ else
 fi
 
 echo ">> pushing"
+# The token is only ever in the remote URL while the push is running.  If the
+# push fails - a revoked token, for instance - the remote must not be left
+# holding a dead credential, so the clean URL is restored on the way out.
+CLEAN_REMOTE="https://github.com/${OWNER}/${REPO}.git"
+cleanup_remote () {
+    git remote set-url origin "$CLEAN_REMOTE" 2>/dev/null || true
+}
+trap cleanup_remote EXIT
 git remote remove origin 2>/dev/null || true
 git remote add origin "https://${TOKEN}@github.com/${OWNER}/${REPO}.git"
 git push -u origin main
-git remote set-url origin "https://github.com/${OWNER}/${REPO}.git"
+git remote set-url origin "$CLEAN_REMOTE"
 
 echo
 echo "Pushed to https://github.com/${OWNER}/${REPO}"
