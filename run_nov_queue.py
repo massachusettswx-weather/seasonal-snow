@@ -452,12 +452,16 @@ class Pool(object):
         return s
 
     def worker_touched(self, jid):
-        """Has a worker touched this request?
+        """Has this request been judged by the archive?
 
-        The job's `updated` timestamp is the tell: while a request is
-        queued and progressing it moves, and a request that no worker has
-        picked up keeps `updated == created`.  True means a worker has
-        touched it.
+        The job's `updated` timestamp moves when the archive reaches a
+        verdict - a job that is REFUSED carries the later timestamp.  It
+        is NOT a progress signal: a job that completes successfully also
+        keeps `updated == created`, so this can only tell "the archive
+        has refused it" from "it has not refused it yet".
+
+        Returns True when the job has been refused, False when it has
+        not, None when the endpoint does not say.
         """
         try:
             r = self.c._request("GET", "/retrieve/v1/jobs/%s" % jid)
@@ -544,31 +548,35 @@ class Pool(object):
                 wait = REFUSED_WAIT if s == "rejected" else 90
                 self.next_at[step] = time.time() + wait
             elif s == "accepted" and time.time() - since > STUCK_S:
-                # NO WORKER HAS TOUCHED THIS REQUEST.
+                # THIS REQUEST HAS BEEN ACCEPTED FOR A LONG TIME AND
+                # NOTHING HAS COME BACK FROM IT.
                 #
-                # A job whose `updated` timestamp never moves is not queued
-                # and progressing - it is a request the archive is holding
-                # without working on it, and it holds one of our slots
-                # forever.  Measured on 11 Nov 2026: the ECCC and JMA
-                # snowfall requests sat that way for 12 h while the BoM SST
-                # for the same init was served in minutes.
+                # Measured on 11 Nov 2026: the ECCC and JMA snowfall
+                # requests for the November init sat accepted for 12 h and
+                # 2.5 h, while the BoM SST for the same init was served in
+                # about ten minutes and the UKMO, CMCC, DWD and METFR
+                # November snowfall requests had already been served.
                 #
-                # So release it, let the slot go to something else, and
-                # ask for this field again later.  A refusal is free; a
-                # permanently stuck request is not.
-                touched = self.worker_touched(jid)
-                if touched is False:
-                    print("   %s: no worker has touched it in %.0f min - "
-                          "releasing the slot"
-                          % (step, (time.time() - since) / 60), flush=True)
-                    try:
-                        self.c._request("DELETE", "/retrieve/v1/jobs/%s" % jid)
-                    except Exception as e:
-                        print("      could not release it: %s" % str(e)[:80],
-                              flush=True)
-                    del self.live[jid]
-                    self.done_steps.append((step, tag, kind, False))
-                    self.next_at[step] = time.time() + 1800
+                # So the archive accepts the request and never works on it.
+                # Holding one of our two slots on it for hours is the
+                # expensive part, so after 25 minutes the pool releases
+                # the slot, lets it go to something else, and asks for
+                # that field again later.  A refusal is free; a request
+                # that never comes back is not.
+                #
+                # (The job's `updated` field is not a progress signal - a
+                # job that completes successfully also leaves it at
+                # `created`.)
+                print("   %s: nothing has come back in %.0f min - releasing "
+                      "the slot" % (step, (time.time() - since) / 60), flush=True)
+                try:
+                    self.c._request("DELETE", "/retrieve/v1/jobs/%s" % jid)
+                except Exception as e:
+                    print("      could not release it: %s" % str(e)[:80],
+                          flush=True)
+                del self.live[jid]
+                self.done_steps.append((step, tag, kind, False))
+                self.next_at[step] = time.time() + 1800
         return acted
 
 
