@@ -226,7 +226,24 @@ def save(tag, idx, trop, kind):
                       for n in names},
            # the tropical mean (20S-20N, all longitudes) for the relative index
            "tropical": [trop[ym] for ym in months]}
-    json.dump(out, open(os.path.join(d, "enso.json"), "w"), indent=1)
+    # Only write when the content actually changes.  The publish watcher
+    # fingerprints these files, and rewriting an identical file would look
+    # like new data and trigger another rebuild - forever.
+    p = os.path.join(d, "enso.json")
+    new = json.dumps(out, indent=1)
+    old_txt = None
+    if os.path.exists(p):
+        try:
+            with open(p) as f:
+                old_txt = f.read()
+        except Exception:
+            old_txt = None
+    if old_txt == new:
+        print("  %s: enso.json unchanged (%d months, %d members)"
+              % (tag, len(months), len(out["series"][names[0]][0])), flush=True)
+        return
+    with open(p, "w") as f:
+        f.write(new)
     print("  %s: wrote enso.json (%d months, %d members)" %
           (tag, len(months), len(out["series"][names[0]][0])), flush=True)
     for i, n in enumerate(names):
