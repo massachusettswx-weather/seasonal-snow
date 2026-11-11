@@ -38,7 +38,7 @@ CENTRES = [
     ("meteo-france-s9", "meteo_france", "9"),
     ("cmcc-sps4",       "cmcc",  "4"),
     ("dwd-gcfs2",       "dwd",   "22"),
-    ("jma-jra3",        "jma",   "7"),
+    ("jma-jra3",        "jma",   "4"),
     ("bom-access-s2",   "bom",   "2"),
 ]
 

@@ -47,7 +47,7 @@ SYSTEMS = [
     ("cmcc-sps4",      "CMCC SPS4",            "cmcc",  "4",  7),
     ("dwd-gcfs2",      "DWD GCFS2.2",          "dwd",   "22", 7),
     ("meteo-france-s9","METFR System 9",       "meteo_france", "9", 6),
-    ("jma-jra3",      "JMA JRA3-25",           "jma", "7",  6),
+    ("jma-jra3",      "JMA CPS4",              "jma", "4",  6),
     ("bom-access-s2", "BOM ACCESS-S2",         "bom", "2",  6),
     # NCEP is in the C3S catalogue but is not a site model - NOAA is read
     # from NOAA itself - so it is not fetched.

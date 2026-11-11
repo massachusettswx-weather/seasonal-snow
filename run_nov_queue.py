@@ -106,7 +106,7 @@ EXT_DAYS = {
 CENTRES = {
     "eccc-gem5": ("ECCC GEM5.2-NEMO", "eccc", "5"),
     "eccc-canesm5": ("ECCC CanESM5.1p1bc", "eccc", "4"),
-    "jma-jra3": ("JMA JRA3-25", "jma", "7"),
+    "jma-jra3": ("JMA CPS4", "jma", "4"),
     "bom-access-s2": ("BOM ACCESS-S2", "bom", "2"),
     "cmcc-sps4": ("CMCC SPE-4", "cmcc", "4"),
     "dwd-gcfs2": ("DWD GCFS2.0", "dwd", "22"),

@@ -40,7 +40,7 @@ MODELS = [
     ("eccc-gem5", "ECCC GEM5.2"),
     ("ukmo-gloseas6", "UKMO GloSeas6"),
     ("meteo-france-s9", "METFR System 9"),
-    ("jma-jra3", "JMA JRA3-25"),
+    ("jma-jra3", "JMA CPS4"),
     ("bom-access-s2", "BOM ACCESS-S2"),
 ]
 # every calendar month any of the models covers.  The window runs to the end
