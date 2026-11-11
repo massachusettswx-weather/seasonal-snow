@@ -320,5 +320,17 @@
    ],
    "grid": null
   }
+ },
+ "jma-jra3": {
+  "name": "JMA CPS4",
+  "init": "2026-11",
+  "members": 155,
+  "note": "sea surface temperature only so far - the snowfall and the 10 hPa wind are still queued"
+ },
+ "bom-access-s2": {
+  "name": "BOM ACCESS-S2",
+  "init": "2026-11",
+  "members": 99,
+  "note": "sea surface temperature only so far - the snowfall and the 10 hPa wind are still queued"
  }
 }

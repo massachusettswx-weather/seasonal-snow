@@ -44,10 +44,14 @@ MODELS = {
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "jma-jra3":       ("JMA CPS4",
                         "Japan Meteorological Agency CPS4 seasonal prediction "
-                        "system \u00b7 ensemble \u00b7 init 1 Nov 2026"),
+                        "system \u00b7 ensemble \u00b7 init 1 Nov 2026 \u00b7 the "
+                        "ENSO plume is published; the snowfall and the 10 hPa "
+                        "wind are still queued"),
     "bom-access-s2":  ("BOM ACCESS-S2",
                         "Australian Bureau of Meteorology ACCESS-S2 \u00b7 "
-                        "ensemble \u00b7 init 1 Nov 2026"),
+                        "ensemble \u00b7 init 1 Nov 2026 \u00b7 the ENSO plume is "
+                        "published; the snowfall and the 10 hPa wind are still "
+                        "queued"),
     "c3s-multi":       ("C3S Multi-Model Mean", ""),   # filled in below
     "cfsv2":           ("NOAA CFSv2",
                         "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 1 Nov 2026 \u00b7 read "
@@ -72,6 +76,46 @@ MODELS = {
 }
 
 # the month label for each rendered file, written by plot_snow_models.py
+def count_members(tag):
+    """How many ensemble members a centre's snowfall actually has.
+
+    The fetch state records the member count for most centres, but not for
+    all of them - Meteo-France came through a different path and was left
+    blank on the site.  Counting them from the data is the honest answer.
+    """
+    d = os.path.join(HERE, "data", "models", tag)
+    for fn in ("snowfall_monthly.npz", "snowfall_monthly.grib"):
+        p = os.path.join(d, fn)
+        if not os.path.exists(p):
+            continue
+        try:
+            if fn.endswith(".npz"):
+                import numpy as np
+                z = np.load(p, allow_pickle=True)
+                if "member_numbers" in z.files:
+                    return int(len(z["member_numbers"]))
+                return int(z["values"].shape[0])
+            import eccodes
+            mem = set()
+            with open(p, "rb") as f:
+                while True:
+                    try:
+                        gid = eccodes.codes_grib_new_from_file(f)
+                    except Exception:
+                        break
+                    if gid is None:
+                        break
+                    try:
+                        mem.add(int(eccodes.codes_get(gid, "number")))
+                    except Exception:
+                        pass
+            if mem:
+                return len(mem)
+        except Exception:
+            pass
+    return "?"
+
+
 def info_of_file(fn):
     """-> {'label': ..., 'lead': ...} for a rendered file."""
     return MANIFEST.get(fn, {"label": "", "lead": 0})
@@ -175,6 +219,9 @@ def main():
         nmem = st.get("members", "?")
         if tag == "c3s-multi" and MULTI_COUNT:
             nmem = MULTI_COUNT
+        if nmem == "?":
+            # count them from the data rather than leave the card blank
+            nmem = count_members(tag)
         entry = {
             "id": tag,
             "name": name,
