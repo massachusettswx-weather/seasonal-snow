@@ -80,7 +80,12 @@ function renderTotal(){
 function renderMonthly(){
   const m=model();
   const g=document.getElementById('monthlyGrid');
-  g.innerHTML=m.months.map(x=>
+  const months=m.months||[];
+  if(!months.length){
+    g.innerHTML='<p class="lead">No monthly panels for this model yet.</p>';
+    return;
+  }
+  g.innerHTML=months.map(x=>
     `<div class="stage"><img src="${pick(x)}" alt="${x.label}"><div class="cap">${x.label} &mdash; ${x.caption}</div></div>`
   ).join('');
 }

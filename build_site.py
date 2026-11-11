@@ -325,7 +325,7 @@ function render(){
     title:'Snowfall',
     desc:'Accumulated snowfall over the continental United States &mdash; total for the run, each lead month, and monthly anomalies with a drag bar.',
     href:'snow.html?m='+m.id,
-    img:(m.total&&m.total.file)||(m.frames.length&&m.frames[0].file)||'',
+    img:(m.total&&m.total.file)||((m.frames||[]).length&&m.frames[0].file)||'',
     on:!!m.snow_ok
   });
   vars.push({
@@ -433,7 +433,12 @@ function renderTotal(){
 function renderMonthly(){
   const m=model();
   const g=document.getElementById('monthlyGrid');
-  g.innerHTML=m.months.map(x=>
+  const months=m.months||[];
+  if(!months.length){
+    g.innerHTML='<p class="lead">No monthly panels for this model yet.</p>';
+    return;
+  }
+  g.innerHTML=months.map(x=>
     `<div class="stage"><img src="${pick(x)}" alt="${x.label}"><div class="cap">${x.label} &mdash; ${x.caption}</div></div>`
   ).join('');
 }
@@ -605,8 +610,13 @@ function model(){return MODELS[sel.value];}
 function render(){
   const m=model();
   const d=dom.value;
-  const p=m.spv[d];
+  const p=(m.spv||{})[d];
   const img=document.getElementById('spvImg');
+  if(!p){
+    img.removeAttribute('src'); img.alt='';
+    document.getElementById('spvCap').textContent='No 10 hPa panel for this model.';
+    return;
+  }
   img.src=p.file; img.alt=p.caption;
   document.getElementById('spvCap').textContent=p.caption;
   const t=p.table;

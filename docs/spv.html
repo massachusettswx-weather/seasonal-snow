@@ -53,8 +53,13 @@ function model(){return MODELS[sel.value];}
 function render(){
   const m=model();
   const d=dom.value;
-  const p=m.spv[d];
+  const p=(m.spv||{})[d];
   const img=document.getElementById('spvImg');
+  if(!p){
+    img.removeAttribute('src'); img.alt='';
+    document.getElementById('spvCap').textContent='No 10 hPa panel for this model.';
+    return;
+  }
   img.src=p.file; img.alt=p.caption;
   document.getElementById('spvCap').textContent=p.caption;
   const t=p.table;

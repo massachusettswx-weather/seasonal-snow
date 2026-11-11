@@ -53,7 +53,7 @@ function render(){
     title:'Snowfall',
     desc:'Accumulated snowfall over the continental United States &mdash; total for the run, each lead month, and monthly anomalies with a drag bar.',
     href:'snow.html?m='+m.id,
-    img:(m.total&&m.total.file)||(m.frames.length&&m.frames[0].file)||'',
+    img:(m.total&&m.total.file)||((m.frames||[]).length&&m.frames[0].file)||'',
     on:!!m.snow_ok
   });
   vars.push({
