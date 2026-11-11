@@ -98,8 +98,11 @@ CENTRES = {
 }
 
 # The centres whose daily wind is wanted, in the order they are finished.
-DAILY_ORDER = ["ukmo-gloseas6", "meteo-france-s9", "cmcc-sps4", "dwd-gcfs2",
-               "jma-jra3", "bom-access-s2", "eccc-gem5", "eccc-canesm5"]
+# The two centres that are not on the site yet come first - a daily SPV
+# chart for a centre that has no page at all is worth more than a second
+# daily chart for a centre that already has one.
+DAILY_ORDER = ["jma-jra3", "bom-access-s2", "ukmo-gloseas6", "meteo-france-s9",
+               "cmcc-sps4", "dwd-gcfs2", "eccc-gem5", "eccc-canesm5"]
 
 
 # --------------------------------------------------------------- the work
@@ -108,9 +111,17 @@ def monthly_steps():
     out = []
     for tag in ("eccc-gem5", "jma-jra3", "bom-access-s2", "eccc-canesm5"):
         out.append(("snow:" + tag, tag, "snow"))
-    for tag in ("jma-jra3", "bom-access-s2"):
-        out.append(("clim:" + tag, tag, "clim"))
     return out
+
+
+def clim_steps():
+    """-> [(id, tag, kind)] the hindcast climate of the new centres.
+
+    Without it their anomaly panels cannot be drawn - the anomaly is
+    measured against the model's OWN climate, not against ERA5.
+    """
+    return [("clim:" + tag, tag, "clim")
+            for tag in ("jma-jra3", "bom-access-s2")]
 
 
 def daily_steps():
@@ -130,8 +141,21 @@ def ext_steps():
 
 
 def all_steps():
-    """The whole priority list."""
-    return monthly_steps() + daily_steps() + ext_steps()
+    """The whole priority list.
+
+    The order is the value order:
+
+    1. the monthly snowfall and SST of the centres that are missing from
+       the site or off the November init - one request per centre, each
+       carrying both fields;
+    2. the hindcast climate of the new centres, without which their
+       anomaly panels cannot be drawn;
+    3. the extension past the sixth lead month, which is what carries the
+       multi-model mean out to the end of the C3S range - two requests;
+    4. the daily 10 hPa wind, in 72-day chunks - the SPV charts are built
+       from it, and one centre is finished before the next is started.
+    """
+    return monthly_steps() + clim_steps() + ext_steps() + daily_steps()
 
 
 # ----------------------------------------------------------------- helpers
