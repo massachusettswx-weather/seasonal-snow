@@ -113,6 +113,8 @@ def read_snow(path):
     lats = lons = None
     grid = None
     seen = set()
+    days = {}          # calendar month -> the days it actually covers
+    daykeys = {}       # calendar month -> the set of days seen
 
     with open(path, "rb") as f:
         while True:
@@ -138,6 +140,10 @@ def read_snow(path):
                     midx[key] = len(months)
                     months.append(key)
                 mi = midx[key]
+                # which calendar day does this step contribute to?
+                dkey = (ref.year, ref.month, ref.day)
+                if dkey not in daykeys.setdefault(key, set()):
+                    daykeys[key].add(dkey)
 
                 pn = int(_g(gid, "perturbationNumber", 0) or 0)
                 num = int(_g(gid, "number", 0) or 0)
@@ -215,24 +221,30 @@ def read_snow(path):
                     pass
 
     if acc is None:
-        return [], [], None, None, None
+        return [], [], None, None, None, []
     order = np.argsort([m[0] * 100 + m[1] for m in months])
     months = [months[i] for i in order]
     acc = acc[:, order]
+    # How many days each lead month actually covers.  A system that runs
+    # to day 184 only delivers four days of the seventh month, and a
+    # four-day accumulation must not be averaged into a monthly mean as if
+    # it were the whole month.
+    ndays = [len(daykeys.get(m, ())) for m in months]
     # drop the members that never received a record
     keep = [i for i in range(acc.shape[0])
             if np.isfinite(acc[i]).any() and np.abs(acc[i]).sum() > 0]
     acc = acc[keep]
     members = [members[i] for i in keep]
-    return months, members, acc, glat, glon
+    return months, members, acc, glat, glon, ndays
 
 
-def save_npz(path, months, members, acc, lats, lons, meta=None):
+def save_npz(path, months, members, acc, lats, lons, meta=None, ndays=None):
     np.savez_compressed(path,
                         months=np.array(["%04d-%02d" % m for m in months]),
                         members=np.array(members),
                         acc=acc,
                         lat=lats, lon=lons,
+                        ndays=np.array(ndays if ndays is not None else []),
                         meta=np.array(json.dumps(meta or {})))
 
 
@@ -244,7 +256,12 @@ def load_npz(path):
         meta = json.loads(str(d["meta"]))
     except Exception:
         pass
-    return months, list(d["members"]), d["acc"], d["lat"], d["lon"], meta
+    # how many days each lead month covers - an empty array means the file
+    # was written before this was recorded
+    ndays = []
+    if "ndays" in d.files:
+        ndays = [int(x) for x in d["ndays"]]
+    return months, list(d["members"]), d["acc"], d["lat"], d["lon"], meta, ndays
 
 
 # ------------------------------------------------------------------ fetching --
@@ -403,7 +420,7 @@ def poll(c):
         print("  downloaded %s snow chunk %d (%.0f MB)"
               % (tag, k, os.path.getsize(gpath) / 1e6), flush=True)
         try:
-            months, members, acc, lats, lons = read_snow(gpath)
+            months, members, acc, lats, lons, ndays = read_snow(gpath)
         except Exception as e:
             print("  snow decode failed:", str(e)[:200], flush=True)
             j["status"] = "decode_failed"
@@ -415,7 +432,7 @@ def poll(c):
                 os.remove(gpath)
         npz = os.path.join(MDIR, tag, "snow_daily.npz")
         if os.path.exists(npz):
-            om, ome, oacc, olat, olon, ometa = load_npz(npz)
+            om, ome, oacc, olat, olon, ometa, ond = load_npz(npz)
             # merge on (month, member)
             keys = sorted(set(om) | set(months))
             mems = sorted(set(ome) | set(members))
@@ -450,7 +467,7 @@ def poll(c):
         npz = os.path.join(MDIR, tag, "snow_daily.npz")
         extra = ""
         if os.path.exists(npz):
-            m, me, a, la, lo, meta = load_npz(npz)
+            m, me, a, la, lo, meta, nd = load_npz(npz)
             extra = " | %d members x %d months (%s -> %s)" % (
                 len(me), len(m), "%04d-%02d" % m[0], "%04d-%02d" % m[-1])
         print("  %-16s chunks %d done, %d pending, %d failed%s"

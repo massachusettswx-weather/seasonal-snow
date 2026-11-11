@@ -84,6 +84,17 @@ DAILY_DAYS = {
     "meteo-france-s9": 215, "jma-jra3": 215, "bom-access-s2": 215,
 }
 
+# How far past the sixth lead month each centre actually runs.  These are
+# the systems' own published ranges: the ECMWF and the UKMO to 215 days,
+# the ECCC to 214, Meteo-France to 215, the CMCC to 184, the DWD to six
+# calendar months.  A centre that does not reach past the sixth month gets
+# no extension request at all.
+EXT_DAYS = {
+    "ecmwf-seas5": 215, "ukmo-gloseas6": 215, "eccc-canesm5": 214,
+    "eccc-gem5": 214, "meteo-france-s9": 215, "cmcc-sps4": 184,
+    "jma-jra3": 215, "bom-access-s2": 215, "dwd-gcfs2": 180,
+}
+
 # tag, name, centre, system
 CENTRES = {
     "eccc-gem5": ("ECCC GEM5.2-NEMO", "eccc", "5"),
@@ -135,9 +146,25 @@ def daily_steps():
 
 
 def ext_steps():
-    """-> [(id, tag, kind)] the extension past the sixth lead month."""
-    return [("ext:ecmwf-seas5", "ecmwf-seas5", "ext"),
-            ("ext:ukmo-gloseas6", "ukmo-gloseas6", "ext")]
+    """-> [(id, tag, kind)] the extension past the sixth lead month.
+
+    The monthly dataset stops at lead month 6, but the systems run further:
+    the ECMWF and the UKMO to 215 days, the ECCC to 214, Meteo-France and
+    CMCC to 184, the DWD to six calendar months.  The extra months only
+    exist in the sub-daily product, where every step carries its own
+    accumulation.
+
+    The ECMWF and the UKMO come first because they are the two systems
+    whose extension is what carries the multi-model mean out to the end of
+    the C3S range - the mean is over the union of what the centres cover,
+    so one centre reaching month 7 extends the whole product.
+    """
+    out = []
+    for tag in ("ecmwf-seas5", "ukmo-gloseas6", "eccc-gem5", "eccc-canesm5",
+                "meteo-france-s9", "cmcc-sps4", "jma-jra3", "bom-access-s2"):
+        if EXT_DAYS.get(tag, 0) > 180:
+            out.append(("ext:" + tag, tag, "ext"))
+    return out
 
 
 def all_steps():
@@ -182,11 +209,26 @@ def record_init(tag, init=INIT):
     print("   %s is on the %s init" % (tag, init), flush=True)
 
 
+def centre_init(tag):
+    """The init a centre is actually on.
+
+    Every centre is being moved onto the November init, but until its
+    November forecast is actually on disk it is still on whatever it was
+    serving - and the request has to ask for THAT init, or the archive
+    answers with nothing.  The monthly request always asks for the
+    November init; the extension and the daily wind follow the init that
+    the monthly request established.
+    """
+    st = json.load(open(STATE)) if os.path.exists(STATE) else {}
+    return st.get(tag, {}).get("init", INIT)
+
+
 def build_request(tag, kind, chunk=None):
     """-> (dataset, request-dict, [(kind, filename), ...])"""
     name, centre, system = CENTRES[tag]
+    init = INIT if kind in ("snow", "clim") else centre_init(tag)
     common = {"originating_centre": centre, "system": system,
-              "year": INIT[:4], "month": INIT[5:7], "data_format": "grib"}
+              "year": init[:4], "month": init[5:7], "data_format": "grib"}
     if kind == "snow":
         # the snowfall and the SST of a centre come from the same dataset
         # and the same leads, so they travel in ONE request
@@ -200,9 +242,14 @@ def build_request(tag, kind, chunk=None):
                      product_type="hindcast_climate_mean", leadtime_month=LEADS),
                 [("clim", "snowfall_hindcast.grib")])
     if kind == "ext":
-        # the lead months past the sixth only exist in the sub-daily
-        # product, where every step carries its own accumulation
-        hours = [str(h) for h in range(181 * 24, 216 * 24, 12)]
+        # The lead months past the sixth only exist in the sub-daily
+        # product, where every step carries its own accumulation.  The
+        # window is trimmed to the centre's own reach - asking for days a
+        # system does not run to is what produces an empty file.
+        reach = EXT_DAYS.get(tag, 0)
+        if reach <= 180:
+            raise SystemExit("%s does not run past the sixth lead month" % tag)
+        hours = [str(h) for h in range(181 * 24, reach * 24 + 1, 12)]
         return (DS_ORIGINAL_SL,
                 dict(common, variable="snowfall", day="01", leadtime_hour=hours),
                 [("ext", "snowfall_ext.grib")])
@@ -288,12 +335,13 @@ def split_combined(path, tag, kinds):
 def decode_ext(path, tag):
     """The renderer reads the decoded months, not the GRIB."""
     from fetch_snow_daily import read_snow, save_npz
-    months, members, acc, glat, glon = read_snow(path)
+    months, members, acc, glat, glon, ndays = read_snow(path)
     if months and acc is not None:
         save_npz(path.replace(".grib", ".npz"), months, members, acc, glat, glon,
-                 meta=dict(tag=tag, init=INIT, kind="extended"))
-        print("   %s/ext: %d extended month(s) %s"
-              % (tag, len(months), ["%04d-%02d" % m for m in months]), flush=True)
+                 meta=dict(tag=tag, init=INIT, kind="extended"), ndays=ndays)
+        print("   %s/ext: %d extended month(s) %s (%s days each)"
+              % (tag, len(months), ["%04d-%02d" % m for m in months], ndays),
+              flush=True)
     else:
         print("   %s/ext: nothing past the sixth month" % tag, flush=True)
 

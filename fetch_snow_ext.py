@@ -102,17 +102,17 @@ def main():
             time.sleep(30)
         if not ok:
             continue
-        months, members, acc, glat, glon = read_snow(grib)
+        months, members, acc, glat, glon, ndays = read_snow(grib)
         if not months or acc is None:
             print("  %s: no data past the monthly product's 6 months" % tag,
                   flush=True)
             os.remove(grib)
             continue
         save_npz(npz, months, members, acc, glat, glon,
-                 meta=dict(tag=tag, init=init, kind="extended"))
-        print("  %s: %d extended month(s) %s -> %s"
+                 meta=dict(tag=tag, init=init, kind="extended"), ndays=ndays)
+        print("  %s: %d extended month(s) %s (%s days each) -> %s"
               % (tag, len(months), [ "%04d-%02d" % m for m in months ],
-                 os.path.basename(npz)), flush=True)
+                 ndays, os.path.basename(npz)), flush=True)
 
 
 if __name__ == "__main__":

@@ -76,8 +76,15 @@ def model_monthly(tag):
     xp = os.path.join(d, "snowfall_ext.npz")
     if os.path.exists(xp):
         try:
-            for ym, (la, lo, v) in read_extended(xp).items():
+            for ym, (la, lo, v, nd) in read_extended(xp).items():
                 if ym not in ALL_MONTHS or ym in out:
+                    continue
+                # a month the system only covered for a few days is not a
+                # monthly mean - averaging it in with whole months would
+                # drag the multi-model mean down
+                if nd and nd < 20:
+                    print("  %s: %04d-%02d has only %d day(s) - not averaged in"
+                          % (tag, ym[0], ym[1], nd), flush=True)
                     continue
                 g = interp_to(LAT.ravel(), LON.ravel(), la, lo,
                               v).reshape(LAT.shape)

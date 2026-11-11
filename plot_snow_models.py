@@ -208,21 +208,29 @@ def read_snowfall(path):
 
 
 def read_extended(path):
-    """-> dict (year, month) -> (lat, lon, metres of water equivalent).
+    """-> dict (year, month) -> (lat, lon, metres of water equivalent, days).
 
     The lead months past the sixth only exist in the sub-daily product, where
     each step carries its own accumulation; the decoder there has already
     added the steps up into calendar months, so the values here are
     accumulations in metres rather than a rate in m s-1.
+
+    The fourth item is how many days the month actually covers.  A system
+    that runs to day 184 delivers only four days of the seventh month, and
+    a four-day accumulation must not be shown as a whole month.
     """
     d = np.load(path, allow_pickle=True)
     months = [tuple(int(x) for x in str(m).split("-")) for m in d["months"]]
     lat = np.asarray(d["lat"], float)
     lon = np.asarray(d["lon"], float)
     acc = np.asarray(d["acc"], float)          # (members, months, lat, lon)
+    ndays = []
+    if "ndays" in d.files:
+        ndays = [int(x) for x in d["ndays"]]
     out = {}
     for i, ym in enumerate(months):
-        out[ym] = (lat, lon, acc[:, i].mean(axis=0).ravel())
+        nd = ndays[i] if i < len(ndays) else 0
+        out[ym] = (lat, lon, acc[:, i].mean(axis=0).ravel(), nd)
     return out
 
 
@@ -395,7 +403,7 @@ def main():
             y, m = ym
             if ym in ext_yms:
                 # an accumulation in metres, not a rate
-                la, lo, v = ext[ym]
+                la, lo, v, nd = ext[ym]
                 ens = interp_to(LAT.ravel(), LON.ravel(), la, lo,
                                  v).reshape(LAT.shape)
                 monthly_in.append(ens * 1000.0 / 25.4 * unit_mult())
