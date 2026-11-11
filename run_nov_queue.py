@@ -109,6 +109,8 @@ def run_step(c, step, tag, name, centre, system, kind, fields, dry=False):
         if os.path.exists(out) and os.path.getsize(out) > 10000 and not stale:
             print("   %s/%s: already on disk" % (tag, f), flush=True)
             continue
+        # remember what was there: only a FRESH file counts as fetched
+        before = os.path.getmtime(out) if os.path.exists(out) else 0
         dataset, extra = REQ[f]
         req = {"originating_centre": centre, "system": system,
                "year": "2026", "month": "11", "data_format": "grib"}
