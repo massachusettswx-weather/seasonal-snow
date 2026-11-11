@@ -3,7 +3,7 @@
  "cmcc-sps4": "daily",
  "dwd-gcfs2": "daily",
  "eccc-canesm5": "monthly",
- "eccc-gem5": "monthly",
+ "eccc-gem5": "daily",
  "ukmo-gloseas6": "monthly",
- "meteo-france-s9": "monthly"
+ "meteo-france-s9": "daily"
 }

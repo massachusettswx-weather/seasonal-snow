@@ -1617,8 +1617,48 @@
    "centre": "meteo_france",
    "system": "9",
    "init": "2026-11",
-   "status": "accepted",
+   "status": "decoded",
    "_t0": 1794428073.6270306
+  },
+  {
+   "job": "0008f9ad-6d8a-4e7f-b325-b75e014ac000",
+   "tag": "meteo-france-s9",
+   "chunk": 1,
+   "centre": "meteo_france",
+   "system": "9",
+   "init": "2026-11",
+   "status": "decoded",
+   "_t0": 1794428316.01211
+  },
+  {
+   "job": "a8c06f6d-26c0-4afd-b498-ee96c9caeea6",
+   "tag": "meteo-france-s9",
+   "chunk": 2,
+   "centre": "meteo_france",
+   "system": "9",
+   "init": "2026-11",
+   "status": "decoded",
+   "_t0": 1794428659.4522898
+  },
+  {
+   "job": "d6a9219d-3097-487f-9e6f-3cbe5061d6fc",
+   "tag": "eccc-gem5",
+   "chunk": 0,
+   "centre": "eccc",
+   "system": "5",
+   "init": "2026-11",
+   "status": "decoded",
+   "_t0": 1794428892.3700602
+  },
+  {
+   "job": "8574bb46-de49-4f2a-9e25-d32665e35ffa",
+   "tag": "eccc-gem5",
+   "chunk": 1,
+   "centre": "eccc",
+   "system": "5",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794429047.9927406
   }
  ],
  "stall": false,
