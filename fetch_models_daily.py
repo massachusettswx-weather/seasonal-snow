@@ -43,8 +43,11 @@ CHUNK = 72            # days per job.  A queued seasonal job is purged from the
                       # finishes.  72-day chunks (~700 MB, ~4 min of work)
                       # survive that window; the chunks are merged back into
                       # one 215-day series per centre.
-MAX_INFLIGHT = 3      # the CDS queue gate lets ~3 of our jobs sit queued at
-                      # once; anything beyond that is rejected outright.
+MAX_INFLIGHT = 2      # MEASURED on 11 Nov 2026: the CDS admission gate is
+                      # ACCOUNT-WIDE and lets two of our requests sit queued
+                      # at once - a third is refused 20-45 s after it is
+                      # admitted, whatever dataset it targets.  The old value
+                      # of 3 had every third chunk thrown away.
 WEDGE_S = 3 * 3600    # a job that has sat "accepted" this long without a
                       # worker has wedged - dismiss it and re-queue.
 STALL_S = 90 * 60    # if EVERY live job has been waiting this long and none
@@ -161,6 +164,22 @@ def submit(c, only=None):
     st = load_state()
     done = decoded_chunks(st)
     live = live_jobs(st)
+    # The CDS admission gate is ACCOUNT-WIDE: the monthly November pool and
+    # this daily puller share the same two slots.  If the monthly pool is
+    # holding them, stay out of the way rather than have every chunk
+    # refused.
+    pend_path = os.path.join(DATA, "nov_pending.json")
+    if os.path.exists(pend_path):
+        try:
+            pend = json.load(open(pend_path))
+        except Exception:
+            pend = {}
+        held_elsewhere = sum(1 for v in pend.values()
+                              if isinstance(v, str) and len(v) == 36)
+        if held_elsewhere and len(live) + held_elsewhere >= MAX_INFLIGHT:
+            print("  the monthly pool is holding %d slot(s) - standing down"
+                  % held_elsewhere, flush=True)
+            return
     # the stall brake only applies for a while: a queue that is merely slow
     # must not throttle the pool to a single job for hours
     if st.get("stall") and time.time() - st.get("stall_at", 0) > 1800:

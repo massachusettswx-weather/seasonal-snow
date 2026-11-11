@@ -66,9 +66,9 @@ REFUSED_WAIT = 240
 # own forecast for that init is on disk.
 STEPS = [
     ("eccc-gem", "eccc-gem5", "ECCC GEM5.2-NEMO", "eccc", "5", "snow", ["snow"]),
-    ("eccc-can", "eccc-canesm5", "ECCC CanESM5.1p1bc", "eccc", "4", "snow", ["snow"]),
     ("jma-snow", "jma-jra3", "JMA JRA3-25", "jma", "7", "snow", ["snow"]),
     ("bom-snow", "bom-access-s2", "BOM ACCESS-S2", "bom", "2", "snow", ["snow"]),
+    ("eccc-can", "eccc-canesm5", "ECCC CanESM5.1p1bc", "eccc", "4", "snow", ["snow"]),
     ("jma-rest", "jma-jra3", "JMA JRA3-25", "jma", "7", "clim+u10", ["clim", "u10"]),
     ("ecmwf-ext", "ecmwf-seas5", "ECMWF SEAS5", "ecmwf", "51", "ext", ["ext"]),
     ("ukmo-ext", "ukmo-gloseas6", "UKMO GloSeas6-GC5.1", "ukmo", "610", "ext", ["ext"]),
