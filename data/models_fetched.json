@@ -141,7 +141,7 @@
   },
   "members": 20,
   "expected_leads": 7,
-  "probe_date": "2026-11-10"
+  "probe_date": "2026-11-11"
  },
  "eccc-gem5": {
   "name": "ECCC GEM5.2-NEMO",
