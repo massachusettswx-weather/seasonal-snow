@@ -12,7 +12,19 @@
 #   3. Copy it once - GitHub only shows it at creation time.
 set -euo pipefail
 
-TOKEN="${1:?usage: ./push_to_github.sh <github_token> [repo_name]}"
+# The token comes from the first argument, or from data/.github_token (mode
+# 600, gitignored) so it never appears in the process list.
+TOKFILE="data/.github_token"
+if [ -n "${1:-}" ]; then
+    TOKEN="$1"
+elif [ -f "$TOKFILE" ]; then
+    TOKEN="$(cat "$TOKFILE")"
+else
+    echo "usage: ./push_to_github.sh <github_token> [repo_name]" >&2
+    echo "   (or put the token in $TOKFILE)" >&2
+    exit 1
+fi
+[ -n "$TOKEN" ] || { echo "no token" >&2; exit 1; }
 REPO="${2:-seasonal-snow}"
 OWNER="${GITHUB_OWNER:-massachusettswx-weather}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
