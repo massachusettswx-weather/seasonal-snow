@@ -201,6 +201,10 @@ def u10m_steps():
     out = []
     for tag in ("eccc-gem5", "eccc-canesm5", "cmcc-sps4", "dwd-gcfs2",
                 "jma-jra3", "bom-access-s2"):
+        # a centre whose daily wind is on its way does not need the monthly
+        # one - the chart is built from the daily series
+        if os.path.exists(os.path.join(MDIR, tag, "u10_daily.npz")):
+            continue
         p = os.path.join(MDIR, tag, "u10_monthly.grib")
         if os.path.exists(p) and os.path.getsize(p) > 10000:
             if u10_init_on_disk(p) == INIT:
