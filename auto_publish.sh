@@ -22,7 +22,8 @@ log() { echo "[$(date -u +%H:%M:%S)] $*"; }
 # the fingerprint of the input data: every model file, with its size and
 # modification time
 fingerprint() {
-    find "$WATCH" -type f \( -name '*.grib' -o -name '*.npz' \) \
+    find "$WATCH" -type f \( -name '*.grib' -o -name '*.npz' -o -name '*.nc' \
+         -o -name 'enso.json' \) \
         -printf '%p %s %T@\n' 2>/dev/null | sort
 }
 
