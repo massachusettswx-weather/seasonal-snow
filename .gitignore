@@ -37,3 +37,8 @@ data/probe/
 # local logs and previews
 *.log
 preview_*.png
+
+# transient job ids and NFS leftovers
+data/*_new.txt
+data/jma_snow_job.txt
+.nfs*
