@@ -129,9 +129,10 @@ def monthly_steps():
     out = []
     for tag in ("eccc-gem5", "jma-jra3", "bom-access-s2", "eccc-canesm5"):
         out.append(("snow:" + tag, tag, "snow"))
-    # the SST of the centres that are not on the site yet - it is what the
+    # the SST of the centres that are not on the site yet, and of the ECCC
+    # centres whose plume still points at the October init - it is what the
     # ENSO plumes are built from
-    for tag in ("jma-jra3", "bom-access-s2"):
+    for tag in ("jma-jra3", "bom-access-s2", "eccc-gem5", "eccc-canesm5"):
         out.append(("sst:" + tag, tag, "sst"))
     return out
 
