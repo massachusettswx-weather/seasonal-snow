@@ -64,7 +64,7 @@ log "daily pulls re-pointed at the November init"
 #    it is asked for (SKIP_SCAN=0) - it would cost one extra queued request
 #    per centre for the same answer.
 if [ "${SKIP_SCAN:-1}" = "0" ]; then
-    python3 -u scan_inits.py 2>&1 | tee "data/probe/inits_$(date -u +%m%d).txt"
+    echo "the standalone init scan is gone: fetch_models.py probes each centre"
 else
     log "skipping the standalone init scan (fetch_models.py probes each centre)"
 fi

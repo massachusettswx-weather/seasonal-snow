@@ -47,8 +47,10 @@ SYSTEMS = [
     ("cmcc-sps4",      "CMCC SPS4",            "cmcc",  "4",  7),
     ("dwd-gcfs2",      "DWD GCFS2.2",          "dwd",   "22", 7),
     ("meteo-france-s9","METFR System 9",       "meteo_france", "9", 6),
-    # NCEP and BOM are in the C3S catalogue but are not site models - NOAA is
-    # read from NOAA itself - so they are not fetched.
+    ("jma-jra3",      "JMA JRA3-25",           "jma", "7",  6),
+    ("bom-access-s2", "BOM ACCESS-S2",         "bom", "2",  6),
+    # NCEP is in the C3S catalogue but is not a site model - NOAA is read
+    # from NOAA itself - so it is not fetched.
 ]
 
 # probe newest first: Nov 2026, then Oct, Sep, ... back a year

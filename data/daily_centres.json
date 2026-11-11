@@ -1,8 +1,66 @@
 [
- {"tag":"cmcc-sps4",      "centre":"cmcc",        "system":4,   "year":2026,"month":11,"n_days":365},
- {"tag":"dwd-gcfs2",      "centre":"dwd",         "system":22,  "year":2026,"month":11,"n_days":365},
- {"tag":"eccc-canesm5",   "centre":"eccc",        "system":4,   "year":2026,"month":11,"n_days":365},
- {"tag":"eccc-gem5",      "centre":"eccc",        "system":5,   "year":2026,"month":11,"n_days":365},
- {"tag":"ukmo-gloseas6",  "centre":"ukmo",        "system":610, "year":2026,"month":11,"n_days":365},
- {"tag":"meteo-france-s9","centre":"meteo_france","system":9,   "year":2026,"month":11,"n_days":365}
+ {
+  "tag": "cmcc-sps4",
+  "centre": "cmcc",
+  "system": 4,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "dwd-gcfs2",
+  "centre": "dwd",
+  "system": 22,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "eccc-canesm5",
+  "centre": "eccc",
+  "system": 4,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "eccc-gem5",
+  "centre": "eccc",
+  "system": 5,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "ukmo-gloseas6",
+  "centre": "ukmo",
+  "system": 610,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "meteo-france-s9",
+  "centre": "meteo_france",
+  "system": 9,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "jma-jra3",
+  "centre": "jma",
+  "system": 7,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ },
+ {
+  "tag": "bom-access-s2",
+  "centre": "bom",
+  "system": 2,
+  "year": 2026,
+  "month": 11,
+  "n_days": 365
+ }
 ]

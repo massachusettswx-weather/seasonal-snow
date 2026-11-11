@@ -175,7 +175,6 @@
    "nlat": 1,
    "nlon": 1
   },
-  "done": true,
   "u10m": {
    "fields": 120,
    "steps": [
@@ -191,7 +190,7 @@
   },
   "members": 20,
   "expected_leads": 7,
-  "probe_date": "2026-11-10"
+  "probe_date": "2026-11-11"
  },
  "cmcc-sps4": {
   "name": "CMCC SPS4",

@@ -56,7 +56,8 @@ NAMES = {"ecmwf-seas5": "ECMWF SEAS5", "cmcc-sps4": "CMCC SPS4",
          "dwd-gcfs2": "DWD GCFS2.2", "eccc-canesm5": "ECCC CanESM5.1",
          "eccc-gem5": "ECCC GEM5.2", "ukmo-gloseas6": "UKMO GloSeas6",
          "sfsv1": "NOAA SFSv1", "cfsv2": "NOAA CFSv2",
-         "ecmwf-s4s": "ECMWF Subseasonal"}
+         "ecmwf-s4s": "ECMWF Subseasonal",
+         "jma-jra3": "JMA JRA3-25", "bom-access-s2": "BOM ACCESS-S2"}
 NOTES = {"ecmwf-seas5": "C3S seasonal-monthly-single-levels",
          "sfsv1": "NOAA SFSv1 (NODD ocean store)",
          "cfsv2": "NOAA CFSv2 (NCEP CPC)",

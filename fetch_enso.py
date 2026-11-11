@@ -35,6 +35,8 @@ C3S = [
     ("eccc-gem5", "eccc", 5, 6),
     ("ukmo-gloseas6", "ukmo", 610, 6),
     ("meteo-france-s9", "meteo_france", 9, 6),
+    ("jma-jra3", "jma", 7, 6),
+    ("bom-access-s2", "bom", 2, 6),
 ]
 
 # basin: name, lat0, lat1, lon0, lon1 (degrees, lon negative = west)

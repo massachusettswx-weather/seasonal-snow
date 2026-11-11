@@ -12,5 +12,17 @@
  },
  "meteo-france-s9": {
   "init": "2026-11"
+ },
+ "eccc-gem5": {
+  "init": null,
+  "note": "{\"results\": {\"type\": \"job results failed\", \"title\": \"The job has been rejected\", \"status\": 400, \"trace_id\": \"bcb09446-7d4d-49a8-ac30-6cc4ad5b40e5\", \"traceback\": \"Maximum number queued requests for thi"
+ },
+ "eccc-canesm5": {
+  "init": null,
+  "note": "{\"results\": {\"type\": \"job results failed\", \"title\": \"The job has been rejected\", \"status\": 400, \"trace_id\": \"8d7bf9ee-aa3f-4651-a436-9ded6eae2ee8\", \"traceback\": \"Maximum number queued requests for thi"
+ },
+ "jma-jra3": {
+  "init": null,
+  "note": ""
  }
 }

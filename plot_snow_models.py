@@ -207,6 +207,25 @@ def read_snowfall(path):
     return out
 
 
+def read_extended(path):
+    """-> dict (year, month) -> (lat, lon, metres of water equivalent).
+
+    The lead months past the sixth only exist in the sub-daily product, where
+    each step carries its own accumulation; the decoder there has already
+    added the steps up into calendar months, so the values here are
+    accumulations in metres rather than a rate in m s-1.
+    """
+    d = np.load(path, allow_pickle=True)
+    months = [tuple(int(x) for x in str(m).split("-")) for m in d["months"]]
+    lat = np.asarray(d["lat"], float)
+    lon = np.asarray(d["lon"], float)
+    acc = np.asarray(d["acc"], float)          # (members, months, lat, lon)
+    out = {}
+    for i, ym in enumerate(months):
+        out[ym] = (lat, lon, acc[:, i].mean(axis=0).ravel())
+    return out
+
+
 def grid_res(lats, lons):
     """The grid resolution of the field being plotted, in degrees."""
     def f(v):
@@ -348,6 +367,17 @@ def main():
             print("skip %s (unreadable grib)" % tag)
             continue
         yms = [ym for ym in sorted(by_step) if month_end(ym) < SNOW_END]
+        # the lead months past the sixth come from the sub-daily product
+        ext = {}
+        xp = os.path.join(d, "snowfall_ext.npz")
+        if os.path.exists(xp):
+            try:
+                ext = read_extended(xp)
+            except Exception as e:
+                print("  %s: unreadable extended months (%s)" % (tag, e))
+        ext_yms = [ym for ym in sorted(ext) if ym not in yms
+                   and month_end(ym) < SNOW_END]
+        yms = yms + ext_yms
         if not yms:
             print("skip %s (nothing before %s)" % (tag, SNOW_END))
             continue
@@ -362,14 +392,23 @@ def main():
         monthly_in = []
         labels = []
         for k, ym in enumerate(yms):
-            recs = by_step[ym]
-            stack = np.array([to_2d(r, lats, lons, order) for r in recs])
-            ens = stack.mean(axis=0)
-            # the value is m w.e. s-1; convert to inches over the month
             y, m = ym
-            days = month_len(y, m)
-            mm = interp_to(LAT.ravel(), LON.ravel(), lats, lons, ens).reshape(LAT.shape)
-            monthly_in.append(mm * days * 86400.0 * 1000.0 / 25.4 * unit_mult())
+            if ym in ext_yms:
+                # an accumulation in metres, not a rate
+                la, lo, v = ext[ym]
+                ens = interp_to(LAT.ravel(), LON.ravel(), la, lo,
+                                 v).reshape(LAT.shape)
+                monthly_in.append(ens * 1000.0 / 25.4 * unit_mult())
+            else:
+                recs = by_step[ym]
+                stack = np.array([to_2d(r, lats, lons, order) for r in recs])
+                ens = stack.mean(axis=0)
+                # the value is m w.e. s-1; convert to inches over the month
+                days = month_len(y, m)
+                mm = interp_to(LAT.ravel(), LON.ravel(), lats, lons,
+                               ens).reshape(LAT.shape)
+                monthly_in.append(mm * days * 86400.0 * 1000.0 / 25.4
+                                  * unit_mult())
             labels.append("%s %d" % (MONTH_NAMES[m - 1], y))
 
         total_in = np.sum(monthly_in, axis=0)

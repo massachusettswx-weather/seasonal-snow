@@ -247,15 +247,6 @@ def load_npz(path):
     return months, list(d["members"]), d["acc"], d["lat"], d["lon"], meta
 
 
-def merge_acc(dst, new):
-    """Merge two (months, members, acc) sets that may overlap."""
-    (m1, mem1, a1) = dst
-    (m2, mem2, a2) = new
-    allm = sorted(set(m1) | set(mem2))
-    allmo = sorted(set(m1.keys()) | set(m2.keys())) if isinstance(m1, dict) else None
-    return allm, allmo
-
-
 # ------------------------------------------------------------------ fetching --
 
 def daily_hours(n):

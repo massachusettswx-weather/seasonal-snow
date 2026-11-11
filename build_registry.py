@@ -42,10 +42,16 @@ MODELS = {
                         "DWD GCFS2.2 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "meteo-france-s9": ("METFR System 9",
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "jma-jra3":       ("JMA JRA3-25",
+                        "Japan Meteorological Agency JRA3-25 seasonal prediction "
+                        "system \u00b7 ensemble \u00b7 init 1 Nov 2026"),
+    "bom-access-s2":  ("BOM ACCESS-S2",
+                        "Australian Bureau of Meteorology ACCESS-S2 \u00b7 "
+                        "ensemble \u00b7 init 1 Nov 2026"),
     "c3s-multi":       ("C3S Multi-Model Mean",
-                        "Mean of the 6 C3S seasonal systems (ECMWF SEAS5, CMCC SPS4, "
-                        "DWD GCFS2.2, ECCC CanESM5, ECCC GEM5.2, UKMO GloSeas6) "
-                        "\u00b7 init 1 Nov 2026 (ECMWF) / 1 Oct 2026 (the rest)"),
+                        "Mean of the C3S seasonal systems (ECMWF SEAS5, CMCC SPS4, "
+                        "DWD GCFS2.2, ECCC CanESM5, ECCC GEM5.2, UKMO GloSeas6, "
+                        "JMA JRA3-25, BOM ACCESS-S2) \u00b7 init 1 Nov 2026"),
     "cfsv2":           ("NOAA CFSv2",
                         "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 10 Oct 2026 \u00b7 read "
                         "directly from NCEP CPC. The absolute snowfall is ERA5's "

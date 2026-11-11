@@ -23,19 +23,29 @@ docs/            the static site (GitHub Pages publishes this directory)
 | model | init | members | snowfall | 10 hPa wind |
 |---|---|---|---|---|
 | ECMWF SEAS5 | 2026-11 | 51 | yes | yes (daily) |
-| UKMO GloSeas6-GC5.1 | 2026-10 | 60 | yes | yes (monthly) |
+| UKMO GloSeas6-GC5.1 | 2026-11 | 60 | yes | yes (daily, monthly fallback) |
+| Meteo-France System 9 | 2026-11 | 51 | yes | yes (monthly) |
 | ECCC CanESM5.1p1bc | 2026-10 | 20 | yes | yes (monthly) |
 | ECCC GEM5.2-NEMO | 2026-10 | 20 | yes | yes (monthly) |
-| CMCC SPS4 | 2026-10 | 50 | yes | yes (monthly) |
-| DWD GCFS2.2 | 2026-10 | 50 | yes | yes (monthly) |
-| NOAA SFSv1 (SFS Beta beta3) | 2026-11 | 31 | yes (12 lead months) | no - NOAA publishes no 10 hPa winds |
-| NOAA CFSv2 | 2026-11 | 40 | yes | no - CPC publishes no 10 hPa winds |
+| CMCC SPS4 | 2026-11 | 50 | yes | yes (daily, monthly fallback) |
+| DWD GCFS2.2 | 2026-11 | 50 | yes | yes (monthly) |
+| JMA JRA3-25 | 2026-11 | - | yes | yes (daily) |
+| BOM ACCESS-S2 | 2026-11 | - | yes | yes (daily) |
+| NOAA SFSv1 | 2026-11 | 31 | yes (12 lead months) | no - NOAA publishes no 10 hPa winds |
+| NOAA CFSv2 | 2026-10 | 40 | yes | no - CPC publishes no 10 hPa winds |
+| C3S Multi-Model Mean | - | - | yes | - |
 
-**Why the different inits.** The non-ECMWF C3S contributions are date
-restricted: as of 7 Nov 2026 they answer the 1 Nov 2026 init with
-*"Restricted access to current C3S seasonal forecast non-ECMWF contribution"*,
-i.e. the November runs are not released yet. Each model is therefore shown from
+**Why the different inits.** C3S releases ECMWF on the 6th of the month and
+every other centre on the 10th, at 12 UTC, and each centre is staged
+separately, so a centre can lag by days. Each model is therefore shown from
 its own most recent released init, and every figure is labelled with it.
+
+**The lead months past the sixth.** The C3S *monthly statistics* dataset stops
+at lead month 6, but the systems themselves run further - the ECMWF to 215
+days (eight lead months), the UKMO and the ECCC to 214/215 days (seven). The
+extra months only exist in the **original (sub-daily)** product, where every
+step carries its own accumulation, so `fetch_snow_ext.py` pulls the tail of
+each run and the renderer merges those months into the totals.
 
 **The NOAA systems come from NOAA, not from C3S.** C3S's NCEP entry serves no
 recent data at all, so both NOAA systems are read from NOAA itself:
@@ -86,8 +96,10 @@ Three things bite when doing this:
 
 * **The queue gate.** The CDS rejects a request outright when too many of ours
   are already waiting ("Maximum number queued requests for this dataset"), and
-  it applies across datasets. Only about three jobs can sit queued at once, so
-  the fetcher keeps a pool of three and refills it as jobs come off. Request
+  it applies across datasets. The exact rule is in the job response's own
+  `qos` block: **1 running + 3 queued per user**, against a C3S MARS archive
+  with 65 running and ~1300 queued, so the wait is measured in hours. The
+  fetcher keeps a pool of three and refills it as jobs come off. Request
   *size* is irrelevant - even a one-step request is rejected.
 * **Stale jobs count.** Jobs left behind by an earlier probe storm keep the
   account blocked for hours. `python3 dismiss_jobs.py` clears them
@@ -135,17 +147,28 @@ to mint the token.
 
 | script | what it does |
 |---|---|
-| `fetch_models.py` | downloads snowfall (forecast + the model's own hindcast climate) and 10 hPa u for every released system, at its own init |
-| `plot_snow_models.py` | renders the accumulation totals, the per-lead-month totals and the monthly anomalies for every model |
-| `build_spv_panels.py` | renders the 10 hPa SPV chart and the lead-month table for every model |
-| `build_registry.py` | collects the rendered panels into `docs/data/models.json` |
-| `build_site.py` | builds the three pages and the stylesheet |
 | `cds_direct.py` | a small direct CDS client (the stock one retries for hours) |
-| `scan_inits.py` | scans init months to find which are released |
+| `fetch_models.py` | downloads snowfall (forecast + the model's own hindcast climate) and 10 hPa u for every released system, at its own init |
+| `fetch_new_centre.py` | the single entry point for a centre: any of snow / sst / clim / u10, or `--watch <job-id>` for a job already queued |
+| `fetch_models_daily.py` | the chunked daily 10 hPa puller (one job per 72 days) |
+| `fetch_snow_daily.py` | the chunked daily snowfall puller (the decoder it shares) |
+| `fetch_snow_ext.py` | the lead months past the sixth, from the sub-daily product |
+| `fetch_enso.py` | the SST for the ENSO plumes, and the plume indices |
+| `fetch_ersst.py`, `fetch_oni.py`, `fetch_era5_enso.py` | the observed analysis and the ERA5 basin climatology the plumes are drawn against |
+| `fetch_sfs.py`, `fetch_cfsv2.py` | the two NOAA systems, read from NOAA itself |
+| `plot_snow_models.py` | renders the accumulation totals, the per-lead-month totals and the monthly anomalies for every model |
+| `plot_snow_multi.py` | the C3S multi-model mean snowfall |
+| `build_spv_panels.py` | renders the 10 hPa SPV chart and the lead-month table for every model |
+| `plot_enso.py` | renders the ENSO plumes for every centre |
+| `build_registry.py` | collects the rendered panels into `docs/data/models.json` |
+| `build_site.py` | builds the pages and the stylesheet |
+| `verify_site.py` | checks the published pages: status, broken images, console errors |
 
-Earlier, ECMWF-only scripts are still here: `fetch_seas5.py`,
-`fetch_seas5_daily.py`, `fetch_seas5_snow.py`, `plot_seas5_mwx.py`,
-`plot_snow_ref.py`, `plot_snow_totals.py`, `model_clim_m7.py`.
+`plot_snow_ref.py` and `plot_snow_totals.py` hold the shared map drawing and
+the colour scale; `u10_daily.py` and `enso_common.py` are the shared decoders.
+The ECMWF's lead month 7 model climate is a build artefact,
+`data/model_clim_m7_month<MM>.npz`, reconstructed from the model's own past
+runs and spliced into the daily climate curve by `plot_spv.py`.
 
 ## House style
 

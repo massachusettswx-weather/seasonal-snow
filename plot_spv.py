@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
+ERA5 = os.path.join(HERE, "era5_clim_10hpa.json")
 
 C_MEMBER = "#7c8ca3"
 C_MEAN = "#12263f"
@@ -53,8 +54,85 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July",
 
 def load_era5(domain, init_year):
     """ERA5 1991-2020 daily climatology layer for the init year."""
-    from plot_seas5_daily import load_era5 as _le
-    return _le(domain, init_year)
+    d = json.load(open(ERA5))
+    clim = d["60N" if domain == "60" else "NH"]
+    out = {k: [] for k in ("t", "mean", "rmin", "rmax", "p30", "p70", "p10", "p90")}
+    cur = datetime(init_year, 10, 1)
+    while cur <= datetime(init_year + 1, 6, 10):
+        md = cur.strftime("%m-%d")
+        if md in clim:
+            c = clim[md]
+            out["t"].append(cur)
+            for k in ("mean", "rmin", "rmax", "p30", "p70", "p10", "p90"):
+                out[k].append(c[k])
+        cur += timedelta(days=1)
+    return out
+
+
+def pchip(x, y, xnew):
+    """Monotone cubic Hermite interpolation (Fritsch-Carlson), no scipy."""
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    n = len(x)
+    if n == 1:
+        return np.full_like(np.asarray(xnew, float), y[0])
+    h = np.diff(x)
+    d = np.diff(y) / h
+    m = np.zeros(n)
+    m[0] = d[0]
+    m[-1] = d[-1]
+    for i in range(1, n - 1):
+        if d[i - 1] * d[i] <= 0:
+            m[i] = 0.0
+        else:
+            w1 = 2 * h[i] + h[i - 1]
+            w2 = h[i] + 2 * h[i - 1]
+            m[i] = (w1 + w2) / (w1 / d[i - 1] + w2 / d[i])
+    xnew = np.asarray(xnew, float)
+    idx = np.clip(np.searchsorted(x, xnew) - 1, 0, n - 2)
+    dx = xnew - x[idx]
+    h0 = h[idx]
+    t = dx / h0
+    h00 = 2 * t ** 3 - 3 * t ** 2 + 1
+    h10 = t ** 3 - 2 * t ** 2 + t
+    h01 = -2 * t ** 3 + 3 * t ** 2
+    h11 = t ** 3 - t ** 2
+    return h00 * y[idx] + h10 * h0 * m[idx] + h01 * y[idx + 1] + h11 * h0 * m[idx + 1]
+
+
+def model_climate_curve(init_y, init_m, mc_monthly, m7=None):
+    """Daily model-climate curve for the whole window.
+
+    The CDS publishes the model-climate mean (HCMEAN) only as monthly values,
+    so the monthly anchors sit at mid-month and are interpolated with a
+    monotone cubic.  Lead month 7 is not published at all: it is
+    reconstructed from the model's own past runs and spliced in as the daily
+    curve (data/model_clim_m7_month<MM>.npz).
+    """
+    anchors_x, anchors_y = [], []
+    for i, v in enumerate(np.asarray(mc_monthly, float)):
+        mm = init_m + i
+        yy = init_y + (mm - 1) // 12
+        mm = (mm - 1) % 12 + 1
+        anchors_x.append(datetime(yy, mm, 15).toordinal())
+        anchors_y.append(v)
+    m0 = datetime(init_y, init_m, 1)
+    m7_start = datetime(init_y + (init_m + 5) // 12, (init_m + 5) % 12 + 1, 1)
+    m8_start = datetime(init_y + (init_m + 6) // 12, (init_m + 6) % 12 + 1, 1)
+    days = (m8_start - m0).days
+    t = np.arange(0, days)
+    xnew = np.array([m0.toordinal() + k for k in t], float)
+    if m7 is not None:
+        m7 = np.asarray(m7, float)
+        anchors_x.append(datetime(m7_start.year, m7_start.month, 15).toordinal())
+        anchors_y.append(float(np.nanmean(m7)))
+    curve = pchip(anchors_x, anchors_y, xnew)
+    if m7 is not None:
+        d0 = (m7_start - m0).days
+        n = min(len(m7), days - d0)
+        curve[d0:d0 + n] = m7[:n]
+    times = [datetime.fromordinal(int(o)) for o in xnew]
+    return times, curve
 
 
 def render_spv(members, times, model_name, out_path, domain="60",

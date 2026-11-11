@@ -158,7 +158,7 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
 
 def build_ecmwf_daily(name, init):
     """The ECMWF run has daily 12Z members -> the full daily SPV chart."""
-    from plot_seas5_daily import model_climate_curve
+    from plot_spv import model_climate_curve
     d = np.load(os.path.join(DATA, "seas5_202611_daily.npz"))
     steps = d["steps"]
     init_dt = datetime(int(init[:4]), int(init[-2:]), 1)
@@ -215,6 +215,27 @@ def main():
             print("!! %s failed: %s" % (tag, str(e)[:300]), flush=True)
 
 
+KIND_FILE = os.path.join(DATA, "spv_panel_kind.json")
+
+
+def panel_kind(tag):
+    """-> "daily" or "monthly" for the panel that is published for a centre."""
+    p = os.path.join(DATA, "spv_panel_kind.json")
+    if os.path.exists(p):
+        try:
+            return json.load(open(p)).get(tag)
+        except Exception:
+            return None
+    return None
+
+
+def set_panel_kind(tag, kind):
+    p = os.path.join(DATA, "spv_panel_kind.json")
+    d = json.load(open(p)) if os.path.exists(p) else {}
+    d[tag] = kind
+    json.dump(d, open(p, "w"), indent=1)
+
+
 def build_one(tag, name, init):
         if tag == "ecmwf-seas5" and os.path.exists(
                 os.path.join(DATA, "seas5_202611_daily.npz")):
@@ -227,13 +248,14 @@ def build_one(tag, name, init):
             dates, m60, mnh, members, m = load_npz(npz)
             times = [datetime(d.year, d.month, d.day) for d in dates]
             render_daily(tag, name, init, times, m60, mnh, "daily")
+            set_panel_kind(tag, "daily")
             return
 
         # monthly fallback - but only when there is nothing published yet.
         # A centre whose daily series has not been re-pulled keeps the daily
         # panel it already has; the monthly fallback would be a step back.
         pub = os.path.join(OUT, "SPV_%s_60N.png" % tag)
-        if os.path.exists(pub):
+        if os.path.exists(pub) and panel_kind(tag) == "daily":
             print("keep the published daily panel for %s (no daily series yet)"
                   % tag, flush=True)
             return
@@ -256,6 +278,7 @@ def build_one(tag, name, init):
         rep = [d - timedelta(days=1) for d in dates]
         times = [datetime(r.year, r.month, 1) for r in rep]
 
+        set_panel_kind(tag, "monthly")
         for dom, idx, key in (("60", 0, "60N"), ("NH", 1, "NH")):
             arr = np.full((nmem, len(dates)), np.nan)
             for j, d in enumerate(dates):
