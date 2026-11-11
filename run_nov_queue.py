@@ -156,8 +156,18 @@ def run_step(c, step, tag, name, centre, system, kind, fields, dry=False):
                           % (tag, f, s), flush=True)
                     break
                 if s == "gone":
-                    if jid in live_jobs(c):
+                    # the detail endpoint 404s intermittently while a record
+                    # is re-indexed, and the job list is not a reliable
+                    # witness either - it only shows the most recent
+                    # records - so ask the endpoint again before deciding
+                    # the job was purged
+                    alive = False
+                    for _ in range(5):
                         time.sleep(30)
+                        if c.job_status(jid) != "gone":
+                            alive = True
+                            break
+                    if alive:
                         continue
                     print("   %s/%s: purged before it ran - resubmitting"
                           % (tag, f), flush=True)
