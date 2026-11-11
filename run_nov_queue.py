@@ -149,10 +149,13 @@ DAILY_ORDER = ["jma-jra3", "bom-access-s2", "ukmo-gloseas6", "meteo-france-s9",
 def monthly_steps():
     """-> [(id, tag, kind)] the monthly requests, in priority order."""
     out = []
-    # JMA and BoM first: they have no snowfall at all yet, so they are the
-    # only centres with nothing on the site.  The ECCC centres are on the
-    # October init and need moving to November.
-    for tag in ("jma-jra3", "bom-access-s2", "eccc-gem5", "eccc-canesm5"):
+    # JMA and BoM are NOT asked for the snowfall: they do not publish that
+    # field at all - MARS answers "MarsNoDataError" for it - and asking
+    # again and again for a request that can never succeed is exactly the
+    # repeated submission of invalid requests that ECMWF's protection
+    # measures warn about.  Their snowfall comes from their precipitation
+    # instead; see precip_steps().
+    for tag in ("eccc-gem5", "eccc-canesm5"):
         out.append(("snow:" + tag, tag, "snow"))
     # the SST of the centres that are not on the site yet, and of the ECCC
     # centres whose plume still points at the October init - it is what the
@@ -179,6 +182,24 @@ def daily_steps():
         n = DAILY_DAYS.get(tag, 215)
         for k in range(0, (n + DAILY_CHUNK - 1) // DAILY_CHUNK):
             out.append(("u10d:%s:%d" % (tag, k), tag, "u10d"))
+    return out
+
+
+def precip_steps():
+    """-> [(id, tag, kind)] the total precipitation, for the centres that do
+    not publish the snowfall field.
+
+    JMA and BoM answer "MarsNoDataError" for `snowfall` and serve
+    `total_precipitation` for the same init in seconds.  Their snowfall is
+    derived from the precipitation and the ERA5 snow fraction, which is how
+    the ERA5 CONUS climatology was built in the first place.
+    """
+    out = []
+    for tag in ("jma-jra3", "bom-access-s2"):
+        p = os.path.join(MDIR, tag, "precip_monthly.grib")
+        if os.path.exists(p) and os.path.getsize(p) > 10000:
+            continue
+        out.append(("prec:" + tag, tag, "prec"))
     return out
 
 
@@ -240,7 +261,10 @@ def all_steps():
     4. the daily 10 hPa wind, in 72-day chunks - the SPV charts are built
        from it, and one centre is finished before the next is started.
     """
-    return (monthly_steps() + clim_steps() + ext_steps() +
+    # The precipitation comes before the extension: a centre's whole
+    # snowfall depends on it, and the request is answered in seconds while
+    # the extension sits in the archive's queue for hours.
+    return (monthly_steps() + clim_steps() + precip_steps() + ext_steps() +
             u10m_steps() + daily_steps())
 
 
@@ -253,6 +277,7 @@ def target_for(tag, kind):
         "clim": os.path.join(d, "snowfall_hindcast.grib"),
         "u10": os.path.join(d, "u10_monthly.grib"),
         "u10m": os.path.join(d, "u10_monthly.grib"),
+        "prec": os.path.join(d, "precip_monthly.grib"),
         "ext": os.path.join(d, "snowfall_ext.grib"),
     }[kind]
 
@@ -366,6 +391,15 @@ def build_request(tag, kind, chunk=None):
                 dict(common, variable="sea_surface_temperature",
                      product_type="monthly_mean", leadtime_month=LEADS),
                 [("sst", "sst_monthly.grib")])
+    if kind == "prec":
+        # The total precipitation, for a centre that does not publish the
+        # snowfall field.  JMA and BoM answer "MarsNoDataError" for
+        # snowfall and serve the precipitation in seconds, so their
+        # snowfall is derived from it - see fetch_precip_snow.py.
+        return (DS_MONTHLY_SL,
+                dict(common, variable="total_precipitation",
+                     product_type="monthly_mean", leadtime_month=LEADS),
+                [("prec", "precip_monthly.grib")])
     if kind == "u10m":
         # The monthly 10 hPa wind, one request for all six lead months.
         #
@@ -623,6 +657,20 @@ class Pool(object):
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
             wrote = [out]
+        elif kind == "prec":
+            out = target_for(tag, "prec")
+            tmp = out + ".part"
+            self.c.download_job(jid, tmp)
+            os.replace(tmp, out)
+            wrote = [out]
+            # the snowfall is derived from it straight away, so the centre
+            # has panels in the same cycle
+            try:
+                import fetch_precip_snow
+                fetch_precip_snow.build(tag, out)
+            except Exception as e:
+                print("   %s: could not derive the snowfall (%s)"
+                      % (tag, str(e)[:120]), flush=True)
         elif kind == "u10m":
             out = target_for(tag, "u10m")
             tmp = out + ".part"
