@@ -197,6 +197,29 @@ class CDSDirect:
         r = self._request("GET", "/retrieve/v1/jobs?limit=%d" % limit)
         return r.json() if r.status_code == 200 else {}
 
+    # ------------------------------------------------------------------
+    def live_jobs(self, limit=60):
+        """-> [{jobID, status, dataset, created}, ...] for the requests this
+        account still holds.
+
+        The list only carries the most recent records, so it is a useful
+        witness for "is my job still there" but NOT a complete inventory -
+        always ask about a job by its full uuid as well.
+        """
+        out = []
+        r = self._request("GET", "/retrieve/v1/jobs?limit=%d" % limit)
+        if r.status_code != 200:
+            return out
+        js = r.json()
+        for j in js.get("jobs", []):
+            jid = j.get("jobID", "")
+            if not jid:
+                continue
+            out.append({"jobID": jid, "status": j.get("status"),
+                        "dataset": j.get("processID", ""),
+                        "created": j.get("created", "")})
+        return out
+
 
 if __name__ == "__main__":
     import sys
