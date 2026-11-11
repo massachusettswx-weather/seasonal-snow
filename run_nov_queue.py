@@ -963,6 +963,10 @@ def run(c, steps, only=None, dry=False):
                     k = int(step.rsplit(":", 1)[1])
                     if k in done.get(tag, ()):
                         continue
+                    # a centre the sub-daily product does not serve in full
+                    # is given up on, so its chunks are not asked for again
+                    if daily_given_up(tag):
+                        continue
                     # finish one centre before starting the next
                     n = DAILY_DAYS.get(tag, 215)
                     nch = (n + DAILY_CHUNK - 1) // DAILY_CHUNK

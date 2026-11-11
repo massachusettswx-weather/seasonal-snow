@@ -1559,8 +1559,66 @@
    "centre": "ukmo",
    "system": "610",
    "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427430.0721767,
+   "shorts": 1
+  },
+  {
+   "job": "e5143f7b-42a7-4640-b720-e87b71046324",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427560.577698,
+   "shorts": 2
+  },
+  {
+   "job": "8e14ed14-a85e-470e-92ed-cf0f465678e8",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427693.1039042,
+   "shorts": 3,
+   "given_up": true
+  },
+  {
+   "job": "33b2f569-13a4-4922-b873-e85e4d6c6f59",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427823.570488,
+   "shorts": 4,
+   "given_up": true
+  },
+  {
+   "job": "053633b8-6e96-4e4d-818e-f30d54b0d6a7",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427954.5499752,
+   "shorts": 5,
+   "given_up": true
+  },
+  {
+   "job": "dd225bd1-6592-4341-a8eb-0dbc079b2c51",
+   "tag": "meteo-france-s9",
+   "chunk": 0,
+   "centre": "meteo_france",
+   "system": "9",
+   "init": "2026-11",
    "status": "accepted",
-   "_t0": 1794427430.0721767
+   "_t0": 1794428073.6270306
   }
  ],
  "stall": false,
