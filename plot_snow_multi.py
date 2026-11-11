@@ -36,8 +36,10 @@ MODELS = [
     ("ecmwf-seas5", "ECMWF SEAS5"),
     ("cmcc-sps4", "CMCC SPS4"),
     ("dwd-gcfs2", "DWD GCFS2.2"),
-    ("eccc-canesm5", "ECCC CanESM5"),
-    ("eccc-gem5", "ECCC GEM5.2"),
+    # the ECCC contributes once, as the official canSIPS multi-model
+    # ensemble - counting its two systems separately would give the ECCC
+    # twice the weight of every other centre
+    ("eccc-cansips", "ECCC canSIPS"),
     ("ukmo-gloseas6", "UKMO GloSeas6"),
     ("meteo-france-s9", "METFR System 9"),
     ("jma-jra3", "JMA CPS4"),

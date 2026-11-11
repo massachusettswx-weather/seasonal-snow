@@ -32,10 +32,14 @@ MODELS = {
                         "ECMWF SEAS5 \u00b7 51-member ensemble \u00b7 1\u00b0 global grid \u00b7 init 1 Nov 2026"),
     "ukmo-gloseas6":   ("UKMO GloSeas6-GC5.1",
                         "UK Met Office GloSeas6-GC5.1 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
-    "eccc-canesm5":    ("ECCC CanESM5.1p1bc",
-                        "Environment Canada CanESM5.1p1bc \u00b7 ensemble \u00b7 init 1 Oct 2026"),
-    "eccc-gem5":       ("ECCC GEM5.2-NEMO",
-                        "Environment Canada GEM5.2-NEMO \u00b7 ensemble \u00b7 init 1 Oct 2026"),
+    "eccc-cansips":    ("ECCC canSIPS",
+                        "Environment Canada canSIPS \u00b7 40-member "
+                        "multi-model ensemble \u00b7 init 1 Nov 2026 \u00b7 "
+                        "CanESM5.1p1bc and GEM5.2-NEMO pooled, twenty members "
+                        "each. Both systems run on the same grid and the same "
+                        "lead months, so every panel on this card is the mean "
+                        "over all forty members and the wind chart shows the "
+                        "whole ensemble."),
     "cmcc-sps4":       ("CMCC SPS4",
                         "CMCC SPS4 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "dwd-gcfs2":       ("DWD GCFS2.2",
@@ -214,7 +218,21 @@ def main():
         except Exception:
             pass
 
+    # The two ECCC systems are pooled into the official canSIPS ensemble,
+    # so they are one card on the site, not two.
+    POOLED_INTO = {"eccc-canesm5": "eccc-cansips", "eccc-gem5": "eccc-cansips"}
     for tag in sorted(snow.keys()):
+        if tag in POOLED_INTO:
+            # and its panels are not left behind in the published assets
+            for fn in os.listdir(OUT):
+                if fn.startswith("snow_%s_" % tag) or \
+                   fn.startswith("SNOW_%s_" % tag.upper()):
+                    os.remove(os.path.join(OUT, fn))
+            for fn in os.listdir(MAPDIR):
+                if fn.startswith("snow_%s_" % tag) or \
+                   fn.startswith("SNOW_%s_" % tag.upper()):
+                    os.remove(os.path.join(MAPDIR, fn))
+            continue
         d = snow[tag]
         name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
         st = fstate.get(tag, {})

@@ -1,336 +1,349 @@
 {
- "ecmwf-seas5": {
-  "name": "ECMWF SEAS5",
-  "centre": "ecmwf",
-  "system": "51",
+ "bom-access-s2": {
   "init": "2026-11",
-  "leads": 7,
-  "snow": {
-   "fields": 306,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "done": true,
-  "u10m": {
-   "fields": 306,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "members": 51,
-  "expected_leads": 7,
-  "probe_date": "2026-11-10"
- },
- "ukmo-gloseas6": {
-  "name": "UKMO GloSeas6-GC5.1",
-  "centre": "ukmo",
-  "system": "610",
-  "init": "2026-11",
-  "leads": 6,
-  "done": true,
-  "members": 60,
-  "expected_leads": 6,
-  "probe_date": "2026-11-10",
-  "snow": {
-   "fields": 372,
-   "steps": [
-    720,
-    744,
-    768,
-    792,
-    816
-   ],
-   "grid": null
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null
-  },
-  "u10m": {
-   "fields": 372,
-   "steps": [
-    720,
-    744,
-    768,
-    792,
-    816
-   ],
-   "grid": null
-  }
- },
- "eccc-canesm5": {
-  "name": "ECCC CanESM5.1p1bc",
-  "centre": "eccc",
-  "system": "4",
-  "init": "2026-11",
-  "leads": 7,
-  "snow": {
-   "fields": 120,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "done": true,
-  "u10m": {
-   "fields": 120,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "members": 20,
-  "expected_leads": 7,
-  "probe_date": "2026-11-11"
- },
- "eccc-gem5": {
-  "name": "ECCC GEM5.2-NEMO",
-  "centre": "eccc",
-  "system": "5",
-  "init": "2026-11",
-  "leads": 7,
-  "snow": {
-   "fields": 120,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "u10m": {
-   "fields": 120,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null,
-   "nlat": 1,
-   "nlon": 1
-  },
-  "members": 20,
-  "expected_leads": 7,
-  "probe_date": "2026-11-11"
- },
- "cmcc-sps4": {
-  "name": "CMCC SPS4",
-  "centre": "cmcc",
-  "system": "4",
-  "init": "2026-11",
-  "leads": 7,
-  "done": true,
-  "members": 50,
-  "expected_leads": 7,
-  "probe_date": "2026-11-10",
-  "snow": {
-   "fields": 300,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null
-  }
- },
- "dwd-gcfs2": {
-  "name": "DWD GCFS2.2",
-  "centre": "dwd",
-  "system": "22",
-  "init": "2026-11",
-  "leads": 7,
-  "done": true,
-  "members": 50,
-  "expected_leads": 7,
-  "probe_date": "2026-11-10",
-  "snow": {
-   "fields": 300,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null
-  },
-  "clim": {
-   "fields": 6,
-   "steps": [
-    744,
-    1464,
-    2208,
-    2952,
-    3624
-   ],
-   "grid": null
-  }
- },
- "sfsv1": {
-  "name": "NOAA SFSv1",
-  "init": "2026-11",
-  "members": 31,
-  "leads": 12,
-  "experimental": true,
-  "source": "NOAA NODD"
- },
- "cfsv2": {
-  "name": "NOAA CFSv2",
-  "init": "2026-11",
-  "members": 40,
-  "source": "NCEP CPC",
-  "leads": 6
+  "members": 99,
+  "name": "BOM ACCESS-S2",
+  "note": "sea surface temperature only so far - the snowfall and the 10 hPa wind are still queued"
  },
  "c3s-multi": {
-  "name": "C3S Multi-Model Mean",
   "init": "2026-11",
   "members": 6,
+  "name": "C3S Multi-Model Mean",
   "note": "mean of the 6 C3S seasonal systems; ECMWF SEAS5 on the 1 Nov 2026 init, the rest on 1 Oct 2026"
  },
- "meteo-france-s9": {
-  "name": "METFR System 9",
-  "centre": "meteo_france",
-  "system": "9",
-  "expected_leads": 6,
+ "cfsv2": {
   "init": "2026-11",
-  "done": true,
-  "probe_date": "2026-11-10",
-  "snow": {
-   "fields": 306,
-   "steps": [
-    720,
-    1464,
-    2208,
-    2880,
-    3624
-   ],
-   "grid": null
-  },
+  "leads": 6,
+  "members": 40,
+  "name": "NOAA CFSv2",
+  "source": "NCEP CPC"
+ },
+ "cmcc-sps4": {
+  "centre": "cmcc",
   "clim": {
    "fields": 6,
+   "grid": null,
    "steps": [
     744,
     1464,
     2208,
     2952,
     3624
-   ],
-   "grid": null
+   ]
   },
-  "u10m": {
-   "fields": 306,
+  "done": true,
+  "expected_leads": 7,
+  "init": "2026-11",
+  "leads": 7,
+  "members": 50,
+  "name": "CMCC SPS4",
+  "probe_date": "2026-11-10",
+  "snow": {
+   "fields": 300,
+   "grid": null,
    "steps": [
     720,
     1464,
     2208,
     2880,
     3624
-   ],
-   "grid": null
+   ]
+  },
+  "system": "4"
+ },
+ "dwd-gcfs2": {
+  "centre": "dwd",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "done": true,
+  "expected_leads": 7,
+  "init": "2026-11",
+  "leads": 7,
+  "members": 50,
+  "name": "DWD GCFS2.2",
+  "probe_date": "2026-11-10",
+  "snow": {
+   "fields": 300,
+   "grid": null,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
+  },
+  "system": "22"
+ },
+ "eccc-canesm5": {
+  "centre": "eccc",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "done": true,
+  "expected_leads": 7,
+  "init": "2026-11",
+  "leads": 7,
+  "members": 20,
+  "name": "ECCC CanESM5.1p1bc",
+  "probe_date": "2026-11-11",
+  "snow": {
+   "fields": 120,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "system": "4",
+  "u10m": {
+   "fields": 120,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  }
+ },
+ "eccc-cansips": {
+  "centre": "eccc",
+  "init": "2026-11",
+  "leads": 7,
+  "members": 40,
+  "merged_from": [
+   "eccc-canesm5",
+   "eccc-gem5"
+  ],
+  "name": "ECCC canSIPS",
+  "note": "the official canSIPS multi-model ensemble - CanESM5.1p1bc and GEM5.2-NEMO pooled, twenty members each. Both systems run on the same grid and the same lead months, so the mean is taken over all forty members.",
+  "system": "cansips"
+ },
+ "eccc-gem5": {
+  "centre": "eccc",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "expected_leads": 7,
+  "init": "2026-11",
+  "leads": 7,
+  "members": 20,
+  "name": "ECCC GEM5.2-NEMO",
+  "probe_date": "2026-11-11",
+  "snow": {
+   "fields": 120,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "system": "5",
+  "u10m": {
+   "fields": 120,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  }
+ },
+ "ecmwf-seas5": {
+  "centre": "ecmwf",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
+  },
+  "done": true,
+  "expected_leads": 7,
+  "init": "2026-11",
+  "leads": 7,
+  "members": 51,
+  "name": "ECMWF SEAS5",
+  "probe_date": "2026-11-10",
+  "snow": {
+   "fields": 306,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
+  },
+  "system": "51",
+  "u10m": {
+   "fields": 306,
+   "grid": null,
+   "nlat": 1,
+   "nlon": 1,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
   }
  },
  "jma-jra3": {
-  "name": "JMA CPS4",
   "init": "2026-11",
   "members": 155,
+  "name": "JMA CPS4",
   "note": "sea surface temperature only so far - the snowfall and the 10 hPa wind are still queued"
  },
- "bom-access-s2": {
-  "name": "BOM ACCESS-S2",
+ "meteo-france-s9": {
+  "centre": "meteo_france",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "done": true,
+  "expected_leads": 6,
   "init": "2026-11",
-  "members": 99,
-  "note": "sea surface temperature only so far - the snowfall and the 10 hPa wind are still queued"
+  "name": "METFR System 9",
+  "probe_date": "2026-11-10",
+  "snow": {
+   "fields": 306,
+   "grid": null,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
+  },
+  "system": "9",
+  "u10m": {
+   "fields": 306,
+   "grid": null,
+   "steps": [
+    720,
+    1464,
+    2208,
+    2880,
+    3624
+   ]
+  }
+ },
+ "sfsv1": {
+  "experimental": true,
+  "init": "2026-11",
+  "leads": 12,
+  "members": 31,
+  "name": "NOAA SFSv1",
+  "source": "NOAA NODD"
+ },
+ "ukmo-gloseas6": {
+  "centre": "ukmo",
+  "clim": {
+   "fields": 6,
+   "grid": null,
+   "steps": [
+    744,
+    1464,
+    2208,
+    2952,
+    3624
+   ]
+  },
+  "done": true,
+  "expected_leads": 6,
+  "init": "2026-11",
+  "leads": 6,
+  "members": 60,
+  "name": "UKMO GloSeas6-GC5.1",
+  "probe_date": "2026-11-10",
+  "snow": {
+   "fields": 372,
+   "grid": null,
+   "steps": [
+    720,
+    744,
+    768,
+    792,
+    816
+   ]
+  },
+  "system": "610",
+  "u10m": {
+   "fields": 372,
+   "grid": null,
+   "steps": [
+    720,
+    744,
+    768,
+    792,
+    816
+   ]
+  }
  }
 }

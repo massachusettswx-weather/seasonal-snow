@@ -47,6 +47,9 @@ while true; do
                     python3 -u build_enso_json.py "$tag" >> logs_auto_publish.log 2>&1
                 fi
             done
+            # the ECCC's two systems are pooled into the official canSIPS
+            # ensemble before anything is rendered
+            python3 -u build_cansips.py >> logs_auto_publish.log 2>&1
             python3 -u plot_snow_models.py --unit snow >> logs_auto_publish.log 2>&1
             python3 -u plot_snow_multi.py >> logs_auto_publish.log 2>&1
             python3 -u plot_enso.py >> logs_auto_publish.log 2>&1

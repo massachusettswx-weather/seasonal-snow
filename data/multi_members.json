@@ -13,12 +13,8 @@
    "name": "DWD GCFS2.2"
   },
   {
-   "tag": "eccc-canesm5",
-   "name": "ECCC CanESM5"
-  },
-  {
-   "tag": "eccc-gem5",
-   "name": "ECCC GEM5.2"
+   "tag": "eccc-cansips",
+   "name": "ECCC canSIPS"
   },
   {
    "tag": "ukmo-gloseas6",
@@ -29,7 +25,7 @@
    "name": "METFR System 9"
   }
  ],
- "count": 7,
+ "count": 6,
  "window": [
   "2026-11",
   "2026-12",
