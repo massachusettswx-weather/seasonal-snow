@@ -250,15 +250,46 @@ def centre_init(tag):
     answers with nothing.  The monthly request always asks for the
     November init; the extension and the daily wind follow the init that
     the monthly request established.
+
+    The sea surface temperature is the exception: it is asked for by the
+    newest init whatever the centre is on, because a newer init's SST is
+    simply better and the plume should use it.  Asking for the state's
+    init here is how the ECCC centres kept being given a fresh copy of
+    their October SST.
     """
     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
     return st.get(tag, {}).get("init", INIT)
 
 
+def sst_init_on_disk(path):
+    """The init an SST file belongs to, from its first lead month.
+
+    The lead month 1 of a seasonal run is the init month itself, so the
+    first lead month says which init the file is.  This is what tells the
+    November file apart from the October one - they have the same name
+    and the same shape.
+    """
+    try:
+        import eccodes
+        from datetime import datetime as _dt, timedelta as _td
+        with open(path, "rb") as f:
+            gid = eccodes.codes_grib_new_from_file(f)
+            if gid is None:
+                return None
+            step = int(eccodes.codes_get(gid, "step"))
+            dd = int(eccodes.codes_get(gid, "dataDate"))
+            d0 = _dt(dd // 10000, (dd // 100) % 100, dd % 100)
+            valid = d0 + _td(hours=step)
+            month = valid - _td(days=1)
+            return "%04d-%02d" % (month.year, month.month)
+    except Exception:
+        return None
+
+
 def build_request(tag, kind, chunk=None):
     """-> (dataset, request-dict, [(kind, filename), ...])"""
     name, centre, system = CENTRES[tag]
-    init = INIT if kind in ("snow", "clim") else centre_init(tag)
+    init = INIT if kind in ("snow", "clim", "sst") else centre_init(tag)
     common = {"originating_centre": centre, "system": system,
               "year": init[:4], "month": init[5:7], "data_format": "grib"}
     if kind == "snow":
@@ -709,11 +740,13 @@ def run(c, steps, only=None, dry=False):
                             and st.get(tag, {}).get("init") == INIT):
                         continue
                 elif kind == "sst":
-                    # the SST of the November init - a file written today is
-                    # the one that was just fetched
+                    # the SST has to be the NEWEST init's, not merely a
+                    # fresh file - the ECCC centres had a fresh copy of
+                    # their October SST on disk, and "fresh" would have
+                    # skipped the request for the November one
                     p = target_for(tag, "sst")
                     if (os.path.exists(p) and os.path.getsize(p) > 10000
-                            and os.path.getmtime(p) > time.time() - 12 * 3600):
+                            and sst_init_on_disk(p) == INIT):
                         continue
                 elif kind == "clim":
                     # the hindcast climate does not change between inits, so

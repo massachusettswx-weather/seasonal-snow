@@ -79,7 +79,11 @@ def fetch_c3s_sst(tag, centre, system, leads, init=None):
     st = os.path.join(DATA, "models_fetched.json")
     state = json.load(open(st)) if os.path.exists(st) else {}
     if init is None:
-        init = state.get(tag, {}).get("init")
+        # the newest init, not the state's: a newer init's SST is simply
+        # better, and the plume should use it even when the centre's
+        # snowfall is still on an older init
+        init = state.get(tag, {}).get("target_init") or state.get(
+            tag, {}).get("init") or "2026-11"
     if not init:
         print("  %s: no init known - skipping" % tag, flush=True)
         return None
@@ -209,8 +213,13 @@ def save(tag, idx, trop, kind):
     names = [b[0] for b in BASINS]
     st = json.load(open(os.path.join(DATA, "models_fetched.json"))) \
         if os.path.exists(os.path.join(DATA, "models_fetched.json")) else {}
+    # The plume's init is the init of the SST it was built from - the first
+    # lead month of a seasonal run is the init month itself.  Taking it
+    # from the model's state file instead would label a November plume
+    # "October" for as long as that centre's snowfall was still on the
+    # older init.
     out = {"kind": kind,
-           "init": st.get(tag, {}).get("init"),
+           "init": "%04d-%02d" % months[0] if months else st.get(tag, {}).get("init"),
            "months": ["%04d-%02d" % ym for ym in months],
            "basins": names,
            "series": {n: [[mem[n] for mem in idx[ym]] for ym in months]
