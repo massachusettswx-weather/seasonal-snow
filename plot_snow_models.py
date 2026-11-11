@@ -610,8 +610,17 @@ def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
         bb = tpre.get_window_extent(rend)
         trest.set_x(bb.x1 / (fig_w * fig.dpi))
         fig.canvas.draw()
-    fig.text(0.013, 1 - 0.76 / fig_h, subtitle, fontsize=10.5, ha="left",
-             va="center", color="#4a4a4a")
+    # the descriptor line is long (model list, window, resolution) and must
+    # never run off the right edge
+    sub_t = fig.text(0.013, 1 - 0.76 / fig_h, subtitle, fontsize=10.5, ha="left",
+                     va="center", color="#4a4a4a")
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    sfp = sub_t.get_fontproperties()
+    smaxw = (0.987 - 0.013) * fig_w * 72.0
+    sw = rend.get_text_width_height_descent(subtitle, sfp, ismath=False)[0]
+    if sw > smaxw:
+        sub_t.set_fontsize(max(7.5, 10.5 * smaxw / sw))
     if stamp:
         fig.text(0.987, 1 - 0.40 / fig_h, stamp,
                  fontsize=10.5, ha="right", va="center", color="#111111")
