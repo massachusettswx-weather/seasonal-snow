@@ -187,8 +187,16 @@ def main():
     only = []
     if "--only" in sys.argv:
         only = [x for x in sys.argv[sys.argv.index("--only") + 1].split(",") if x]
+    # --step <name> runs a single step (used for a one-off request when the
+    # monthly queue is jammed and the shorter original-product queue has a
+    # free slot)
+    only_step = ""
+    if "--step" in sys.argv:
+        only_step = sys.argv[sys.argv.index("--step") + 1]
     c = cds_direct.CDSDirect()
     for step, tag, name, centre, system, kind, fields in STEPS:
+        if only_step and step != only_step:
+            continue
         if only and step not in only:
             continue
         print("== %s (%s:%s) %s" % (tag, centre, system, kind), flush=True)
