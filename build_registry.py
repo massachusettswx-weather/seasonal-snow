@@ -44,14 +44,16 @@ MODELS = {
                         "Meteo-France System 9 \u00b7 ensemble \u00b7 init 1 Oct 2026"),
     "jma-jra3":       ("JMA CPS4",
                         "Japan Meteorological Agency CPS4 seasonal prediction "
-                        "system \u00b7 ensemble \u00b7 init 1 Nov 2026 \u00b7 the "
-                        "ENSO plume is published; the snowfall and the 10 hPa "
-                        "wind are still queued"),
+                        "system \u00b7 ensemble \u00b7 init 1 Nov 2026 \u00b7 no "
+                        "snowfall \u2014 this centre publishes no snowfall field "
+                        "in the seasonal archive. The ENSO plume is published; "
+                        "the 10 hPa wind is still queued."),
     "bom-access-s2":  ("BOM ACCESS-S2",
                         "Australian Bureau of Meteorology ACCESS-S2 \u00b7 "
-                        "ensemble \u00b7 init 1 Nov 2026 \u00b7 the ENSO plume is "
-                        "published; the snowfall and the 10 hPa wind are still "
-                        "queued"),
+                        "ensemble \u00b7 init 1 Nov 2026 \u00b7 no snowfall \u2014 "
+                        "this centre publishes no snowfall field in the seasonal "
+                        "archive. The ENSO plume is published; the 10 hPa wind "
+                        "is still queued."),
     "c3s-multi":       ("C3S Multi-Model Mean", ""),   # filled in below
     "cfsv2":           ("NOAA CFSv2",
                         "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 1 Nov 2026 \u00b7 read "
@@ -240,6 +242,8 @@ def main():
             if mlabels:
                 lab = mlabels[-1]                      # e.g. "June 2027"
                 parts = lab.split()
+                if not parts:
+                    parts = ["January", "2000"]
                 mm = None
                 for i, (k, v) in enumerate(MONTH_ABBR.items(), start=1):
                     if v.lower() == parts[0].lower():

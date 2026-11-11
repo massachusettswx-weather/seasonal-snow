@@ -294,10 +294,9 @@ def build_home(reg):
         names = waiting + no_snow
         one = len(names) == 1
         listed = names[0] if one else ", ".join(names[:-1]) + " and " + names[-1]
-        init_sentence += ("; %s %s on the November init with the ENSO plume "
-                          "published and %s waiting on the first snowfall"
-                          % (listed, "is" if one else "are",
-                             "is" if one else "are"))
+        init_sentence += ("; %s %s on the November init with the ENSO plume, "
+                          "and publish no snowfall field"
+                          % (listed, "is" if one else "are"))
 
     body = """<div class="card">
   <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
@@ -365,10 +364,16 @@ function render(){
   const vars=[];
   vars.push({
     title:'Snowfall',
-    desc:'Accumulated snowfall over the continental United States &mdash; total for the run, each lead month, and monthly anomalies with a drag bar.',
+    // a centre that publishes no snowfall field says so, rather than
+    // showing an empty panel
+    desc:(m.snow_ok)
+      ? 'Accumulated snowfall over the continental United States &mdash; total for the run, each lead month, and monthly anomalies with a drag bar.'
+      : 'This centre publishes no snowfall field in the seasonal archive, so there are no snowfall panels for it.',
     href:'snow.html?m='+m.id,
     img:(m.total&&m.total.file)||((m.frames||[]).length&&m.frames[0].file)||'',
-    on:!!m.snow_ok
+    on:!!m.snow_ok,
+    // the description already says why there is nothing to open
+    explained:!m.snow_ok
   });
   vars.push({
     title:'10 hPa zonal-mean zonal wind',
@@ -392,7 +397,7 @@ function render(){
          <p>${v.desc}</p>
          <div class="acts">${v.on
             ?'<a class="btn primary wide" href="'+v.href+'">Open</a>'
-            :'<span class="tag no">not available for this model</span>'}</div>
+            :(v.explained?'':'<span class="tag no">not available for this model</span>')}</div>
        </div>
      </div>`).join('');
 }
@@ -427,6 +432,7 @@ def build_snow(reg):
   <h2 class="sec" id="totalHead">Total accumulation</h2>
   <p class="lead" id="totalCap"></p>
   <div class="stage"><img id="totalImg" alt="Total accumulated snowfall"></div>
+  <p class="lead" id="totalNote" style="display:none"></p>
 </div>
 
 <div class="card" id="tab-monthly">
@@ -467,8 +473,22 @@ function pick(o){return o.file||'';}
 function renderTotal(){
   const m=model();
   const t=m.total;
-  document.getElementById('totalImg').src=pick(t);
-  document.getElementById('totalImg').alt=t.caption;
+  const img=document.getElementById('totalImg');
+  const note=document.getElementById('totalNote');
+  if(!t||!t.file){
+    // a centre that publishes no snowfall field
+    img.removeAttribute('src');
+    img.style.display='none';
+    document.getElementById('totalCap').textContent='';
+    document.getElementById('totalHead').textContent='No snowfall';
+    note.textContent=(m.note||'');
+    note.style.display='block';
+    return;
+  }
+  img.style.display='';
+  note.style.display='none';
+  img.src=pick(t);
+  img.alt=t.caption;
   document.getElementById('totalCap').textContent=(t.caption||'');
   // the heading carries the run's own dates, the way the figure titles do
   const d=((t.caption||'').match(/(\d{2}\/\d{2}\/\d{4})\s*(?:to|-)\s*(\d{2}\/\d{2}\/\d{4})/)||[]);
@@ -481,7 +501,9 @@ function renderMonthly(){
   const g=document.getElementById('monthlyGrid');
   const months=m.months||[];
   if(!months.length){
-    g.innerHTML='<p class="lead">No monthly panels for this model yet.</p>';
+    g.innerHTML='<p class="lead">This centre publishes no snowfall field in '
+      +'the seasonal archive, so there are no snowfall panels for it. Its '
+      +'ENSO plume is on the ENSO page.</p>';
     return;
   }
   g.innerHTML=months.map(x=>
