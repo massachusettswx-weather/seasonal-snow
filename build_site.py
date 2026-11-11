@@ -256,11 +256,42 @@ def build_home(reg):
   <div class="tags">%s</div>
 </a>""" % (m["id"], m["name"], m.get("note", ""), "".join(tags)))
 
+    # the init sentence is written from the models that are actually
+    # published, so it cannot drift out of date
+    by_init = {}
+    for m in reg.get("models", []):
+        by_init.setdefault(m.get("init") or "?", []).append(m["name"])
+    MONTHS = {"01": "January", "02": "February", "03": "March", "04": "April",
+              "05": "May", "06": "June", "07": "July", "08": "August",
+              "09": "September", "10": "October", "11": "November",
+              "12": "December"}
+
+    parts = []
+    waiting = []
+    for ini in sorted(by_init, reverse=True):
+        names = by_init[ini]
+        if ini in ("?", "", None):
+            waiting.extend(names)
+            continue
+        # the init is written as YYYY-MM
+        mm = "%s %s" % (MONTHS[ini[5:7]], ini[:4])
+        if len(names) == 1:
+            parts.append("%s from %s" % (names[0], mm))
+        else:
+            parts.append("%s and %s from %s" % (", ".join(names[:-1]),
+                                                names[-1], mm))
+    init_sentence = "; ".join(parts)
+    if waiting:
+        one = len(waiting) == 1
+        init_sentence += ("; %s %s published with its ENSO plume and %s "
+                          "waiting on its first snowfall"
+                          % (", ".join(waiting), "is" if one else "are",
+                             "is" if one else "are"))
+
     body = """<div class="card">
   <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
-  <p class="lead">Each model is shown from its own most recent init
-  (ECMWF SEAS5 from 1 November 2026, the other centres from 1 October 2026
-  &mdash; their November runs are not released yet).
+  <p class="lead">Each model is shown from its own most recent init:
+  %s.
   Pick a model and you will be taken to its list of variables &mdash;
   accumulated snowfall over the continental United States, ONI and RONI sea
   surface temperature plumes for the four ENSO regions, and the 10 hPa
@@ -276,7 +307,7 @@ def build_home(reg):
   ERA5 daily climatology with 10&ndash;90th and 30&ndash;70th percentile bands,
   the 1959&ndash;2020 record bounds and the model's own climate mean where
   one could be built.</p>
-</div>""" % ("".join(cards) or "<p>No models registered yet.</p>")
+</div>""" % (init_sentence, "".join(cards) or "<p>No models registered yet.</p>")
     open(os.path.join(SITE, "index.html"), "w").write(page("Home", "index.html", body, VER))
 
 

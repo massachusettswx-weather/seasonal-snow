@@ -151,6 +151,7 @@ def main():
     # The multi-model mean's card names the systems that actually went into
     # it, which is not the same as every C3S centre - a centre whose data
     # has not arrived is not in the average.
+    MULTI_COUNT = 0
     mp = os.path.join(HERE, "data", "multi_members.json")
     if os.path.exists(mp):
         try:
@@ -161,6 +162,9 @@ def main():
                     "C3S Multi-Model Mean",
                     "Mean of %d seasonal systems (%s) \u00b7 init 1 Nov 2026"
                     % (mm.get("count", len(names)), ", ".join(names)))
+                # the member count has to match the note - it used to say
+                # "6 members" while the note listed nine systems
+                MULTI_COUNT = mm.get("count", len(names))
         except Exception:
             pass
 
@@ -168,11 +172,14 @@ def main():
         d = snow[tag]
         name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
         st = fstate.get(tag, {})
+        nmem = st.get("members", "?")
+        if tag == "c3s-multi" and MULTI_COUNT:
+            nmem = MULTI_COUNT
         entry = {
             "id": tag,
             "name": name,
             "note": note,
-            "members": st.get("members", "?"),
+            "members": nmem,
             "init": st.get("init", "?"),
         }
         if d.get("total"):
