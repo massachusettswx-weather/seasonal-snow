@@ -580,6 +580,31 @@ def run(c, steps, only=None, dry=False):
                     continue
                 if step in pool.next_at and time.time() < pool.next_at[step]:
                     continue
+                # A file that is already on disk for this init is not asked
+                # for again - otherwise the pool keeps re-asking for a field
+                # it already has, and the request it makes instead is a
+                # duplicate the archive has to serve.
+                if kind == "snow":
+                    # the forecast belongs to one init only, so it counts
+                    # only once the centre is recorded on that init
+                    p = target_for(tag, "snow")
+                    st = json.load(open(STATE)) if os.path.exists(STATE) else {}
+                    if (os.path.exists(p) and os.path.getsize(p) > 10000
+                            and st.get(tag, {}).get("init") == INIT):
+                        continue
+                elif kind == "sst":
+                    # the SST of the November init - a file written today is
+                    # the one that was just fetched
+                    p = target_for(tag, "sst")
+                    if (os.path.exists(p) and os.path.getsize(p) > 10000
+                            and os.path.getmtime(p) > time.time() - 12 * 3600):
+                        continue
+                elif kind == "clim":
+                    # the hindcast climate does not change between inits, so
+                    # once it is on disk it never needs fetching again
+                    p = target_for(tag, "clim")
+                    if os.path.exists(p) and os.path.getsize(p) > 10000:
+                        continue
                 # a daily chunk that is already decoded is not asked for
                 if kind == "u10d":
                     k = int(step.rsplit(":", 1)[1])
