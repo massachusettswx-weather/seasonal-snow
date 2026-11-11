@@ -144,7 +144,10 @@ DAILY_ORDER = ["jma-jra3", "bom-access-s2", "ukmo-gloseas6", "meteo-france-s9",
 def monthly_steps():
     """-> [(id, tag, kind)] the monthly requests, in priority order."""
     out = []
-    for tag in ("eccc-gem5", "jma-jra3", "bom-access-s2", "eccc-canesm5"):
+    # JMA and BoM first: they have no snowfall at all yet, so they are the
+    # only centres with nothing on the site.  The ECCC centres are on the
+    # October init and need moving to November.
+    for tag in ("jma-jra3", "bom-access-s2", "eccc-gem5", "eccc-canesm5"):
         out.append(("snow:" + tag, tag, "snow"))
     # the SST of the centres that are not on the site yet, and of the ECCC
     # centres whose plume still points at the October init - it is what the
