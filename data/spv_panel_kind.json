@@ -1,6 +1,6 @@
 {
  "ecmwf-seas5": "daily",
- "cmcc-sps4": "monthly",
+ "cmcc-sps4": "daily",
  "dwd-gcfs2": "monthly",
  "eccc-canesm5": "monthly",
  "eccc-gem5": "monthly",

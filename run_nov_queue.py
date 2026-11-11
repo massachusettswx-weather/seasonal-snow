@@ -423,7 +423,15 @@ def build_request(tag, kind, chunk=None):
 def daily_state():
     if os.path.exists(DAILY_STATE):
         try:
-            return json.load(open(DAILY_STATE))
+            st = json.load(open(DAILY_STATE))
+            # the file grows without bound - one entry per submission - and
+            # only the recent ones matter
+            jobs = st.get("jobs", [])
+            if len(jobs) > 60:
+                keep = [j for j in jobs if j.get("status") == "decoded"]
+                keep += jobs[-20:]
+                st["jobs"] = keep[-60:]
+            return st
         except Exception:
             pass
     return {"jobs": []}
@@ -658,6 +666,9 @@ class Pool(object):
                 if os.path.exists(gpath):
                     os.remove(gpath)       # keep the disk small
             wrote = [os.path.join(MDIR, tag, "u10_daily.npz")]
+            # the chunk is decoded and merged - record it, or the pool asks
+            # for it again
+            daily_set(jid, tag, chunk, "decoded")
         for p in wrote:
             if os.path.exists(p):
                 print("   %s: wrote %s (%.1f MB)"
@@ -799,7 +810,8 @@ def run(c, steps, only=None, dry=False):
         s = c.job_status(jid)
         if s in ("accepted", "running", "queued"):
             _, tag, kind = stepmap[step]
-            dataset = build_request(tag, kind)[0]
+            ch = int(step.rsplit(":", 1)[1]) if kind == "u10d" else None
+            dataset = build_request(tag, kind, ch)[0]
             # the age of the request is the age of the JOB, not the age of
             # this process - a request that was submitted hours ago and has
             # not been touched since is already stuck and must be released
@@ -810,6 +822,21 @@ def run(c, steps, only=None, dry=False):
                 daily_set(jid, tag, int(step.rsplit(":", 1)[1]), "accepted")
             print("   %s: adopted the queued request %s (%s, %.0f min old)"
                   % (step, jid[:12], s, (time.time() - since) / 60), flush=True)
+        elif s == "successful":
+            # the request finished while this process was not running -
+            # take the result rather than asking for it all over again
+            _, tag, kind = stepmap[step]
+            ch = int(step.rsplit(":", 1)[1]) if kind == "u10d" else None
+            dataset = build_request(tag, kind, ch)[0]
+            print("   %s: the queued request %s finished while we were down - "
+                  "taking the result" % (step, jid[:12]), flush=True)
+            pool.live[jid] = (step, tag, kind, dataset, job_age(jid, c))
+            try:
+                pool.handle(jid)
+            except Exception as e:
+                print("   %s: could not use the result (%s)"
+                      % (step, str(e)[:120]), flush=True)
+            del pend[step]
         else:
             print("   %s: the queued request %s is %s - will ask again"
                   % (step, jid[:12], s), flush=True)
