@@ -247,7 +247,12 @@ def build_one(tag, name, init):
         if os.path.exists(npz):
             dates, m60, mnh, members, m = load_npz(npz)
             times = [datetime(d.year, d.month, d.day) for d in dates]
-            render_daily(tag, name, init, times, m60, mnh, "daily")
+            # The init comes from the DATA, not from the fetch state: a
+            # centre whose wind is still on the older init must not have a
+            # panel that claims the newer one.  The first lead month of a
+            # seasonal run is the init month.
+            dinit = "%04d-%02d" % (times[0].year, times[0].month)
+            render_daily(tag, name, dinit, times, m60, mnh, "daily")
             set_panel_kind(tag, "daily")
             return
 
@@ -277,6 +282,10 @@ def build_one(tag, name, init):
         # non-ECMWF model is labelled one month late.
         rep = [d - timedelta(days=1) for d in dates]
         times = [datetime(r.year, r.month, 1) for r in rep]
+        # the init comes from the data - the first lead month is the init
+        # month, so a centre still on the October init cannot have a panel
+        # that claims November
+        init = "%04d-%02d" % (rep[0].year, rep[0].month)
 
         set_panel_kind(tag, "monthly")
         for dom, idx, key in (("60", 0, "60N"), ("NH", 1, "NH")):
@@ -318,20 +327,36 @@ def build_one(tag, name, init):
             print("wrote %s  (%d members, %d lead months)" % (fn, nmem, len(dates)))
 
 
-def prune_stale_panels():
-    """Drop panels for domains that are no longer published.
+def prune_stale_panels(state):
+    """Drop panels that no longer have any data behind them.
 
-    The Northern Hemisphere 0-90 option was removed, so any SPV_*_NH file
-    left over from before is dead weight in the published assets.
+    Two kinds of orphan:
+
+    * a panel for a domain that is no longer published - the Northern
+      Hemisphere 0-90 option was removed;
+    * a panel whose source data has gone - the CMCC and DWD daily wind
+      files were removed in the disk clean-up, which left their charts on
+      the site with nothing behind them.  A chart that cannot be rebuilt
+      and whose init label cannot be checked is worse than no chart, so it
+      goes.  The daily wind is queued, and the charts come back with it.
     """
+    def has_data(tag):
+        return (os.path.exists(os.path.join(MDIR, tag, "u10_daily.npz")) or
+                os.path.exists(os.path.join(MDIR, tag, "u10_monthly.grib")) or
+                (tag == "ecmwf-seas5" and os.path.exists(
+                    os.path.join(DATA, "seas5_202611_daily.npz"))))
+
     n = 0
     for d in (OUT, os.path.join(HERE, "docs", "assets", "spv")):
         if not os.path.isdir(d):
             continue
         for dead in sorted(os.listdir(d)):
-            if dead.startswith("SPV_") and ("_NH." in dead):
+            if not dead.startswith("SPV_") or not dead.endswith(".png"):
+                continue
+            tag = dead[4:].rsplit("_", 1)[0]
+            if "_NH." in dead or (tag not in state or not has_data(tag)):
                 os.remove(os.path.join(d, dead))
-                print("   removed the stale %s" % dead)
+                print("   removed the orphan %s" % dead)
                 n += 1
     if not n:
         print("   no stale panels")
@@ -339,4 +364,5 @@ def prune_stale_panels():
 
 if __name__ == "__main__":
     main()
-    prune_stale_panels()
+    _fp = os.path.join(DATA, "models_fetched.json")
+    prune_stale_panels(json.load(open(_fp)) if os.path.exists(_fp) else {})

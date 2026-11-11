@@ -87,6 +87,11 @@ POOL_SIZE = 2
 # would not get the data any sooner.
 SUBMIT_GAP = 120
 REFUSED_WAIT = 900
+# When the archive says it has no data for the selection, asking again in
+# a minute cannot help.  The centre has not staged that field for that
+# init yet, and hammering it is the "repeated submission of invalid
+# requests" pattern ECMWF's protection measures warn about.  Two hours.
+NO_DATA_WAIT = 2 * 3600
 
 # How long a request may sit with nothing coming back before the pool
 # SAYS SO.  It does not release it: the limit on this archive is the depth
@@ -582,6 +587,15 @@ class Pool(object):
                       % (tag, os.path.basename(p), os.path.getsize(p) / 1e6),
                       flush=True)
 
+    def is_no_data(self, jid):
+        """-> True if the job failed because the archive has no data."""
+        try:
+            r = self.c._request("GET", "/retrieve/v1/jobs/%s/results" % jid)
+            t = r.text or ""
+            return "MarsNoDataError" in t or "no data" in t.lower()
+        except Exception:
+            return False
+
     def poll(self):
         """Act on the live requests.  True if anything landed."""
         acted = False
@@ -604,12 +618,30 @@ class Pool(object):
                     self.done_steps.append((step, tag, kind, False))
                 del self.live[jid]
             elif s in ("failed", "rejected", "dismissed", "gone"):
-                print("   %s: %s after %.0f min - will ask again"
-                      % (step, s, (time.time() - since) / 60), flush=True)
                 if kind == "u10d":
                     daily_set(jid, tag, int(step.rsplit(":", 1)[1]), "failed")
                 del self.live[jid]
                 self.done_steps.append((step, tag, kind, False))
+                if s == "failed":
+                    # A FAILURE is not a refusal.  The reason matters:
+                    #
+                    #  * "MarsNoDataError" means the archive has no data
+                    #    for that selection - the centre has not staged the
+                    #    November init for that field yet.  Asking again in
+                    #    a minute cannot help, and asking again and again
+                    #    is the "repeated submission of invalid requests"
+                    #    that ECMWF's protection measures warn about.  So
+                    #    this step waits a long time.
+                    #  * anything else is an error worth retrying sooner.
+                    nodata = self.is_no_data(jid)
+                    if nodata:
+                        print("   %s: the archive has no data for this "
+                              "selection (MarsNoDataError) - waiting %d min"
+                              % (step, NO_DATA_WAIT // 60), flush=True)
+                        self.next_at[step] = time.time() + NO_DATA_WAIT
+                        continue
+                print("   %s: %s after %.0f min - will ask again"
+                      % (step, s, (time.time() - since) / 60), flush=True)
                 # a refusal means the queue was full, so wait longer than
                 # for a job that simply failed
                 wait = REFUSED_WAIT if s == "rejected" else 90

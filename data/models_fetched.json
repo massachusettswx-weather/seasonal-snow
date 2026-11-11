@@ -97,7 +97,7 @@
   "name": "ECCC CanESM5.1p1bc",
   "centre": "eccc",
   "system": "4",
-  "init": "2026-10",
+  "init": "2026-11",
   "leads": 7,
   "snow": {
    "fields": 120,
@@ -147,7 +147,7 @@
   "name": "ECCC GEM5.2-NEMO",
   "centre": "eccc",
   "system": "5",
-  "init": "2026-10",
+  "init": "2026-11",
   "leads": 7,
   "snow": {
    "fields": 120,
