@@ -261,6 +261,15 @@ def build_home(reg):
     by_init = {}
     for m in reg.get("models", []):
         by_init.setdefault(m.get("init") or "?", []).append(m["name"])
+    # the centres whose snowfall has not arrived yet are named separately,
+    # so the page says plainly that they are only half on the site
+    no_snow = [m["name"] for m in reg.get("models", [])
+               if not m.get("snow_ok") and (m.get("init") or "?") != "?"]
+    for n in no_snow:
+        for k in by_init:
+            if n in by_init[k]:
+                by_init[k].remove(n)
+        by_init = {k: v for k, v in by_init.items() if v}
     MONTHS = {"01": "January", "02": "February", "03": "March", "04": "April",
               "05": "May", "06": "June", "07": "July", "08": "August",
               "09": "September", "10": "October", "11": "November",
@@ -281,11 +290,13 @@ def build_home(reg):
             parts.append("%s and %s from %s" % (", ".join(names[:-1]),
                                                 names[-1], mm))
     init_sentence = "; ".join(parts)
-    if waiting:
-        one = len(waiting) == 1
-        init_sentence += ("; %s %s published with its ENSO plume and %s "
-                          "waiting on its first snowfall"
-                          % (", ".join(waiting), "is" if one else "are",
+    if waiting or no_snow:
+        names = waiting + no_snow
+        one = len(names) == 1
+        listed = names[0] if one else ", ".join(names[:-1]) + " and " + names[-1]
+        init_sentence += ("; %s %s on the November init with the ENSO plume "
+                          "published and %s waiting on the first snowfall"
+                          % (listed, "is" if one else "are",
                              "is" if one else "are"))
 
     body = """<div class="card">
