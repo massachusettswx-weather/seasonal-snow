@@ -34,6 +34,12 @@ fingerprint() {
     find "$WATCH" -type f \( -name '*.grib' -o -name '*.npz' -o -name '*.nc' \
          -o -name 'enso.json' \) \
         -printf '%p %s %T@\n' 2>/dev/null | sort
+    # the observed SST series the plumes are drawn against - a new one
+    # changes every plume chart, so it has to be watched as well
+    for f in data/oisst_enso.npz data/ersst_enso.npz data/era5_enso_clim.npz; do
+        [ -f "$f" ] && printf '%s %s %s\n' "$f" "$(stat -c %s "$f")" \
+            "$(stat -c %Y "$f")"
+    done
 }
 
 # The fingerprint is kept in a file, so that a restart of this watcher

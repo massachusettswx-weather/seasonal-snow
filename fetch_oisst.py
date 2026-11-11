@@ -179,34 +179,55 @@ def main():
     ndays = (end - d).days + 1
     log("the days to fetch: %d (the cache holds %d)" % (ndays, len(cache)))
 
+    # The days that still have to be fetched.  Four requests at a time: the
+    # archive serves them without complaint and it turns a two-hour wait
+    # into half of that.
+    todo = []
+    d = datetime.date(want[0][0], want[0][1], 1)
+    while d <= end:
+        if d.strftime("%Y-%m-%d") not in cache:
+            todo.append(d)
+        d += datetime.timedelta(days=1)
+
+    def work(dd):
+        """-> (the day, its basin means) or (the day, None)."""
+        r = fetch_day(dd.year, dd.month, dd.day)
+        if r is None:
+            return (dd.strftime("%Y-%m-%d"), None)
+        lat, lon, sst, ice = r
+        # the scaling has to be applied here: fetch_day returns the decoded
+        # array only if the attributes were found, so redo it from the raw
+        # values when they look unscaled
+        if float(np.nanmax(sst)) > 100.0:
+            sst = sst * 0.01
+        bm, tm = basin_means(lat, lon, sst, ice)
+        return (dd.strftime("%Y-%m-%d"),
+                {"b": [round(x, 5) for x in bm], "t": round(tm, 5)})
+
     got = 0
     miss = 0
     t0 = time.time()
-    while d <= end:
-        key = d.strftime("%Y-%m-%d")
-        if key not in cache:
-            r = fetch_day(d.year, d.month, d.day)
-            if r is None:
-                cache[key] = None
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        futs = [ex.submit(work, dd) for dd in todo]
+        for fut in as_completed(futs):
+            key, rec = fut.result()
+            if rec is None:
+                # a day that could not be fetched is NOT cached: the file may
+                # simply not be published yet (the current day never is
+                # until tomorrow), and a transient failure must be retried
+                # by the next run rather than lost for good.
                 miss += 1
             else:
-                lat, lon, sst, ice = r
-                # the scaling has to be applied here: fetch_day returns the
-                # decoded array only if the attributes were found, so redo it
-                # from the raw values when they look unscaled
-                if float(np.nanmax(sst)) > 100.0:
-                    sst = sst * 0.01
-                bm, tm = basin_means(lat, lon, sst, ice)
-                cache[key] = {"b": [round(x, 5) for x in bm], "t": round(tm, 5)}
+                cache[key] = rec
             got += 1
-            time.sleep(0.12)     # be polite to the archive
             if got % 50 == 0:
                 save_cache(cache)
                 el = time.time() - t0
                 log("  %d days fetched (%.1f s, %.1f min left)"
-                    % (got, el, (ndays - got) * el / max(got, 1) / 60.0))
-        d += datetime.timedelta(days=1)
+                    % (got, el, (len(todo) - got) * el / max(got, 1) / 60.0))
     save_cache(cache)
+    log("  %d days fetched, %d could not be fetched" % (got, miss))
 
     # ---------------- build the monthly series ----------------
     ms = []
