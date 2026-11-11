@@ -383,8 +383,17 @@ def main():
                 ext = read_extended(xp)
             except Exception as e:
                 print("  %s: unreadable extended months (%s)" % (tag, e))
+        # A lead month the system only covered for a few days is not a month
+        # - a four-day accumulation shown as May's snowfall would be wrong,
+        # and the total is the sum of the monthly panels, so it would be
+        # wrong there too.  It is left out of both.
         ext_yms = [ym for ym in sorted(ext) if ym not in yms
-                   and month_end(ym) < SNOW_END]
+                   and month_end(ym) < SNOW_END
+                   and (not ext[ym][3] or ext[ym][3] >= 20)]
+        for ym in sorted(ext):
+            if ym not in yms and ym not in ext_yms and ext[ym][3]:
+                print("  %s: %04d-%02d has only %d day(s) - not shown"
+                      % (tag, ym[0], ym[1], ext[ym][3]), flush=True)
         yms = yms + ext_yms
         if not yms:
             print("skip %s (nothing before %s)" % (tag, SNOW_END))

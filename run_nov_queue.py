@@ -396,6 +396,9 @@ class Pool(object):
         except Exception as e:
             msg = str(e)
             if "Maximum number queued" in msg:
+                # A refusal is free - the slot comes straight back - so ask
+                # again soon rather than waiting the full back-off.  The
+                # ceiling drifts, and a slot sometimes opens in between.
                 print("   %s: the queue is full - will ask again" % step, flush=True)
                 self.next_at[step] = time.time() + REFUSED_WAIT
                 return False
@@ -538,10 +541,18 @@ def run(c, steps, only=None, dry=False):
         # fill the pool - ONE submission at a time, so the verdict on the
         # last one comes before the next ask
         if not dry:
+            # The ceiling drifts: with two held a third is usually refused,
+            # but it does slip in now and then - and a refusal costs
+            # nothing, the slot comes straight back.  So once the pool is
+            # full, keep asking for one more step anyway, up to three.
+            # A refusal is logged and the pool carries on.
+            asking = len(pool.live) >= POOL_SIZE
             for step, tag, kind in steps:
                 if only and step not in only:
                     continue
-                if len(pool.live) >= POOL_SIZE:
+                if len(pool.live) >= POOL_SIZE + 1:
+                    break
+                if not asking and len(pool.live) >= POOL_SIZE:
                     break
                 if pool.held(step) or step in pend:
                     continue
@@ -562,7 +573,8 @@ def run(c, steps, only=None, dry=False):
                     pend[step] = [j for j, v in pool.live.items()
                                   if v[0] == step][0]
                     save_pending(pend)
-                    break
+                    if not asking:
+                        break
 
         acted = pool.poll()
         for step, tag, kind, ok in pool.done_steps:
