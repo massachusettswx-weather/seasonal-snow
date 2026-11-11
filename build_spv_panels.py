@@ -318,5 +318,25 @@ def build_one(tag, name, init):
             print("wrote %s  (%d members, %d lead months)" % (fn, nmem, len(dates)))
 
 
+def prune_stale_panels():
+    """Drop panels for domains that are no longer published.
+
+    The Northern Hemisphere 0-90 option was removed, so any SPV_*_NH file
+    left over from before is dead weight in the published assets.
+    """
+    n = 0
+    for d in (OUT, os.path.join(HERE, "docs", "assets", "spv")):
+        if not os.path.isdir(d):
+            continue
+        for dead in sorted(os.listdir(d)):
+            if dead.startswith("SPV_") and ("_NH." in dead):
+                os.remove(os.path.join(d, dead))
+                print("   removed the stale %s" % dead)
+                n += 1
+    if not n:
+        print("   no stale panels")
+
+
 if __name__ == "__main__":
     main()
+    prune_stale_panels()
