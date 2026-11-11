@@ -14,7 +14,16 @@
 # ---------------------------------------------------------------------------
 set -u
 cd "$(dirname "$0")"
-TOK="${1:-}"
+# The token lives in data/.github_token with mode 600, not on the command
+# line, so it is never visible in the process list.  It is passed as the
+# first argument for compatibility and written into the file.
+TOKFILE="data/.github_token"
+if [ -n "${1:-}" ]; then
+    mkdir -p data
+    printf '%s' "$1" > "$TOKFILE"
+    chmod 600 "$TOKFILE"
+fi
+TOK="$(cat "$TOKFILE" 2>/dev/null || true)"
 WATCH="data/models"
 
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
@@ -53,11 +62,14 @@ while true; do
             python3 -u plot_snow_models.py --unit snow >> logs_auto_publish.log 2>&1
             python3 -u plot_snow_multi.py >> logs_auto_publish.log 2>&1
             python3 -u plot_enso.py >> logs_auto_publish.log 2>&1
-            if [ -n "$TOK" ]; then
-                # A revoked token would fail the push and leave a dead
-                # credential behind, so it is checked once.  Either way the
-                # site is rebuilt and committed locally; only the push is
-                # conditional.
+            # A revoked token would fail the push and leave a dead
+            # credential behind, so it is checked once.  Either way the site
+            # is rebuilt and committed locally; only the push is
+            # conditional, so a missing token never stops the work.
+            if [ -z "$TOK" ]; then
+                log "no GitHub token - the site is built locally but NOT published"
+                SKIP_PUSH=1 ./refresh_site.sh "none" "New seasonal data" >> logs_auto_publish.log 2>&1
+            else
                 code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 \
                     -H "Authorization: token $TOK" https://api.github.com/user)
                 if [ "$code" != "200" ]; then
@@ -67,12 +79,10 @@ while true; do
                     ./refresh_site.sh "$TOK" "New seasonal data" >> logs_auto_publish.log 2>&1
                     log "published"
                 fi
-                python3 -u verify_site.py >> logs_auto_publish.log 2>&1
-                rm -f /workspace/seasonal-snow-site.zip
-                ( cd docs && zip -qr /workspace/seasonal-snow-site.zip . )
-            else
-                log "built but not published (no token)"
             fi
+            python3 -u verify_site.py >> logs_auto_publish.log 2>&1
+            rm -f /workspace/seasonal-snow-site.zip
+            ( cd docs && zip -qr /workspace/seasonal-snow-site.zip . )
         fi
         prev="$cur"
         echo "$cur" > "$FPFILE"

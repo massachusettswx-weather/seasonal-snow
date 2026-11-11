@@ -45,3 +45,6 @@ preview_*.png
 data/*_new.txt
 data/jma_snow_job.txt
 .nfs*
+
+# the GitHub token: mode 600, never committed
+data/.github_token
