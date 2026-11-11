@@ -81,14 +81,13 @@ SUBMIT_GAP = 120
 REFUSED_WAIT = 600
 
 # How long a request may sit with nothing coming back before the pool
-# releases the slot and moves on.
+# SAYS SO.  It does not release it: the limit on this archive is the depth
+# of the archive's own queue for the dataset, so an admitted request is
+# standing in a line that is served in order, and it must be left alone.
 #
-# A request that is admitted and never worked on is usually a wrong system
-# number (see the CENTRES table) rather than congestion - and re-asking for
-# it over and over is exactly the pattern that gets an account suspended.
-# So the pool is patient: it waits a long time before deciding that a
-# request is not going anywhere.
-STUCK_S = 90 * 60
+# The one thing that makes a request never be served is a wrong system
+# number - and that is checked in CENTRES before the request is made.
+STUCK_S = 60 * 60
 
 # The daily wind comes in 72-day chunks: that size completes, larger ones
 # are refused.
@@ -578,35 +577,29 @@ class Pool(object):
                     # whole pool, not just this step
                     self.cooldown_until = time.time() + wait
             elif s == "accepted" and time.time() - since > STUCK_S:
-                # THIS REQUEST HAS BEEN ACCEPTED FOR A LONG TIME AND
-                # NOTHING HAS COME BACK FROM IT.
+                # STILL WAITING, AND THAT IS CORRECT.
                 #
-                # Measured on 11 Nov 2026: the ECCC and JMA snowfall
-                # requests for the November init sat accepted for 12 h and
-                # 2.5 h, while the BoM SST for the same init was served in
-                # about ten minutes and the UKMO, CMCC, DWD and METFR
-                # November snowfall requests had already been served.
+                # Measured on 11 Nov 2026: the account held NO jobs at all
+                # and a fresh request was still refused with "Maximum
+                # number queued requests for this dataset has been reached".
+                # So the limit is the depth of the ARCHIVE'S queue for
+                # that dataset, not the number of requests this account
+                # holds.
                 #
-                # So the archive accepts the request and never works on it.
-                # Holding one of our two slots on it for hours is the
-                # expensive part, so after 25 minutes the pool releases
-                # the slot, lets it go to something else, and asks for
-                # that field again later.  A refusal is free; a request
-                # that never comes back is not.
+                # A request that was admitted is therefore standing in
+                # that queue, and the queue is served in order - so it
+                # must be LEFT ALONE.  Dismissing it would throw away our
+                # place in the line, and asking for the same thing again
+                # would put us at the back of it.  (It is also exactly the
+                # "repeated submission" pattern that ECMWF's protection
+                # measures warn about.)
                 #
-                # (The job's `updated` field is not a progress signal - a
-                # job that completes successfully also leaves it at
-                # `created`.)
-                print("   %s: nothing has come back in %.0f min - releasing "
-                      "the slot" % (step, (time.time() - since) / 60), flush=True)
-                try:
-                    self.c._request("DELETE", "/retrieve/v1/jobs/%s" % jid)
-                except Exception as e:
-                    print("      could not release it: %s" % str(e)[:80],
-                          flush=True)
-                del self.live[jid]
-                self.done_steps.append((step, tag, kind, False))
-                self.next_at[step] = time.time() + 1800
+                # So the pool just says so, and waits.  The only way to
+                # tell a request that will never be served is a wrong
+                # system number - and that is checked in CENTRES.
+                print("   %s: still queued after %.0f min (the archive's queue "
+                      "for this dataset is deep - leaving it in the line)"
+                      % (step, (time.time() - since) / 60), flush=True)
         return acted
 
 
