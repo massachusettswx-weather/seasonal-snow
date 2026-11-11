@@ -479,26 +479,33 @@ class Pool(object):
     def handle(self, jid):
         step, tag, kind, dataset, since = self.live[jid]
         chunk = int(step.rsplit(":", 1)[1]) if kind == "u10d" else None
+        # what this request actually wrote - not every file the centre
+        # happens to have on disk
+        wrote = []
         if kind == "snow":
             out = target_for(tag, "snow")
             tmp = out + ".part"
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
+            wrote = [out]
         elif kind == "sst":
             out = target_for(tag, "sst")
             tmp = out + ".part"
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
+            wrote = [out]
         elif kind == "clim":
             out = target_for(tag, "clim")
             tmp = out + ".part"
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
+            wrote = [out]
         elif kind == "ext":
             out = target_for(tag, "ext")
             tmp = out + ".part"
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
+            wrote = [out]
             decode_ext(out, tag)
         elif kind == "u10d":
             gpath = os.path.join(MDIR, tag, "u10_daily_c%d.grib" % chunk)
@@ -509,10 +516,10 @@ class Pool(object):
             finally:
                 if os.path.exists(gpath):
                     os.remove(gpath)       # keep the disk small
-        for p in (target_for(tag, "snow"), target_for(tag, "sst"),
-                  target_for(tag, "clim"), target_for(tag, "ext")):
+            wrote = [os.path.join(MDIR, tag, "u10_daily.npz")]
+        for p in wrote:
             if os.path.exists(p):
-                print("   %s: saved %s (%.1f MB)"
+                print("   %s: wrote %s (%.1f MB)"
                       % (tag, os.path.basename(p), os.path.getsize(p) / 1e6),
                       flush=True)
 
@@ -722,7 +729,9 @@ def run(c, steps, only=None, dry=False):
             # inits anyway.
             if ok and kind == "snow":
                 p = target_for(tag, "snow")
-                if os.path.exists(p):
+                # the file must be the one that was just downloaded, not the
+                # one the previous init left behind
+                if os.path.exists(p) and os.path.getmtime(p) > time.time() - 3600:
                     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
                     if st.get(tag, {}).get("init") != INIT:
                         record_init(tag)
