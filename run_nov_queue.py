@@ -38,6 +38,8 @@ STEPS = [
     ("eccc-gem", "eccc-gem5", "ECCC GEM5.2-NEMO", "eccc", "5", "snow", ["snow"]),
     ("jma-sst", "jma-jra3", "JMA JRA3-25", "jma", "7", "sst", ["sst"]),
     ("jma-rest", "jma-jra3", "JMA JRA3-25", "jma", "7", "clim+u10", ["clim", "u10"]),
+    ("ecmwf-ext", "ecmwf-seas5", "ECMWF SEAS5", "ecmwf", "51", "ext", ["ext"]),
+    ("ukmo-ext", "ukmo-gloseas6", "UKMO GloSeas6-GC5.1", "ukmo", "610", "ext", ["ext"]),
 ]
 
 # what each kind needs from the CDS
@@ -55,6 +57,11 @@ REQ = {
             {"variable": "u_component_of_wind", "pressure_level": "10",
              "product_type": "monthly_mean",
              "leadtime_month": [str(k) for k in range(1, 7)]}),
+    # the lead months past the sixth only exist in the sub-daily product,
+    # where every step carries its own accumulation
+    "ext": ("seasonal-original-single-levels",
+            {"variable": "snowfall", "day": "01",
+             "leadtime_hour": [str(h) for h in range(181 * 24, 216 * 24, 12)]}),
 }
 
 
@@ -65,6 +72,8 @@ def target_for(tag, kind):
         return os.path.join(MDIR, tag, "sst_monthly.grib")
     if kind == "clim":
         return os.path.join(MDIR, tag, "snowfall_hindcast.grib")
+    if kind == "ext":
+        return os.path.join(MDIR, tag, "snowfall_ext.grib")
     return os.path.join(MDIR, tag, "u10_monthly.grib")
 
 
@@ -124,6 +133,21 @@ def run_step(c, step, tag, name, centre, system, kind, fields, dry=False):
                     print("   %s/%s: saved %s (%.1f MB)"
                           % (tag, f, os.path.basename(out),
                              os.path.getsize(out) / 1e6), flush=True)
+                    if f == "ext":
+                        # the renderer reads the decoded months, not the GRIB
+                        from fetch_snow_daily import read_snow, save_npz
+                        months, members, acc, glat, glon = read_snow(out)
+                        if months and acc is not None:
+                            save_npz(out.replace(".grib", ".npz"), months,
+                                     members, acc, glat, glon,
+                                     meta=dict(tag=tag, init=init, kind="extended"))
+                            print("   %s/ext: %d extended month(s) %s"
+                                  % (tag, len(months),
+                                     [ "%04d-%02d" % m for m in months ]),
+                                  flush=True)
+                        else:
+                            print("   %s/ext: nothing past the sixth month" % tag,
+                                  flush=True)
                     break
                 if s in ("failed", "rejected", "dismissed"):
                     print("   %s/%s: %s - resubmitting"
@@ -151,7 +175,7 @@ def run_step(c, step, tag, name, centre, system, kind, fields, dry=False):
             return False
     # the centre only counts as on the November init once ITS forecast has
     # been fetched for this init
-    if os.path.exists(target_for(tag, "snow")) and not stale:
+    if kind != "ext" and os.path.exists(target_for(tag, "snow")) and not stale:
         record_init(tag, name, centre, system, init)
     return True
 
