@@ -32,5 +32,12 @@ else
   git -c user.name="MCode" -c user.email="mcode@local" commit -q -m "$MSG"
 fi
 
-echo ">> publishing"
-./push_to_github.sh "$TOKEN"
+# SKIP_PUSH=1 builds and commits everything but does not push - used when the
+# token has been revoked, so the site stays current locally and one push
+# publishes it.
+if [ "${SKIP_PUSH:-0}" = "1" ]; then
+    echo ">> not pushing (no working token) - the site is current locally"
+else
+    echo ">> publishing"
+    ./push_to_github.sh "$TOKEN"
+fi

@@ -55,21 +55,21 @@ while true; do
             python3 -u plot_enso.py >> logs_auto_publish.log 2>&1
             if [ -n "$TOK" ]; then
                 # A revoked token would fail the push and leave a dead
-                # credential behind, so it is checked once and the cycle is
-                # built locally either way.
+                # credential behind, so it is checked once.  Either way the
+                # site is rebuilt and committed locally; only the push is
+                # conditional.
                 code=$(curl -s -o /dev/null -w '%{http_code}' -m 20 \
                     -H "Authorization: token $TOK" https://api.github.com/user)
                 if [ "$code" != "200" ]; then
                     log "the GitHub token is no longer accepted (HTTP $code) - the site is built locally but NOT published"
+                    SKIP_PUSH=1 ./refresh_site.sh "$TOK" "New seasonal data" >> logs_auto_publish.log 2>&1
                 else
-                # refresh_site.sh renders the SPV panels, the registry and the
-                # pages, commits and pushes
-                ./refresh_site.sh "$TOK" "New seasonal data" >> logs_auto_publish.log 2>&1
+                    ./refresh_site.sh "$TOK" "New seasonal data" >> logs_auto_publish.log 2>&1
+                    log "published"
+                fi
                 python3 -u verify_site.py >> logs_auto_publish.log 2>&1
                 rm -f /workspace/seasonal-snow-site.zip
                 ( cd docs && zip -qr /workspace/seasonal-snow-site.zip . )
-                log "published"
-                fi
             else
                 log "built but not published (no token)"
             fi
