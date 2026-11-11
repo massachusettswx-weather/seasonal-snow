@@ -34,6 +34,7 @@ import urllib.request
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+BIAS_FROM = 2016
 DATA = os.path.join(HERE, "data")
 CACHE = os.path.join(DATA, "oisst_daily.json")
 OUT = os.path.join(DATA, "oisst_enso.npz")
@@ -146,6 +147,10 @@ def main():
     ap.add_argument("--from", dest="y0", default="1991-01")
     ap.add_argument("--to", dest="y1", default="")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--bias-from", type=int, default=2016,
+                    help="the first year of the ERSST overlap used for "
+                         "the bias correction (the OI SST v2.1 in-situ "
+                         "correction changed in 2016)")
     args = ap.parse_args()
 
     today = datetime.date.today()
@@ -245,11 +250,79 @@ def main():
     rel = anom_b[:, 0] - anom_t
     k = float(np.std(anom_b[:, 0]) / np.std(rel)) if np.std(rel) > 0 else 1.242
 
+    # ------------------------------------------------------------------
+    # The bias correction onto ERSST.
+    #
+    # OI SST and ERSST are two different analyses of the same ocean and
+    # they do not agree: over the last two months OI SST runs 0.4-0.9 degC
+    # warmer than ERSST in the Nino 3 and Nino 3.4 boxes and about 0.1 degC
+    # cooler in Nino 4.  The chart's observed line has always been ERSST,
+    # and ERSST is what NOAA builds the published Nino indices from, so the
+    # OI SST is corrected onto it before it is used: for every calendar
+    # month the mean difference over the overlap is removed.  The result
+    # keeps the ERSST scale - so the plume values do not move at all - and
+    # the observed line can run right up to today.
+    # ------------------------------------------------------------------
+    bias_b = np.zeros((12, len(BASIN_NAMES)))
+    bias_t = np.zeros(12)
+    bas_bc = bas.copy()
+    tm_bc = tm.copy()
+    have_ersst = False
+    ep = os.path.join(DATA, "ersst_enso.npz")
+    if os.path.exists(ep):
+        e = np.load(ep, allow_pickle=True)
+        em = [str(x) for x in e["months"]]
+        idx = {m: i for i, m in enumerate(em)}
+        pair_b = []
+        pair_t = []
+        for i, m in enumerate(mnames):
+            if m not in idx:
+                continue
+            if int(m[:4]) < BIAS_FROM:
+                continue
+            pair_b.append(e["basin"][idx[m]] - bas[i])
+            pair_t.append(float(e["tm"][idx[m]] - tm[i]))
+        if pair_b:
+            have_ersst = True
+            pb = np.array(pair_b, float)
+            for mm in range(1, 13):
+                rows = [j for j, m in enumerate(mnames)
+                        if int(m[5:7]) == mm and int(m[:4]) >= BIAS_FROM
+                        and m in idx]
+                if not rows:
+                    continue
+                dif = np.array([e["basin"][idx[mnames[j]]] - bas[j]
+                                for j in rows], float)
+                bias_b[mm - 1] = dif.mean(axis=0)
+                dt = np.array([float(e["tm"][idx[mnames[j]]] - tm[j])
+                                for j in rows], float)
+                bias_t[mm - 1] = dt.mean()
+            for i, m in enumerate(mnames):
+                cal2 = int(m[5:7]) - 1
+                bas_bc[i] = bas[i] + bias_b[cal2]
+                tm_bc[i] = tm[i] + bias_t[cal2]
+            log("the bias correction onto ERSST, from %d:" % BIAS_FROM)
+            for bi, b in enumerate(BASIN_NAMES):
+                log("   %-9s %+0.3f degC (the monthly spread %.3f)"
+                    % (b, bias_b[:, bi].mean(), bias_b[:, bi].std()))
+            log("   the tropical mean %+0.3f degC" % bias_t.mean())
+
+    anom_bc = bas_bc - clim_b[cal]
+    anom_t_bc = tm_bc - clim_t[cal]
+    rel_bc = anom_bc[:, 0] - anom_t_bc
+    k_bc = (float(np.std(anom_bc[:, 0]) / np.std(rel_bc))
+            if np.std(rel_bc) > 0 else k)
+
     np.savez_compressed(
         OUT, months=np.array(mnames), basin=bas, tm=tm,
         basin_anom=anom_b, tm_anom=anom_t,
         basin_clim=clim_b, tm_clim=clim_t,
         basins=np.array(BASIN_NAMES), k=k,
+        basin_bc=bas_bc, tm_bc=tm_bc,
+        basin_anom_bc=anom_bc, tm_anom_bc=anom_t_bc,
+        bias_basin=bias_b, bias_tm=bias_t, k_bc=k_bc,
+        bias_from=np.array([BIAS_FROM]),
+        bias_applied=np.array([1 if have_ersst else 0]),
         ndays=np.array(ndays),
         first_day=np.array([x[4] for x in ms]),
         last_day=np.array([x[5] for x in ms]),
