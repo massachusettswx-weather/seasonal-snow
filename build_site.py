@@ -187,6 +187,33 @@ def write_css():
 # --------------------------------------------------------------------------
 # shared chrome
 # --------------------------------------------------------------------------
+# The init line in the header is written from the models that are actually
+# published, so it cannot go stale - it used to say "Nov 2026 & Oct 2026
+# inits" long after every model was on the November init.
+INIT_SUB = "ECMWF SEAS5 &amp; C3S seasonal systems"
+_MONTH_NAMES = {"01": "January", "02": "February", "03": "March", "04": "April",
+                "05": "May", "06": "June", "07": "July", "08": "August",
+                "09": "September", "10": "October", "11": "November",
+                "12": "December"}
+
+
+def set_init_sub(reg):
+    """Write the header's init line from the published models."""
+    global INIT_SUB
+    inits = sorted({m.get("init") for m in reg.get("models", [])
+                    if m.get("init") and m.get("init") != "?"}, reverse=True)
+    if not inits:
+        return
+    words = []
+    for ini in inits:
+        words.append("%s %s" % (_MONTH_NAMES.get(ini[5:7], ini[5:7]), ini[:4]))
+    if len(words) == 1:
+        txt = "%s init" % words[0]
+    else:
+        txt = " &amp; ".join(words) + " inits"
+    INIT_SUB = ("ECMWF SEAS5 &amp; C3S seasonal systems &middot; %s" % txt)
+
+
 def header(active):
     tabs = [("index.html", "Home"),
             ("model.html", "Model"),
@@ -198,12 +225,12 @@ def header(active):
         for h, t in tabs)
     return """<header class="top">
   <h1>Seasonal Forecast Graphics</h1>
-  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; Nov 2026 &amp; Oct 2026 inits</span>
+  <span class="sub">%s</span>
   <span class="spacer"></span>
   <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
      rel="noopener">GitHub</a>
 </header>
-<nav class="tabs">%s</nav>""" % links
+<nav class="tabs">%s</nav>""" % (INIT_SUB, links)
 
 
 def footer():
@@ -707,6 +734,7 @@ def main():
     reg = load_registry()
     global VER
     VER = reg.get("version", "")
+    set_init_sub(reg)
     build_home(reg)
     build_model_page(reg)
     build_snow(reg)
