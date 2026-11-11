@@ -107,6 +107,15 @@ Three things bite when doing this:
   never the live ones. A job of ours that has been *accepted* but has not
   started for hours is a wedge: dismiss it too, otherwise it keeps a queue
   slot and blocks every other request, ERA5 included.
+* **An accepted job is not a lost job.** The job list returns only the most
+  recent requests, so an old job that is still queued can look as if it were
+  purged - it is not. Always check a job by its full UUID (`GET
+  /retrieve/v1/jobs/{jobID}`) before assuming it is gone, and keep a watcher
+  on it.
+* **One request at a time.** The per-user allowance is three queued requests,
+  and every extra submitter competes for those three. `run_nov_queue.py` is
+  the single runner for the November rebuild: one request in flight, walked
+  in priority order, re-submitted until a job actually completes.
 * **Disk.** A 215-day pull is ~2.5 GB, so each download is decoded to a small
   `.npz` and the raw GRIB is deleted straight away.
 

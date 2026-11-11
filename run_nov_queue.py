@@ -32,9 +32,9 @@ STATE = os.path.join(DATA, "models_fetched.json")
 
 # (step, tag, name, centre, system, kind, fields)
 STEPS = [
+    ("bom-snow", "bom-access-s2", "BOM ACCESS-S2", "bom", "2", "snow", ["snow"]),
     ("eccc-can", "eccc-canesm5", "ECCC CanESM5.1p1bc", "eccc", "4", "snow", ["snow"]),
     ("jma-snow", "jma-jra3", "JMA JRA3-25", "jma", "7", "snow", ["snow"]),
-    ("bom-snow", "bom-access-s2", "BOM ACCESS-S2", "bom", "2", "snow", ["snow"]),
     ("eccc-gem", "eccc-gem5", "ECCC GEM5.2-NEMO", "eccc", "5", "snow", ["snow"]),
     ("jma-sst", "jma-jra3", "JMA JRA3-25", "jma", "7", "sst", ["sst"]),
     ("jma-rest", "jma-jra3", "JMA JRA3-25", "jma", "7", "clim+u10", ["clim", "u10"]),
