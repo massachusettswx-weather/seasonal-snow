@@ -1,0 +1,41 @@
+{
+ "models": [
+  {
+   "tag": "ecmwf-seas5",
+   "name": "ECMWF SEAS5"
+  },
+  {
+   "tag": "cmcc-sps4",
+   "name": "CMCC SPS4"
+  },
+  {
+   "tag": "dwd-gcfs2",
+   "name": "DWD GCFS2.2"
+  },
+  {
+   "tag": "eccc-canesm5",
+   "name": "ECCC CanESM5"
+  },
+  {
+   "tag": "eccc-gem5",
+   "name": "ECCC GEM5.2"
+  },
+  {
+   "tag": "ukmo-gloseas6",
+   "name": "UKMO GloSeas6"
+  },
+  {
+   "tag": "meteo-france-s9",
+   "name": "METFR System 9"
+  }
+ ],
+ "count": 7,
+ "window": [
+  "2026-11",
+  "2026-12",
+  "2027-01",
+  "2027-02",
+  "2027-03",
+  "2027-04"
+ ]
+}

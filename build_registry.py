@@ -48,10 +48,7 @@ MODELS = {
     "bom-access-s2":  ("BOM ACCESS-S2",
                         "Australian Bureau of Meteorology ACCESS-S2 \u00b7 "
                         "ensemble \u00b7 init 1 Nov 2026"),
-    "c3s-multi":       ("C3S Multi-Model Mean",
-                        "Mean of the C3S seasonal systems (ECMWF SEAS5, CMCC SPS4, "
-                        "DWD GCFS2.2, ECCC CanESM5, ECCC GEM5.2, UKMO GloSeas6, "
-                        "JMA CPS4, BOM ACCESS-S2) \u00b7 init 1 Nov 2026"),
+    "c3s-multi":       ("C3S Multi-Model Mean", ""),   # filled in below
     "cfsv2":           ("NOAA CFSv2",
                         "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 10 Oct 2026 \u00b7 read "
                         "directly from NCEP CPC. The absolute snowfall is ERA5's "
@@ -148,6 +145,22 @@ def main():
     # per-model member counts and inits, from the fetch state
     fp = os.path.join(HERE, "data", "models_fetched.json")
     fstate = json.load(open(fp)) if os.path.exists(fp) else {}
+
+    # The multi-model mean's card names the systems that actually went into
+    # it, which is not the same as every C3S centre - a centre whose data
+    # has not arrived is not in the average.
+    mp = os.path.join(HERE, "data", "multi_members.json")
+    if os.path.exists(mp):
+        try:
+            mm = json.load(open(mp))
+            names = [x["name"] for x in mm.get("models", [])]
+            if names:
+                MODELS["c3s-multi"] = (
+                    "C3S Multi-Model Mean",
+                    "Mean of %d seasonal systems (%s) \u00b7 init 1 Nov 2026"
+                    % (mm.get("count", len(names)), ", ".join(names)))
+        except Exception:
+            pass
 
     for tag in sorted(snow.keys()):
         d = snow[tag]

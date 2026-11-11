@@ -145,6 +145,16 @@ def main():
     nmax = max(counts.values())
 
     names = ", ".join(used)
+    # the systems that actually went into the mean, so the site's model
+    # card can say the same thing as the graphic
+    try:
+        with open(os.path.join(DATA, "multi_members.json"), "w") as fh:
+            json.dump({"models": [{"tag": t, "name": n} for t, n in zip(
+                [m[0] for m in MODELS if m[0] in fields], used)],
+                "count": len(fields),
+                "window": ["%04d-%02d" % ym for ym in WINDOW]}, fh, indent=1)
+    except Exception as e:
+        print("   (could not record the contributors: %s)" % str(e)[:80])
     MN0 = ["", "January", "February", "March", "April", "May", "June", "July",
            "August", "September", "October", "November", "December"]
     d0 = "%02d/%02d/%04d" % (WINDOW[0][1], 1, WINDOW[0][0])
