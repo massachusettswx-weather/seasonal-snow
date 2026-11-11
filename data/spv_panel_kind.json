@@ -4,5 +4,7 @@
  "dwd-gcfs2": "daily",
  "ukmo-gloseas6": "monthly",
  "meteo-france-s9": "daily",
- "eccc-cansips": "daily"
+ "eccc-cansips": "daily",
+ "bom-access-s2": "monthly",
+ "jma-jra3": "monthly"
 }

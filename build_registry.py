@@ -223,6 +223,29 @@ def main():
         except Exception:
             pass
 
+    # A note that says what is still missing has to be checked against what
+    # has actually arrived: JMA and BoM carried a "the 10 hPa wind is still
+    # queued" line long after their wind came down, and a stale note is a
+    # lie told to the reader.
+    for tag in list(MODELS):
+        note = MODELS[tag][1]
+        if "the 10 hPa wind is still queued" not in note:
+            continue
+        if tag in spv and spv.get(tag):
+            MODELS[tag] = (MODELS[tag][0],
+                           note.replace(
+                               "The ENSO plume is published; the 10 hPa wind "
+                               "is still queued.",
+                               "The ENSO plume and the 10 hPa wind are "
+                               "published."))
+        else:
+            MODELS[tag] = (MODELS[tag][0],
+                           note.replace(
+                               "The ENSO plume is published; the 10 hPa wind "
+                               "is still queued.",
+                               "The ENSO plume is published; the 10 hPa wind "
+                               "has not come down yet."))
+
     for tag in sorted(snow.keys()):
         if tag in POOLED_INTO:
             # and its panels are not left behind in the published assets

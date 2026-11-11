@@ -183,6 +183,13 @@ def main():
           "August", "September", "October", "November", "December"]
     man_p = os.path.join(DATA, "render_manifest.json")
     man = json.load(open(man_p)) if os.path.exists(man_p) else {}
+    # The manifest is shared with the per-model renders and keeps their
+    # entries, but the multi-model's own entries must describe the window
+    # that was just drawn.  A month left over from a longer window kept its
+    # label and its panel, and the site showed a seventh month that was
+    # really the sixth one again.
+    for k in [k for k in man if k.startswith("snow_c3s-multi_month")]:
+        del man[k]
     man["snow_c3s-multi_total_run_in.png"] = {"label": "", "lead": 0}
     for k, ym in enumerate(WINDOW, start=1):
         y, m = ym
