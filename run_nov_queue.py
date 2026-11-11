@@ -141,8 +141,11 @@ CENTRES = {
 # The two centres that are not on the site yet come first - a daily SPV
 # chart for a centre that has no page at all is worth more than a second
 # daily chart for a centre that already has one.
-DAILY_ORDER = ["jma-jra3", "bom-access-s2", "ukmo-gloseas6", "meteo-france-s9",
-               "cmcc-sps4", "dwd-gcfs2", "eccc-gem5", "eccc-canesm5"]
+# CMCC and DWD come first: their wind files were removed in the disk
+# clean-up, so their 10 hPa panels were pruned and they have no chart at
+# all until the wind comes back.  The rest follow.
+DAILY_ORDER = ["cmcc-sps4", "dwd-gcfs2", "ukmo-gloseas6", "meteo-france-s9",
+               "eccc-gem5", "eccc-canesm5", "jma-jra3", "bom-access-s2"]
 
 
 # --------------------------------------------------------------- the work
@@ -243,8 +246,14 @@ def all_steps():
     4. the daily 10 hPa wind, in 72-day chunks - the SPV charts are built
        from it, and one centre is finished before the next is started.
     """
-    return (monthly_steps() + clim_steps() + ext_steps() +
-            u10m_steps() + daily_steps())
+    # The daily wind and the monthly wind come before the extension.
+    # The extension only carries the multi-model mean one month further,
+    # while the wind is what a centre's 10 hPa chart is made of, and CMCC
+    # and DWD have no chart at all until their wind arrives.  The
+    # extension also sits in the archive's queue for the sub-daily
+    # product, which is the deepest of the three.
+    return (monthly_steps() + clim_steps() + daily_steps() + u10m_steps() +
+            ext_steps())
 
 
 # ----------------------------------------------------------------- helpers
