@@ -69,9 +69,47 @@ KINDNAME = {"oni": "ONI", "roni": "RONI"}
 
 
 # ----------------------------------------------------------------------
+def load_analysis():
+    """The observed line for the plumes.
+
+    NOAA OI SST v2.1 is preferred because it is produced daily with a
+    one-day latency, so the observed line can run up to today instead of
+    stopping at the end of last month.  It is bias-corrected onto ERSST -
+    the dataset NOAA builds the published Nino indices from, and the one
+    the chart has always used - so the scale, and therefore every plume
+    value, is unchanged.  The ERSST tropical climatology is kept for the
+    relative index so that nothing about the plume moves.
+    """
+    ers = np.load(os.path.join(DATA, "ersst_enso.npz"), allow_pickle=True)
+    op = os.path.join(DATA, "oisst_enso.npz")
+    if not os.path.exists(op):
+        d = {k: ers[k] for k in ers.files}
+        d["source"] = "NOAA ERSST v6"
+        d["partial"] = None
+        return d
+    o = np.load(op, allow_pickle=True)
+    if not int(np.asarray(o.get("bias_applied", 0)).ravel()[0]):
+        d = {k: ers[k] for k in ers.files}
+        d["source"] = "NOAA ERSST v6"
+        d["partial"] = None
+        return d
+    d = {k: ers[k] for k in ers.files}          # the months, tm_clim, k
+    d["basin"] = o["basin_bc"]                  # the bias-corrected values
+    d["tm"] = o["tm_bc"]
+    d["months"] = o["months"]
+    d["source"] = "NOAA OI SST v2.1"
+    # the current month is incomplete: how many days it stands on
+    nd = np.asarray(o["ndays"]) if "ndays" in o.files else None
+    last = np.asarray(o["last_day"]) if "last_day" in o.files else None
+    d["partial"] = None
+    if nd is not None and last is not None and len(nd):
+        d["partial"] = (str(o["months"][-1]), int(nd[-1]), str(last[-1]))
+    return d
+
+
 def load():
     clim = np.load(os.path.join(DATA, "era5_enso_clim.npz"), allow_pickle=True)
-    ana = np.load(os.path.join(DATA, "ersst_enso.npz"), allow_pickle=True)
+    ana = load_analysis()
     models = {}
     d = os.path.join(DATA, "models")
     for tag in sorted(os.listdir(d)):
@@ -179,7 +217,7 @@ def _ord(dstr):
 def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
     months = rec["months"]
     bi = rec["basins"].index(basin)
-    ana_src = "NOAA ERSST v6"
+    ana_src = ana.get("source", "NOAA ERSST v6")
 
     # the analysis file may be in Kelvin (ERA5) or Celsius (ERSST)
     kshift = 273.15 if float(np.nanmedian(ana["basin"])) > 100.0 else 0.0
@@ -249,8 +287,23 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
     ax.plot(xf, mean, color=MEAN, lw=2.6, zorder=3,
             label="ensemble mean" if nmem > 1 else "ensemble mean (CPC)")
     # the analysis on top
-    ax.plot(xs, obs_v, color=ANALYSIS, lw=2.4, marker="o", ms=3.4,
-            label="analysis (%s)" % ana_src, zorder=4)
+    #
+    # The current month is incomplete - the observation is a running mean
+    # over the days published so far - so it is drawn as an open marker of
+    # its own rather than pretending to be a whole month.
+    part = ana.get("partial")
+    ipart = None
+    if part and part[0] == obs_m[-1]:
+        ipart = len(obs_m) - 1
+    if ipart is None:
+        ax.plot(xs, obs_v, color=ANALYSIS, lw=2.4, marker="o", ms=3.4,
+                label="analysis (%s)" % ana_src, zorder=4)
+    else:
+        ax.plot(xs[:ipart], obs_v[:ipart], color=ANALYSIS, lw=2.4,
+                marker="o", ms=3.4, label="analysis (%s)" % ana_src, zorder=4)
+        ax.plot(xs[ipart], obs_v[ipart], color=ANALYSIS, lw=0, marker="o",
+                ms=5.6, mfc="white", mec=ANALYSIS, mew=1.8, zorder=5,
+                label="the current month, a running mean")
     ax.axhline(0, color=ZERO, lw=1.0, ls="--", zorder=1)
 
     # the init marker
@@ -288,9 +341,15 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
         mdesc = "%d members \u00b7 weekly means" % nmem
     else:
         mdesc = "%d members" % nmem
+    if part and part[0] == obs_m[-1]:
+        _d = part[2]
+        endtxt = "%s %s (%d-day mean)" % (int(_d[8:10]), MON[int(_d[5:7])],
+                                          part[1])
+    else:
+        endtxt = obs_m[-1] if obs_m else "-"
     ax.text(0, 1.02,
             "init %s · %s · SST anomaly vs 1991-2020 · analysis %s to %s" %
-            (init_label(init), mdesc, ana_src, obs_m[-1] if obs_m else "-"),
+            (init_label(init), mdesc, ana_src, endtxt),
             transform=ax.transAxes, fontsize=8.6, color="#6b6b6b", va="bottom")
     ax.text(0.995, 1.02, "max %+.2f / min %+.2f °C" % (float(mean.max()),
                                                        float(mean.min())),

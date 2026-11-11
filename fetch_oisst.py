@@ -331,6 +331,33 @@ def main():
     log("the last month: %s, %d day(s) (%s .. %s)"
         % (mnames[-1], ndays[-1], ms[-1][4], ms[-1][5]))
 
+    # ---------------- validation ----------------
+    # 1) how closely does the bias-corrected OI SST sit on the ERSST?
+    if have_ersst:
+        e = np.load(ep, allow_pickle=True)
+        em = [str(x) for x in e["months"]]
+        idx = {m: i for i, m in enumerate(em)}
+        rows = [i for i, m in enumerate(mnames) if m in idx]
+        d = np.array([bas_bc[i, 0] - e["basin"][idx[mnames[i]], 0]
+                      for i in rows], float)
+        log("the bias-corrected OI SST against the ERSST, Nino 3.4:")
+        log("   the mean %+0.3f degC, the RMS %.3f degC over %d months"
+            % (d.mean(), np.sqrt((d ** 2).mean()), len(d)))
+    # 2) against CPC's own published RONI
+    cp = os.path.join(DATA, "oni", "indices.json")
+    if os.path.exists(cp):
+        cpc = json.load(open(cp)).get("roni_monthly", {})
+        rel = anom_bc[:, 0] - anom_t_bc
+        ours = []
+        for i, m in enumerate(mnames):
+            if m in cpc:
+                ours.append(float(rel[i] * k_bc) - float(cpc[m]))
+        if ours:
+            a = np.array(ours)
+            log("against CPC's published monthly RONI: the mean %+0.3f, "
+                "the mean |difference| %.3f, the worst %.3f (%d months)"
+                % (a.mean(), np.abs(a).mean(), np.abs(a).max(), len(a)))
+
     # how does the OI SST climatology compare with ERA5's?
     p = os.path.join(DATA, "era5_enso_clim.npz")
     if os.path.exists(p):
