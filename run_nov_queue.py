@@ -47,10 +47,15 @@ DS_MONTHLY_PL = "seasonal-monthly-pressure-levels"
 DS_ORIGINAL_SL = "seasonal-original-single-levels"
 
 # How many requests to keep in flight at once.  Measured on 11 Nov: with two
-# of ours outstanding a third is refused after ~30 s; with one outstanding a
-# new one is admitted and stays queued for hours.  A refusal is free - the
-# slot comes straight back - so the pool re-fills itself.
-POOL_SIZE = 2
+# of ours outstanding a third is often refused after ~30 s, but three have
+# been held at once (21:18, 00:14 and 04:25 all sat queued together).  A
+# refusal is free - the slot comes straight back - so the pool asks again.
+POOL_SIZE = 3
+
+# How long to wait before asking again after a refusal.  The cap is on how
+# many requests we hold, so asking again too soon only collects more
+# refusals.
+REFUSED_WAIT = 300
 
 # Requests that were submitted earlier and are still queued.  They hold a
 # slot, so the pool must not submit the same step again - and when one of
@@ -147,16 +152,20 @@ def decode_ext(path, tag):
 
 def split_combined(path, tag, kinds):
     """A request that carried two variables comes back as one file - split it
-    into the per-variable files the rest of the pipeline expects."""
+    into the per-variable files the rest of the pipeline expects.
+
+    The combined file is only deleted once every variable has been split out
+    of it, so a failure never loses the download.
+    """
     import split_grib
     tmp = path + ".combined"
+    os.replace(path, tmp)
     try:
-        os.replace(path, tmp)
         outs, counts = split_grib.split(tmp, os.path.dirname(path),
                                         [k for k, _ in kinds])
-    finally:
-        if os.path.exists(tmp):
-            os.remove(tmp)
+    except Exception as e:
+        os.replace(tmp, path)          # put it back
+        raise
     ok = True
     for kind, fname in kinds:
         p = os.path.join(os.path.dirname(path), fname)
@@ -168,6 +177,8 @@ def split_combined(path, tag, kinds):
             print("   %s: %s is MISSING from the combined file" % (tag, kind),
                   flush=True)
             ok = False
+    if os.path.exists(tmp):
+        os.remove(tmp)
     return ok
 
 
@@ -235,7 +246,7 @@ class Pool(object):
                 msg = str(e)
                 if "Maximum number queued" in msg:
                     print("   %s: %s is full - waiting" % (step, dataset), flush=True)
-                    self.next_at[step] = time.time() + 120
+                    self.next_at[step] = time.time() + REFUSED_WAIT
                     continue
                 print("   %s: refused (%s)" % (step, msg[:70]), flush=True)
                 self.next_at[step] = time.time() + 300
@@ -271,7 +282,10 @@ class Pool(object):
                       % (step, s, (time.time() - since) / 60), flush=True)
                 del self.live[jid]
                 self.finished.append((step, jid, False))
-                self.next_at[step] = time.time() + 90
+                # a refusal means the cap was reached, so wait longer than
+                # for a job that simply failed
+                wait = REFUSED_WAIT if s == "rejected" else 90
+                self.next_at[step] = time.time() + wait
         return acted
 
     def held(self, step):
