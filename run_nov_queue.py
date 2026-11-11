@@ -122,6 +122,10 @@ def monthly_steps():
     out = []
     for tag in ("eccc-gem5", "jma-jra3", "bom-access-s2", "eccc-canesm5"):
         out.append(("snow:" + tag, tag, "snow"))
+    # the SST of the centres that are not on the site yet - it is what the
+    # ENSO plumes are built from
+    for tag in ("jma-jra3", "bom-access-s2"):
+        out.append(("sst:" + tag, tag, "sst"))
     return out
 
 
@@ -230,12 +234,28 @@ def build_request(tag, kind, chunk=None):
     common = {"originating_centre": centre, "system": system,
               "year": init[:4], "month": init[5:7], "data_format": "grib"}
     if kind == "snow":
-        # the snowfall and the SST of a centre come from the same dataset
-        # and the same leads, so they travel in ONE request
+        # ONE variable per request.
+        #
+        # A request that carries a LIST of variables is accepted, but it
+        # waits: two such requests sat for 12 hours and 2.5 hours with
+        # their `updated` timestamp never moving - no worker ever picked
+        # them up - while the single-variable requests for the same
+        # centres completed.  The list form appears to wait for every
+        # field to be staged before it is worked on, and one field that
+        # is not ready holds the whole thing up.
+        #
+        # So the snowfall and the SST are asked for separately.  It costs
+        # an extra request, but a request that is actually served beats a
+        # request that is admitted and never touched.
         return (DS_MONTHLY_SL,
-                dict(common, variable=["snowfall", "sea_surface_temperature"],
+                dict(common, variable="snowfall",
                      product_type="monthly_mean", leadtime_month=LEADS),
-                [("snow", "snowfall_monthly.grib"), ("sst", "sst_monthly.grib")])
+                [("snow", "snowfall_monthly.grib")])
+    if kind == "sst":
+        return (DS_MONTHLY_SL,
+                dict(common, variable="sea_surface_temperature",
+                     product_type="monthly_mean", leadtime_month=LEADS),
+                [("sst", "sst_monthly.grib")])
     if kind == "clim":
         return (DS_MONTHLY_SL,
                 dict(common, variable="snowfall",
@@ -431,10 +451,12 @@ class Pool(object):
             out = target_for(tag, "snow")
             tmp = out + ".part"
             self.c.download_job(jid, tmp)
-            split_combined(tmp, tag, [("snow", "snowfall_monthly.grib"),
-                                      ("sst", "sst_monthly.grib")])
-            if os.path.exists(tmp):
-                os.remove(tmp)
+            os.replace(tmp, out)
+        elif kind == "sst":
+            out = target_for(tag, "sst")
+            tmp = out + ".part"
+            self.c.download_job(jid, tmp)
+            os.replace(tmp, out)
         elif kind == "clim":
             out = target_for(tag, "clim")
             tmp = out + ".part"
@@ -582,10 +604,13 @@ def run(c, steps, only=None, dry=False):
             save_pending(pend)
             if ok and kind == "u10d":
                 done = daily_done()
-            # a centre is on the November init once ITS OWN forecast for
-            # that init is on disk
-            if ok and kind in ("snow", "clim"):
-                p = target_for(tag, "snow" if kind == "snow" else "clim")
+            # A centre is on the November init once ITS OWN forecast for
+            # that init is on disk.  The snowfall is what counts - the SST
+            # and the hindcast climate are not what the centre's panels
+            # are built from, and the climate does not change between
+            # inits anyway.
+            if ok and kind == "snow":
+                p = target_for(tag, "snow")
                 if os.path.exists(p):
                     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
                     if st.get(tag, {}).get("init") != INIT:
