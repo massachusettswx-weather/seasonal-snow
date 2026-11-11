@@ -77,8 +77,16 @@ POOL_SIZE = 2
 # batches", and warn that accounts may be suspended for repeated
 # submission of invalid requests.  So: one submission at a time, a real gap
 # between them, and a long pause after a refusal rather than a quick retry.
+#
+# The pause is long because the seasonal datasets are genuinely flooded -
+# measured on 11 Nov 2026, with the account holding NOTHING, all three of
+# the seasonal datasets (monthly single levels, original single levels,
+# original pressure levels) refused a fresh request.  The November release
+# has saturated the archive for everyone.  Asking again every two minutes
+# would be a large batch of requests against an account under scrutiny and
+# would not get the data any sooner.
 SUBMIT_GAP = 120
-REFUSED_WAIT = 600
+REFUSED_WAIT = 900
 
 # How long a request may sit with nothing coming back before the pool
 # SAYS SO.  It does not release it: the limit on this archive is the depth
