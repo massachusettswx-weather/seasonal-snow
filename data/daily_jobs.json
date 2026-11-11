@@ -1491,6 +1491,16 @@
    "init": "2026-11",
    "status": "decoded",
    "_t0": 1794425314.2826319
+  },
+  {
+   "job": "5186e7d4-dae0-460b-9b87-a975fca2a59e",
+   "tag": "dwd-gcfs2",
+   "chunk": 0,
+   "centre": "dwd",
+   "system": "22",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794425499.9744053
   }
  ],
  "stall": false,
