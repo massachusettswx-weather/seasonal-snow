@@ -27,7 +27,13 @@ fingerprint() {
         -printf '%p %s %T@\n' 2>/dev/null | sort
 }
 
+# The fingerprint is kept in a file, so that a restart of this watcher
+# still knows what was published last.  Without it, a restart would treat
+# everything as a first look and never rebuild - which is exactly what
+# happens after the sandbox rebuilds and the data changed in between.
+FPFILE="data/.publish_fingerprint"
 prev=""
+[ -f "$FPFILE" ] && prev=$(cat "$FPFILE")
 while true; do
     cur=$(fingerprint)
     if [ -n "$cur" ] && [ "$cur" != "$prev" ]; then
@@ -57,6 +63,7 @@ while true; do
             fi
         fi
         prev="$cur"
+        echo "$cur" > "$FPFILE"
     fi
     sleep 120
 done
