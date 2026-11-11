@@ -18,8 +18,12 @@ import eccodes
 ALIASES = {
     # the monthly product carries the snowfall as a rate ("mtsfr"), the
     # sub-daily product as an accumulation ("sf")
+    # The key is what the caller asks for ("snow" or "snowfall"); the tuple
+    # is every short name that field can carry.
+    "snow": ("mtsfr", "snowfall", "sf", "tp"),
     "snowfall": ("mtsfr", "snowfall", "sf", "tp"),
     "sst": ("sst", "sea_surface_temperature"),
+    "u10": ("u", "u_component_of_wind"),
 }
 
 
