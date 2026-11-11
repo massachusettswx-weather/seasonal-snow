@@ -142,6 +142,10 @@ def read_grib(path):
     import eccodes
     from datetime import datetime as _dt, timedelta as _td
     out = []
+    # The grid is the same for every member of a model, so the 64800-point
+    # latitude and longitude arrays are read once and then reused.  Reading
+    # them again for every record was the slowest part of a render.
+    grid_cache = {}
     with open(path, "rb") as f:
         while True:
             try:
@@ -154,8 +158,18 @@ def read_grib(path):
                 step = int(eccodes.codes_get(gid, "step"))
                 dd = int(eccodes.codes_get(gid, "dataDate"))
                 vals = eccodes.codes_get_array(gid, "values")
-                lats = eccodes.codes_get_array(gid, "latitudes")
-                lons = eccodes.codes_get_array(gid, "longitudes")
+                try:
+                    key = (int(eccodes.codes_get(gid, "Ni")),
+                           int(eccodes.codes_get(gid, "Nj")))
+                except Exception:
+                    key = None
+                if key is not None and key in grid_cache:
+                    lats, lons = grid_cache[key]
+                else:
+                    lats = eccodes.codes_get_array(gid, "latitudes")
+                    lons = eccodes.codes_get_array(gid, "longitudes")
+                    if key is not None:
+                        grid_cache[key] = (lats, lons)
                 d0 = _dt(dd // 10000, (dd // 100) % 100, dd % 100)
                 valid = d0 + _td(hours=step)
                 month = (valid - _td(days=1))

@@ -582,5 +582,49 @@
  "snow_bom-access-s2_month06_in.png": {
   "label": "April 2027",
   "lead": 6
+ },
+ "snow_eccc-cansips_month01_in.png": {
+  "label": "November 2026",
+  "lead": 1
+ },
+ "snow_eccc-cansips_month02_in.png": {
+  "label": "December 2026",
+  "lead": 2
+ },
+ "snow_eccc-cansips_month03_in.png": {
+  "label": "January 2027",
+  "lead": 3
+ },
+ "snow_eccc-cansips_month04_in.png": {
+  "label": "February 2027",
+  "lead": 4
+ },
+ "snow_eccc-cansips_month05_in.png": {
+  "label": "March 2027",
+  "lead": 5
+ },
+ "snow_eccc-cansips_month06_in.png": {
+  "label": "April 2027",
+  "lead": 6
+ },
+ "SNOW_ECCC-CANSIPS_November2026_anom_in.png": {
+  "label": "November 2026",
+  "lead": 1
+ },
+ "SNOW_ECCC-CANSIPS_December2026_anom_in.png": {
+  "label": "December 2026",
+  "lead": 2
+ },
+ "SNOW_ECCC-CANSIPS_January2027_anom_in.png": {
+  "label": "January 2027",
+  "lead": 3
+ },
+ "SNOW_ECCC-CANSIPS_February2027_anom_in.png": {
+  "label": "February 2027",
+  "lead": 4
+ },
+ "SNOW_ECCC-CANSIPS_March2027_anom_in.png": {
+  "label": "March 2027",
+  "lead": 5
  }
 }
