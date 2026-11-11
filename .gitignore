@@ -1,6 +1,9 @@
 # CDS credentials - NEVER COMMIT
 .cdsapirc
 
+# the publish watcher's state file - it belongs to the machine, not the repo
+data/.publish_fingerprint
+
 # raw / bulky data (re-fetchable with the scripts in this repo)
 data/*.grib
 data/*.nc
