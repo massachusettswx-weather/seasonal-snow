@@ -44,6 +44,7 @@ import sys
 import json
 import time
 import shutil
+from datetime import datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -72,6 +73,12 @@ POOL_SIZE = 2
 # again after a refusal.
 SUBMIT_GAP = 75
 REFUSED_WAIT = 240
+
+# How long a request may sit with no worker touching it before the pool
+# releases the slot and moves on.  A request whose `updated` timestamp
+# never moves is not progressing - the archive is holding it without
+# working on it, and it would hold one of our two slots forever.
+STUCK_S = 25 * 60
 
 # The daily wind comes in 72-day chunks: that size completes, larger ones
 # are refused.
@@ -444,6 +451,26 @@ class Pool(object):
                     return s
         return s
 
+    def worker_touched(self, jid):
+        """Has a worker touched this request?
+
+        The job's `updated` timestamp is the tell: while a request is
+        queued and progressing it moves, and a request that no worker has
+        picked up keeps `updated == created`.  True means a worker has
+        touched it.
+        """
+        try:
+            r = self.c._request("GET", "/retrieve/v1/jobs/%s" % jid)
+            if r.status_code != 200:
+                return None
+            d = r.json()
+            cr, up = d.get("created", ""), d.get("updated", "")
+            if not cr or not up:
+                return None
+            return up != cr
+        except Exception:
+            return None
+
     def handle(self, jid):
         step, tag, kind, dataset, since = self.live[jid]
         chunk = int(step.rsplit(":", 1)[1]) if kind == "u10d" else None
@@ -516,6 +543,32 @@ class Pool(object):
                 # for a job that simply failed
                 wait = REFUSED_WAIT if s == "rejected" else 90
                 self.next_at[step] = time.time() + wait
+            elif s == "accepted" and time.time() - since > STUCK_S:
+                # NO WORKER HAS TOUCHED THIS REQUEST.
+                #
+                # A job whose `updated` timestamp never moves is not queued
+                # and progressing - it is a request the archive is holding
+                # without working on it, and it holds one of our slots
+                # forever.  Measured on 11 Nov 2026: the ECCC and JMA
+                # snowfall requests sat that way for 12 h while the BoM SST
+                # for the same init was served in minutes.
+                #
+                # So release it, let the slot go to something else, and
+                # ask for this field again later.  A refusal is free; a
+                # permanently stuck request is not.
+                touched = self.worker_touched(jid)
+                if touched is False:
+                    print("   %s: no worker has touched it in %.0f min - "
+                          "releasing the slot"
+                          % (step, (time.time() - since) / 60), flush=True)
+                    try:
+                        self.c._request("DELETE", "/retrieve/v1/jobs/%s" % jid)
+                    except Exception as e:
+                        print("      could not release it: %s" % str(e)[:80],
+                              flush=True)
+                    del self.live[jid]
+                    self.done_steps.append((step, tag, kind, False))
+                    self.next_at[step] = time.time() + 1800
         return acted
 
 
@@ -527,6 +580,25 @@ def load_pending():
         return json.load(open(PENDING))
     except Exception:
         return {}
+
+
+def job_age(jid, c):
+    """When the job was created, as a timestamp - the age of the REQUEST.
+
+    The job's own `updated` field says whether a worker has touched it:
+    if `updated` never moves away from `created`, no worker has picked the
+    request up and it is not going anywhere.
+    """
+    try:
+        r = c._request("GET", "/retrieve/v1/jobs/%s" % jid)
+        d = r.json() if r.status_code == 200 else {}
+        cr = d.get("created", "")
+        if cr:
+            t = datetime.fromisoformat(cr.replace("Z", "").split(".")[0])
+            return t.timestamp()
+    except Exception:
+        pass
+    return time.time()
 
 
 def save_pending(pend):
@@ -546,11 +618,16 @@ def run(c, steps, only=None, dry=False):
         if s in ("accepted", "running", "queued"):
             _, tag, kind = stepmap[step]
             dataset = build_request(tag, kind)[0]
-            pool.live[jid] = (step, tag, kind, dataset, time.time())
+            # the age of the request is the age of the JOB, not the age of
+            # this process - a request that was submitted hours ago and has
+            # not been touched since is already stuck and must be released
+            # now, not after another 25 minutes
+            since = job_age(jid, c)
+            pool.live[jid] = (step, tag, kind, dataset, since)
             if kind == "u10d":
                 daily_set(jid, tag, int(step.rsplit(":", 1)[1]), "accepted")
-            print("   %s: adopted the queued request %s (%s)"
-                  % (step, jid[:12], s), flush=True)
+            print("   %s: adopted the queued request %s (%s, %.0f min old)"
+                  % (step, jid[:12], s, (time.time() - since) / 60), flush=True)
         else:
             print("   %s: the queued request %s is %s - will ask again"
                   % (step, jid[:12], s), flush=True)
