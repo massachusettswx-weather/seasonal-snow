@@ -148,7 +148,14 @@ def main():
     MN0 = ["", "January", "February", "March", "April", "May", "June", "July",
            "August", "September", "October", "November", "December"]
     d0 = "%02d/%02d/%04d" % (WINDOW[0][1], 1, WINDOW[0][0])
-    d1 = "%02d/%02d/%04d" % (WINDOW[-1][1], 1, WINDOW[-1][0])
+    # the run ends on the day after the last month it covers - the same
+    # convention the per-model panels use, so the multi-model graphic and
+    # the site caption say the same thing
+    import calendar
+    from datetime import date as _date, timedelta as _td
+    _y, _m = WINDOW[-1]
+    _end = _date(_y, _m, calendar.monthrange(_y, _m)[1]) + _td(days=1)
+    d1 = "%02d/%02d/%04d" % (_end.month, _end.day, _end.year)
     contrib = ("" if nmin == nmax else
                " · %d–%d of them contributing by month" % (nmin, nmax))
     sub = ("Mean of %d seasonal systems (%s) · 1° × 1° grid · %s to %s · inches%s"
