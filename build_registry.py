@@ -50,10 +50,12 @@ MODELS = {
                         "ensemble \u00b7 init 1 Nov 2026"),
     "c3s-multi":       ("C3S Multi-Model Mean", ""),   # filled in below
     "cfsv2":           ("NOAA CFSv2",
-                        "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 10 Oct 2026 \u00b7 read "
+                        "NOAA CFSv2 \u00b7 40-member ensemble \u00b7 init 1 Nov 2026 \u00b7 read "
                         "directly from NCEP CPC. The absolute snowfall is ERA5's "
                         "1991-2020 climatology plus the CFSv2 hindcast anomaly "
                         "(an approximation \u2014 CPC publishes the anomaly only). "
+                        "The ENSO plume is built from CPC's own published Nino "
+                        "indices, so it carries the member spread. "
                         "NOAA publishes no 10 hPa winds, so this model has snowfall "
                         "panels only \u2014 no zonal-wind panel."),
     "ecmwf-s4s":       ("ECMWF Subseasonal",

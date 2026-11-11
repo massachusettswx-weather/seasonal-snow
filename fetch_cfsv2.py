@@ -20,7 +20,7 @@ climatology, so:
 Snowfall is precipitation x the fraction that falls as snow, the same
 derivation used for the ERA5 climatology.
 """
-import os, sys, json, calendar, urllib.request
+import os, sys, json, calendar, urllib.request, time
 
 import numpy as np
 
@@ -45,11 +45,21 @@ def _bilinear(src, slat, slon, tlat, tlon):
                            dx[None, :] * src[ii + 1, jj + 1]))
 
 
-def download(name, outdir):
+def download(name, outdir, max_age_h=6.0):
+    """Fetch a CPC file, re-fetching it if the cached copy is old.
+
+    CPC regenerates the seasonal files when a new init is launched, and the
+    file on the server is replaced in place - the November init landed on
+    11 Nov 2026 at 13:33 UTC, under the same name as the October one.  So
+    the cache has to be aged out, not just size-checked.
+    """
     os.makedirs(outdir, exist_ok=True)
     p = os.path.join(outdir, name)
     if os.path.exists(p) and os.path.getsize(p) > 1000:
-        return p
+        age = (time.time() - os.path.getmtime(p)) / 3600.0
+        if age < max_age_h:
+            return p
+        print("  the cached %s is %.0f h old - refetching" % (name, age), flush=True)
     url = "%s/dataInd1/%s" % (CPC, name)
     print("downloading", url, flush=True)
     with urllib.request.urlopen(url, timeout=180) as r, open(p, "wb") as f:

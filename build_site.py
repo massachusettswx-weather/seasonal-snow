@@ -372,9 +372,9 @@ def build_snow(reg):
     <a href="model.html">Choose a variable</a></div>
   <h2 class="sec">Snowfall</h2>
   <p class="lead">Accumulated snowfall over the continental United States, in
-  inches, on a 0&ndash;300&nbsp;in colour scale. Every model's season is shown
-  over the same window, ending 01 July 2027. Anomalies are measured against
-  the model's own hindcast climate.</p>
+  inches, on a 0&ndash;300&nbsp;in colour scale. Each model is shown over the
+  lead months its own forecast covers, with the season cut at 01 July 2027.
+  Anomalies are measured against the model's own hindcast climate.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
@@ -382,7 +382,7 @@ def build_snow(reg):
 </div>
 
 <div class="card" id="tab-total">
-  <h2 class="sec">Total accumulation &mdash; init to end of run</h2>
+  <h2 class="sec" id="totalHead">Total accumulation</h2>
   <p class="lead" id="totalCap"></p>
   <div class="stage"><img id="totalImg" alt="Total accumulated snowfall"></div>
 </div>
@@ -428,6 +428,10 @@ function renderTotal(){
   document.getElementById('totalImg').src=pick(t);
   document.getElementById('totalImg').alt=t.caption;
   document.getElementById('totalCap').textContent=(t.caption||'');
+  // the heading carries the run's own dates, the way the figure titles do
+  const d=((t.caption||'').match(/(\d{2}\/\d{2}\/\d{4})\s*(?:to|-)\s*(\d{2}\/\d{2}\/\d{4})/)||[]);
+  document.getElementById('totalHead').textContent=
+    d.length?('Total accumulation \u2014 '+d[1]+' to '+d[2]):'Total accumulation';
 }
 
 function renderMonthly(){
