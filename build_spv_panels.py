@@ -246,6 +246,17 @@ def build_one(tag, name, init):
         npz = os.path.join(MDIR, tag, "u10_daily.npz")
         if os.path.exists(npz):
             dates, m60, mnh, members, m = load_npz(npz)
+            # A daily series with only a couple of members in it is worse
+            # than the monthly one: the UKMO's sub-daily product serves two
+            # of its sixty members, and a chart of two lines would read as
+            # the whole ensemble.  The monthly series is used instead.
+            nmem_d = len(members) if hasattr(members, "__len__") else 0
+            if nmem_d < 10:
+                print("   %s: the daily series has only %d members - using "
+                      "the monthly wind instead" % (tag, nmem_d), flush=True)
+                npz = None
+        if npz and os.path.exists(npz):
+            dates, m60, mnh, members, m = load_npz(npz)
             times = [datetime(d.year, d.month, d.day) for d in dates]
             # The init comes from the DATA, not from the fetch state: a
             # centre whose wind is still on the older init must not have a
@@ -261,9 +272,19 @@ def build_one(tag, name, init):
         # panel it already has; the monthly fallback would be a step back.
         pub = os.path.join(OUT, "SPV_%s_60N.png" % tag)
         if os.path.exists(pub) and panel_kind(tag) == "daily":
-            print("keep the published daily panel for %s (no daily series yet)"
-                  % tag, flush=True)
-            return
+            # keep the published daily panel only if the daily series behind
+            # it is usable - a couple of members is not an ensemble
+            npz0 = os.path.join(MDIR, tag, "u10_daily.npz")
+            nmem0 = 0
+            if os.path.exists(npz0):
+                try:
+                    nmem0 = len(load_npz(npz0)[3])
+                except Exception:
+                    nmem0 = 0
+            if nmem0 >= 10:
+                print("keep the published daily panel for %s (no daily series "
+                      "yet)" % tag, flush=True)
+                return
 
         ug = os.path.join(MDIR, tag, "u10_monthly.grib")
         if not os.path.exists(ug):

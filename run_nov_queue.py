@@ -182,6 +182,8 @@ def daily_steps():
     """-> [(id, tag, kind)] the daily wind chunks, one centre at a time."""
     out = []
     for tag in DAILY_ORDER:
+        if daily_given_up(tag):
+            continue           # the sub-daily product does not serve it
         n = DAILY_DAYS.get(tag, 215)
         for k in range(0, (n + DAILY_CHUNK - 1) // DAILY_CHUNK):
             out.append(("u10d:%s:%d" % (tag, k), tag, "u10d"))
@@ -441,6 +443,21 @@ def daily_state():
     return {"jobs": []}
 
 
+def daily_shorts(tag):
+    """How many short chunks a centre has returned."""
+    n = 0
+    for j in daily_state()["jobs"]:
+        if j.get("tag") == tag and j.get("status") == "short":
+            n = max(n, int(j.get("shorts", 0) or 0))
+    return n
+
+
+def daily_given_up(tag):
+    """-> True when the centre's daily series has been given up on."""
+    return any(j.get("tag") == tag and j.get("given_up")
+               for j in daily_state()["jobs"])
+
+
 def daily_done():
     """-> {tag: set(chunk)} already decoded."""
     out = {}
@@ -513,11 +530,34 @@ def decode_ext(path, tag):
         print("   %s/ext: nothing past the sixth month" % tag, flush=True)
 
 
+def expected_members(tag):
+    """How many ensemble members a centre's forecast has."""
+    if os.path.exists(STATE):
+        try:
+            st = json.load(open(STATE))
+            n = st.get(tag, {}).get("members")
+            if n:
+                return int(n)
+        except Exception:
+            pass
+    return None
+
+
 def decode_daily(path, tag, chunk):
     """Decode one daily chunk and merge it into the centre's series."""
     from u10_daily import read_daily_u10, build_matrix, save_npz, load_npz
     from fetch_models_daily import merge
     recs, members = read_daily_u10(path)
+    # A chunk can come back with only a part of the ensemble - the UKMO's
+    # first chunk arrived with two members out of sixty.  Merging that
+    # would give the chart a couple of lines where it should have sixty,
+    # so a chunk that is far short of the centre's ensemble is thrown away
+    # and asked for again.
+    want = expected_members(tag)
+    if want and len(members) < max(3, want // 2):
+        print("   %s: chunk %d came back with %d members of about %d - "
+              "discarding it" % (tag, chunk, len(members), want), flush=True)
+        return False
     dates, m60, mnh = build_matrix(recs, members)
     npz = os.path.join(MDIR, tag, "u10_daily.npz")
     if os.path.exists(npz):
@@ -531,6 +571,7 @@ def decode_daily(path, tag, chunk):
              meta=dict(tag=tag, centre=centre, system=system, init=INIT))
     print("   %s: chunk %d decoded (%d records, %d members, %d days)"
           % (tag, chunk, len(recs), len(members), len(dates)), flush=True)
+    return True
 
 
 # ------------------------------------------------------------------- pool
@@ -664,11 +705,27 @@ class Pool(object):
             gpath = os.path.join(MDIR, tag, "u10_daily_c%d.grib" % chunk)
             os.makedirs(os.path.dirname(gpath), exist_ok=True)
             self.c.download_job(jid, gpath)
+            ok = False
             try:
-                decode_daily(gpath, tag, chunk)
+                ok = decode_daily(gpath, tag, chunk)
             finally:
                 if os.path.exists(gpath):
                     os.remove(gpath)       # keep the disk small
+            if not ok:
+                # a short chunk - the pool asks for it again, but not often:
+                # the UKMO's sub-daily product serves only two members of
+                # its sixty, so that centre's daily series will never work
+                # and the pool gives up on it after a few attempts.
+                n = daily_shorts(tag) + 1
+                daily_set(jid, tag, chunk, "short", shorts=n)
+                if n >= 3:
+                    print("   %s: %d short chunks - the sub-daily product "
+                          "does not serve this centre's full ensemble, so "
+                          "its daily wind is given up on" % (tag, n),
+                          flush=True)
+                    daily_set(jid, tag, chunk, "short", shorts=n,
+                              given_up=True)
+                raise RuntimeError("the chunk came back short")
             wrote = [os.path.join(MDIR, tag, "u10_daily.npz")]
             # the chunk is decoded and merged - record it, or the pool asks
             # for it again

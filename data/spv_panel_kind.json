@@ -1,7 +1,7 @@
 {
  "ecmwf-seas5": "daily",
  "cmcc-sps4": "daily",
- "dwd-gcfs2": "monthly",
+ "dwd-gcfs2": "daily",
  "eccc-canesm5": "monthly",
  "eccc-gem5": "monthly",
  "ukmo-gloseas6": "monthly",

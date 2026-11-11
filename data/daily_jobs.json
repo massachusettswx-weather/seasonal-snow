@@ -1499,8 +1499,58 @@
    "centre": "dwd",
    "system": "22",
    "init": "2026-11",
-   "status": "accepted",
+   "status": "decoded",
    "_t0": 1794425499.9744053
+  },
+  {
+   "job": "b1b6abe1-8b7e-4ceb-b130-99ec44851078",
+   "tag": "dwd-gcfs2",
+   "chunk": 1,
+   "centre": "dwd",
+   "system": "22",
+   "init": "2026-11",
+   "status": "decoded",
+   "_t0": 1794426255.420971
+  },
+  {
+   "job": "56b7b01c-b1db-4beb-8e2b-df6ec90f7498",
+   "tag": "dwd-gcfs2",
+   "chunk": 2,
+   "centre": "dwd",
+   "system": "22",
+   "init": "2026-11",
+   "status": "decoded",
+   "_t0": 1794426533.2208157
+  },
+  {
+   "job": "3d1dc8a9-4013-4fe8-8c4c-f3adf8292e3e",
+   "tag": "ukmo-gloseas6",
+   "chunk": 1,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427064.803704
+  },
+  {
+   "job": "1ed229e7-e75d-4d64-82ae-0907bb1ae4f9",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "short",
+   "_t0": 1794427167.1139193
+  },
+  {
+   "job": "c4172253-c1f8-42c5-b114-10db61299690",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794427298.2191336
   }
  ],
  "stall": false,
