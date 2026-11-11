@@ -71,14 +71,24 @@ POOL_SIZE = 2
 
 # The gap between two submissions, and how long to wait before asking
 # again after a refusal.
-SUBMIT_GAP = 75
-REFUSED_WAIT = 240
+#
+# ECMWF's "Data Stores Service protection measures" (22 Oct 2026) ask users
+# to "submit requests sequentially, rather than in parallel or in large
+# batches", and warn that accounts may be suspended for repeated
+# submission of invalid requests.  So: one submission at a time, a real gap
+# between them, and a long pause after a refusal rather than a quick retry.
+SUBMIT_GAP = 120
+REFUSED_WAIT = 600
 
-# How long a request may sit with no worker touching it before the pool
-# releases the slot and moves on.  A request whose `updated` timestamp
-# never moves is not progressing - the archive is holding it without
-# working on it, and it would hold one of our two slots forever.
-STUCK_S = 25 * 60
+# How long a request may sit with nothing coming back before the pool
+# releases the slot and moves on.
+#
+# A request that is admitted and never worked on is usually a wrong system
+# number (see the CENTRES table) rather than congestion - and re-asking for
+# it over and over is exactly the pattern that gets an account suspended.
+# So the pool is patient: it waits a long time before deciding that a
+# request is not going anywhere.
+STUCK_S = 90 * 60
 
 # The daily wind comes in 72-day chunks: that size completes, larger ones
 # are refused.
@@ -656,18 +666,15 @@ def run(c, steps, only=None, dry=False):
         # fill the pool - ONE submission at a time, so the verdict on the
         # last one comes before the next ask
         if not dry:
-            # The ceiling drifts: with two held a third is usually refused,
-            # but it does slip in now and then - and a refusal costs
-            # nothing, the slot comes straight back.  So once the pool is
-            # full, keep asking for one more step anyway, up to three.
-            # A refusal is logged and the pool carries on.
-            asking = len(pool.live) >= POOL_SIZE
+            # Fill the pool.  Two at a time is the measured ceiling, and
+            # ECMWF's protection measures ask for sequential submission, so
+            # the pool does not chase a third slot - a refusal costs
+            # nothing but it does count as another request against an
+            # account that is already under scrutiny.
             for step, tag, kind in steps:
                 if only and step not in only:
                     continue
-                if len(pool.live) >= POOL_SIZE + 1:
-                    break
-                if not asking and len(pool.live) >= POOL_SIZE:
+                if len(pool.live) >= POOL_SIZE:
                     break
                 if pool.held(step) or step in pend:
                     continue
@@ -713,8 +720,7 @@ def run(c, steps, only=None, dry=False):
                     pend[step] = [j for j, v in pool.live.items()
                                   if v[0] == step][0]
                     save_pending(pend)
-                    if not asking:
-                        break
+                    break
 
         acted = pool.poll()
         for step, tag, kind, ok in pool.done_steps:
