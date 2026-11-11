@@ -182,6 +182,27 @@ def daily_steps():
     return out
 
 
+def u10m_steps():
+    """-> [(id, tag, kind)] the monthly 10 hPa wind, where it is missing or
+    on an older init.
+
+    The SPV chart is built from the DAILY wind, and that is what the pool
+    fetches in 72-day chunks.  This is the cheap stopgap: one request for
+    all six lead months, for a centre whose monthly wind is on an older
+    init - the ECCC centres were plotting October wind - or that has no
+    wind at all.
+    """
+    out = []
+    for tag in ("eccc-gem5", "eccc-canesm5", "cmcc-sps4", "dwd-gcfs2",
+                "jma-jra3", "bom-access-s2"):
+        p = os.path.join(MDIR, tag, "u10_monthly.grib")
+        if os.path.exists(p) and os.path.getsize(p) > 10000:
+            if u10_init_on_disk(p) == INIT:
+                continue           # already the newest init
+        out.append(("u10m:" + tag, tag, "u10m"))
+    return out
+
+
 def ext_steps():
     """-> [(id, tag, kind)] the extension past the sixth lead month.
 
@@ -219,7 +240,8 @@ def all_steps():
     4. the daily 10 hPa wind, in 72-day chunks - the SPV charts are built
        from it, and one centre is finished before the next is started.
     """
-    return monthly_steps() + clim_steps() + ext_steps() + daily_steps()
+    return (monthly_steps() + clim_steps() + ext_steps() +
+            u10m_steps() + daily_steps())
 
 
 # ----------------------------------------------------------------- helpers
@@ -230,6 +252,7 @@ def target_for(tag, kind):
         "sst": os.path.join(d, "sst_monthly.grib"),
         "clim": os.path.join(d, "snowfall_hindcast.grib"),
         "u10": os.path.join(d, "u10_monthly.grib"),
+        "u10m": os.path.join(d, "u10_monthly.grib"),
         "ext": os.path.join(d, "snowfall_ext.grib"),
     }[kind]
 
@@ -266,6 +289,29 @@ def centre_init(tag):
     return st.get(tag, {}).get("init", INIT)
 
 
+def u10_init_on_disk(path):
+    """The init a monthly 10 hPa wind file belongs to.
+
+    A monthly_mean field is valid at the END of the averaging period, so
+    the first lead month is the month before the first valid date - and
+    that is the init month.
+    """
+    try:
+        from datetime import datetime as _dt, timedelta as _td
+        import eccodes
+        with open(path, "rb") as f:
+            gid = eccodes.codes_grib_new_from_file(f)
+            if gid is None:
+                return None
+            step = int(eccodes.codes_get(gid, "step"))
+            dd = int(eccodes.codes_get(gid, "dataDate"))
+            d0 = _dt(dd // 10000, (dd // 100) % 100, dd % 100)
+            m = (d0 + _td(hours=step)) - _td(days=1)
+            return "%04d-%02d" % (m.year, m.month)
+    except Exception:
+        return None
+
+
 def sst_init_on_disk(path):
     """The init an SST file belongs to, from its first lead month.
 
@@ -294,7 +340,7 @@ def sst_init_on_disk(path):
 def build_request(tag, kind, chunk=None):
     """-> (dataset, request-dict, [(kind, filename), ...])"""
     name, centre, system = CENTRES[tag]
-    init = INIT if kind in ("snow", "clim", "sst") else centre_init(tag)
+    init = INIT if kind in ("snow", "clim", "sst", "u10m") else centre_init(tag)
     common = {"originating_centre": centre, "system": system,
               "year": init[:4], "month": init[5:7], "data_format": "grib"}
     if kind == "snow":
@@ -320,6 +366,19 @@ def build_request(tag, kind, chunk=None):
                 dict(common, variable="sea_surface_temperature",
                      product_type="monthly_mean", leadtime_month=LEADS),
                 [("sst", "sst_monthly.grib")])
+    if kind == "u10m":
+        # The monthly 10 hPa wind, one request for all six lead months.
+        #
+        # The daily wind is what the SPV chart is really built from, but it
+        # takes three 72-day chunks per centre.  This is the cheap stopgap
+        # for a centre whose monthly wind is on an older init - the ECCC
+        # centres were still plotting October wind under a November label
+        # - and for a centre with no wind at all.
+        return (DS_MONTHLY_PL,
+                dict(common, variable="u_component_of_wind",
+                     pressure_level="10", product_type="monthly_mean",
+                     leadtime_month=LEADS),
+                [("u10m", "u10_monthly.grib")])
     if kind == "clim":
         return (DS_MONTHLY_SL,
                 dict(common, variable="snowfall",
@@ -564,6 +623,12 @@ class Pool(object):
             self.c.download_job(jid, tmp)
             os.replace(tmp, out)
             wrote = [out]
+        elif kind == "u10m":
+            out = target_for(tag, "u10m")
+            tmp = out + ".part"
+            self.c.download_job(jid, tmp)
+            os.replace(tmp, out)
+            wrote = [out]
         elif kind == "ext":
             out = target_for(tag, "ext")
             tmp = out + ".part"
@@ -779,6 +844,13 @@ def run(c, steps, only=None, dry=False):
                     p = target_for(tag, "sst")
                     if (os.path.exists(p) and os.path.getsize(p) > 10000
                             and sst_init_on_disk(p) == INIT):
+                        continue
+                elif kind == "u10m":
+                    # skipped only when the monthly wind on disk is already
+                    # the newest init
+                    p = target_for(tag, "u10m")
+                    if (os.path.exists(p) and os.path.getsize(p) > 10000
+                            and u10_init_on_disk(p) == INIT):
                         continue
                 elif kind == "clim":
                     # the hindcast climate does not change between inits, so
