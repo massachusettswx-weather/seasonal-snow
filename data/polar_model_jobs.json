@@ -9,6 +9,16 @@
    "job": "285efe40-aabe-49a5-aecf-1820cde1c39d",
    "status": "accepted",
    "init": "2026-11"
+  },
+  {
+   "tag": "ecmwf-seas5",
+   "centre": "ecmwf",
+   "system": "51",
+   "chunk": 15,
+   "end": 30,
+   "job": "3d612c2a-cd72-4637-ae71-a5c9c6d67f0a",
+   "status": "accepted",
+   "init": "2026-11"
   }
  ]
 }

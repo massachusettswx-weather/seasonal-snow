@@ -51,3 +51,11 @@ data/.github_token
 
 # the daily refresh marker (the machine, not the repo)
 data/.daily_fetch_*
+
+# the polar-cap working data: re-fetchable with the scripts in this repo
+data/era5_polarcap_profiles.npz
+data/polar_cap_recent.npz
+data/polar_model_z.json
+data/polar_aifs.json
+data/_aifs.lock
+data/_aifs_step.grib2

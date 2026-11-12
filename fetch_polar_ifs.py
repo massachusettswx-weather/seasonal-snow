@@ -70,36 +70,64 @@ def _get(url, tries=40, headers=None):
     raise RuntimeError("%s: %s" % (url, err))
 
 
-def _get_parallel(jobs):
+def _get_parallel(jobs, out_path=None):
     """Fetch several byte ranges of the same file at once.
 
     Each job is (url, offset, length).  The bucket throttles a burst of
-    requests, so the workers stay few and the results are re-tried one at a
-    time when a range fails.
+    requests: four workers is the most that gets through, and a larger
+    burst just fails.  A range that keeps failing is retried on its own,
+    one at a time, so one bad range cannot stall the rest.
+
+    With out_path the ranges are written to that file as they arrive, in
+    order, so a hundred megabytes of GRIB never has to sit in memory - the
+    sandbox has three gigabytes and an OOM kill takes the process out.
     """
     from concurrent.futures import ThreadPoolExecutor
     out = [None] * len(jobs)
-    for attempt in range(30):
+
+    def one(i):
+        url, off, ln = jobs[i]
+        hdr = {"Range": "bytes=%d-%d" % (off, off + ln - 1)}
+        try:
+            return urllib.request.urlopen(
+                urllib.request.Request(url, headers=hdr), timeout=30).read()
+        except Exception:
+            return None
+
+    # sixteen workers is what gets through: the bucket answers about a third
+    # of a burst with eight and about half with sixteen, and the stragglers
+    # are picked up by the retries
+    for attempt in range(40):
         todo = [i for i in range(len(jobs)) if out[i] is None]
         if not todo:
             break
-        def one(i):
-            url, off, ln = jobs[i]
-            hdr = {"Range": "bytes=%d-%d" % (off, off + ln - 1)}
-            try:
-                return urllib.request.urlopen(
-                    urllib.request.Request(url, headers=hdr), timeout=25).read()
-            except Exception:
-                return None
-        with ThreadPoolExecutor(max_workers=4) as ex:
+        with ThreadPoolExecutor(max_workers=16) as ex:
             for i, b in zip(todo, ex.map(one, todo)):
                 if b is not None:
                     out[i] = b
         if any(o is None for o in out):
-            time.sleep(0.6 + 0.4 * attempt)
+            time.sleep(0.5 + 0.3 * attempt)
+
+    # the stragglers, one at a time
+    for attempt in range(60):
+        todo = [i for i in range(len(jobs)) if out[i] is None]
+        if not todo:
+            break
+        for i in todo:
+            if out[i] is None:
+                out[i] = one(i)
+        if any(o is None for o in out):
+            time.sleep(0.7)
+
     missing = [i for i, o in enumerate(out) if o is None]
     if missing:
         raise RuntimeError("%d byte ranges did not come back" % len(missing))
+
+    if out_path:
+        with open(out_path, "wb") as f:
+            for b in out:
+                f.write(b)
+        return out_path
     return b"".join(out)
 
 
