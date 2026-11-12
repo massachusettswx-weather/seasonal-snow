@@ -195,9 +195,6 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     if clim_m is not None:
         clim = clim_m
         kind = "monthly"
-    elif os.path.exists(CLIM_NATIVE):
-        clim = load_climatology(CLIM_NATIVE)
-        kind = "daily-native"
     else:
         if not os.path.exists(CLIM):
             if not os.path.exists(PROFILES):
@@ -205,7 +202,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
                 return
             build_clim()
         clim = load_climatology(CLIM)
-        kind = "daily-reduced"
+        kind = "daily"
 
     # 2. the analysis (the recent past, up to the model's init)
     rt, rv, d_recent = load_recent()
@@ -292,8 +289,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     title = ("%s · Polar Cap (60-90°N) Normalised Geopotential Height Anomaly"
              % label)
     clim_txt = {"monthly": "ERA5 1991-2020 monthly climatology",
-                "daily-native": "ERA5 1991-2020 climatology",
-                "daily-reduced": "ERA5 1991-2020 climatology (reduced grid)"}[kind]
+                "daily": "ERA5 1991-2020 climatology"}[kind]
     if ana_days:
         subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "
                     "seasonal forecast from %s to %s · %d hPa levels · %s"
