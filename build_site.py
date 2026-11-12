@@ -243,7 +243,8 @@ def header(active):
 def footer():
     return """<footer>
   <span>Data: Copernicus CDS (ECMWF SEAS5 and C3S seasonal systems) &middot;
-        ERA5 reanalysis &middot; ERA5 climatology 1991&ndash;2020</span>
+        ERA5 reanalysis &middot; ERA5 climatology 1991&ndash;2020 &middot;
+        ECMWF open data</span>
   <span><strong>@Massachusettswx</strong></span>
 </footer>"""
 
@@ -427,7 +428,7 @@ function render(){
   });
   vars.push({
     title:'Polar cap geopotential height',
-    desc:'A time-height section of the polar cap (60-90N): the normalised geopotential height anomaly from 10 hPa down to the surface, with the ERA5 analysis in front of the model&rsquo;s own forecast.',
+    desc:'A time-height section of the polar cap (60-90N): the normalised geopotential height anomaly from 10 hPa down to the surface, with the analysis in front of the model&rsquo;s own forecast.',
     href:'polar.html?m='+m.id,
     img:(m.polar&&m.polar.file)||'',
     on:!!m.polar_ok
