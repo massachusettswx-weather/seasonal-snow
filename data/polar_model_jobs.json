@@ -51,8 +51,9 @@
    "chunk": 45,
    "end": 60,
    "job": "c53110e6-5537-45a0-8a1e-c20e28e7a527",
-   "status": "running",
-   "init": "2026-11"
+   "status": "decoded",
+   "init": "2026-11",
+   "members": 51
   },
   {
    "tag": "ecmwf-seas5",

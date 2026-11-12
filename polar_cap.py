@@ -315,23 +315,38 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     ax = fig.add_axes([0.058, 0.165, 0.855, 0.645])
     ax.set_facecolor("white")
 
-    # the two halves are drawn separately: the analysis at full strength and
-    # the forecast at a lighter one
+    # The panel is drawn in three pieces so the reader can tell them apart:
+    # the reanalysis is what happened and is drawn at full strength, the
+    # model's own days that have already passed are drawn a little lighter,
+    # and the days the model is still forecasting are lighter still.
+    segs = []
     if split is not None and 0 < split < n:
-        p1 = ax.contourf(x[:split], lev, z[:, :split], levels=edges,
-                         cmap=cmap, norm=norm_c, extend="both")
-        ax.contourf(x[split:], lev, z[:, split:], levels=edges, cmap=cmap,
-                    norm=norm_c, extend="both", alpha=forecast_alpha)
+        segs.append((0, split, 1.0))
+        mid = today if (today is not None and split < today < n) else n
+        segs.append((split, mid, 0.82))
+        if mid < n:
+            segs.append((mid, n, 0.58))
     else:
-        p1 = ax.contourf(x, lev, z, levels=edges, cmap=cmap, norm=norm_c,
-                         extend="both")
+        mid = today if (today is not None and 0 < today < n) else n
+        if mid < n:
+            segs.append((0, mid, 0.82))
+            segs.append((mid, n, 0.58))
+        else:
+            segs.append((0, n, 0.82))
+
+    p1 = None
+    for a, b, alpha in segs:
+        if b <= a:
+            continue
+        p1 = ax.contourf(x[a:b], lev, z[:, a:b], levels=edges, cmap=cmap,
+                         norm=norm_c, extend="both", alpha=alpha)
 
     ax.set_yscale("log")
     ax.set_ylim(1000.0, 10.0)
 
     # the pressure ticks
     have = set(int(v) for v in lev)
-    shown = [p for p in (1000, 925, 850, 700, 500, 400, 300, 200, 100, 50, 30, 10) if p in have]
+    shown = [p for p in (1000, 700, 500, 400, 300, 200, 100, 50, 30, 10) if p in have]
     ax.set_yticks(shown)
     ax.set_yticklabels(["%d" % p for p in shown], fontsize=10, color=C_TEXT)
     ax.set_ylabel("Pressure (hPa)", fontsize=11, color=C_TEXT, labelpad=8)
@@ -410,9 +425,14 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
         ax.text(today, 1.004, "now", transform=ax.get_xaxis_transform(),
                 fontsize=9, color=C_TODAY, ha="center", va="bottom")
 
-    # the colour bar, below the panel
+    # the colour bar, below the panel.  It is drawn from a clean mappable so
+    # that it always shows the colours at full strength, whatever the
+    # shading of the panel above.
+    from matplotlib.cm import ScalarMappable
+    sm = ScalarMappable(norm=norm_c, cmap=cmap)
+    sm.set_array([])
     cax = fig.add_axes([0.245, 0.082, 0.48, 0.019])
-    cb = fig.colorbar(p1, cax=cax, orientation="horizontal",
+    cb = fig.colorbar(sm, cax=cax, orientation="horizontal",
                       boundaries=edges, ticks=edges[1:-1], extend="both",
                       spacing="uniform")
     cb.ax.set_xticklabels(["%g" % e for e in edges[1:-1]], fontsize=8,
