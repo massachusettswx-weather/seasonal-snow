@@ -97,14 +97,51 @@ reference time plus the step and work for both conventions:
   plot box: **the correlation of the anomaly field is 0.848** and the
   **sign agreement is 91.1%** (blue / warm / neutral).
 
+## The design is ours, not the reference's
+
+The reference figure (severe-weather.eu / @Recretos) was **measured** to
+understand the physics and the geometry.  **None of its graphic design is
+used** - the section is our own.
+
+Kept, because it is physics and not decoration:
+- the **logarithmic pressure axis** (10 hPa at the top, 1000 hPa at the
+  bottom).  A linear axis crushes the stratosphere into a sliver.
+- the separate **linear approximate-height axis** on the right.
+- smooth `contourf` fills.
+
+Replaced on purpose:
+- the reference's 17-colour palette (blue -> white -> bright YELLOW ->
+  orange -> red).  Ours is **navy -> white -> orange**, built from the
+  colours the site already uses: `C_MEAN #12263f` and `C_ERA5 #c2410c`.
+  Nine blues, one white centre, seven warms.
+- the reference's **centred** title and subtitle.  Ours is **left aligned**
+  with a plain-text summary on the right, the way the snow maps are done.
+- the reference's "◄ ECMWF ANALYSIS / FORECAST ►" wording, its colour-bar
+  label and its layout.
+
+### The three-level shading
+| part | alpha | meaning |
+|---|---|---|
+| ERA5 reanalysis | 1.00 | what happened |
+| the model's own past days | 0.82 | the model's view of days that have passed |
+| the model's future | 0.58 | what might happen |
+
+The colour bar is drawn from a clean `ScalarMappable`, never from the last
+`contourf` - otherwise it inherits that segment's alpha and looks washed
+out.
+
 ## The scripts
 - `polar_cap.py` - the zonal mean, the climatology, the normalisation and
   the drawing routine (shared by every route).
 - `fetch_polar_era5_arco.py` - the ERA5 1991-2020 climatology from ARCO.
-- `fetch_polar_ifs.py` - the IFS forecast from the open data bucket.
-- `fetch_polar_analysis.py` - the IFS analyses (the step-0 field of each
-  day's cycle) for the half before the init.
+- `fetch_polar_era5_recent.py` - the 90-day ERA5 reanalysis from the CDS.
 - `fetch_polar_models.py` - the seasonal forecast from the C3S archive.
-- `fetch_polar_recent.py` - the ERA5 analysis from the CDS.
-- `plot_polar_ifs.py` - the section for the IFS.
+- `fetch_polar_ec46.py` - the EC46 run from ECDS (needs the licence).
 - `plot_polar_cap.py` - the section for a seasonal model.
+- `tools/polar_queue.sh` - the two fetchers, one after the other.
+
+## What is NOT in scope any more
+The IFS 15-day chart and the AIFS ensemble spread were built, validated and
+then **removed** at the user's direction: the section is for the SEASONAL
+guidance and EC46 only.  A medium-range forecast is a different product and
+does not belong here.
