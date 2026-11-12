@@ -290,9 +290,9 @@ def build_home(reg):
         by_init.setdefault(m.get("init") or "?", []).append(m["name"])
     # the centres whose snowfall has not arrived yet are named separately,
     # so the page says plainly that they are only half on the site
-    no_snow = [m["name"] for m in reg.get("models", [])
+    no_snow = [(m["name"], m.get("init")) for m in reg.get("models", [])
                if not m.get("snow_ok") and (m.get("init") or "?") != "?"]
-    for n in no_snow:
+    for n, _ in no_snow:
         for k in by_init:
             if n in by_init[k]:
                 by_init[k].remove(n)
@@ -318,12 +318,21 @@ def build_home(reg):
                                                 names[-1], mm))
     init_sentence = "; ".join(parts)
     if waiting or no_snow:
-        names = waiting + no_snow
+        names = waiting + [n for n, _ in no_snow]
         one = len(names) == 1
         listed = names[0] if one else ", ".join(names[:-1]) + " and " + names[-1]
-        init_sentence += ("; %s %s on the November init with the ENSO plume, "
+        # the init these centres are on is written from the registry, so the
+        # sentence follows the models instead of a month written in the code
+        their_init = ""
+        for n, ini in no_snow:
+            if ini and ini != "?":
+                their_init = "%s %s" % (_MONTH_NAMES.get(ini[5:7], ini[5:7]),
+                                        ini[:4])
+                break
+        init_sentence += ("; %s %s on the %s init with the ENSO plume, "
                           "and publish no snowfall field"
-                          % (listed, "is" if one else "are"))
+                          % (listed, "is" if one else "are",
+                             their_init or "published"))
 
     body = """<div class="card">
   <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
