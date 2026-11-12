@@ -210,6 +210,40 @@ def render_spv(members, times, model_name, out_path, domain="60",
     if era5["t"][-1] < x1:
         x1 = era5["t"][-1]
     ax.set_xlim(x0, x1)
+    # The chart must not run past the model's own last day.  If it does, the
+    # reader sees the run continuing when it has stopped, so this is checked
+    # rather than assumed.
+    _end_d = _end.date() if hasattr(_end, "date") else _end
+    _ax_end = mdates.num2date(ax.get_xlim()[1])
+    _over = ax.get_xlim()[1] - mdates.date2num(_end_d)
+    print("   %-18s the model's last day %s · the axis ends %s · the ERA5 layer "
+          "ends %s" % (model_name, _end_d.strftime("%d %b %Y"),
+                       _ax_end.strftime("%d %b %Y"),
+                       era5["t"][-1].strftime("%d %b %Y")
+                       if hasattr(era5["t"][-1], "strftime") else era5["t"][-1]),
+          flush=True)
+    if _over > 1.5:
+        print("   !! %s: the axis runs %.1f day(s) past the model's own end"
+              % (model_name, _over), flush=True)
+    # the record is read by the publish gate: a chart must never run past
+    # its own model's end, or the reader sees a run that has stopped
+    # still going
+    _STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "data", "spv_axis_ends.json")
+    try:
+        _st = json.load(open(_STATE_PATH)) if os.path.exists(_STATE_PATH) else {}
+    except Exception:
+        _st = {}
+    _st[os.path.basename(out_path)] = {
+        "model": model_name,
+        "model_end": _end_d.isoformat(),
+        "axis_end": _ax_end.strftime("%Y-%m-%d"),
+        "over_days": round(float(_over), 2),
+        "file": os.path.basename(out_path)}
+    try:
+        json.dump(_st, open(_STATE_PATH, "w"), indent=1)
+    except Exception:
+        pass
     ax.xaxis.set_major_locator(mdates.DayLocator(bymonthday=range(1, 29, 14)))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))
     ax.xaxis.set_minor_locator(mdates.MonthLocator())

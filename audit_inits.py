@@ -220,6 +220,30 @@ def main():
         print("   all on %s" % inits[0])
 
     print()
+    # A chart must not run past its own model's end.  The ERA5 climatology
+    # layer is a whole year long, so without the cap a chart carries a
+    # month of climatology past the end of the run and the reader sees the
+    # run still going when it has stopped.  The record is written by
+    # plot_spv.py while it draws.
+    axp = os.path.join(DATA, "spv_axis_ends.json")
+    if os.path.exists(axp):
+        try:
+            ax = json.load(open(axp))
+        except Exception:
+            ax = {}
+        bad = [(k, v) for k, v in sorted(ax.items())
+               if float(v.get("over_days") or 0) > 1.5]
+        if bad:
+            print("the charts that run past their own model's end")
+            for k, v in bad:
+                msg = ("%s: the axis ends %s but the model's own last day is %s"
+                       % (k, v.get("axis_end"), v.get("model_end")))
+                print("   " + msg)
+                problems.append(msg)
+        else:
+            print("every chart ends with its own model's run")
+
+    print()
     if problems:
         print("NOT COHERENT")
         for p in problems:

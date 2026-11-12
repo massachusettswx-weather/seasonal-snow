@@ -1,0 +1,114 @@
+{
+ "SPV_bom-access-s2_60N.png": {
+  "model": "BOM ACCESS-S2",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_bom-access-s2_60N.png"
+ },
+ "SPV_bom-access-s2_NH.png": {
+  "model": "BOM ACCESS-S2",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_bom-access-s2_NH.png"
+ },
+ "SPV_cmcc-sps4_60N.png": {
+  "model": "CMCC SPS4",
+  "model_end": "2027-05-03",
+  "axis_end": "2027-05-04",
+  "over_days": 1.0,
+  "file": "SPV_cmcc-sps4_60N.png"
+ },
+ "SPV_cmcc-sps4_NH.png": {
+  "model": "CMCC SPS4",
+  "model_end": "2027-05-03",
+  "axis_end": "2027-05-04",
+  "over_days": 1.0,
+  "file": "SPV_cmcc-sps4_NH.png"
+ },
+ "SPV_dwd-gcfs2_60N.png": {
+  "model": "DWD GCFS2.2",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-05-01",
+  "over_days": 1.0,
+  "file": "SPV_dwd-gcfs2_60N.png"
+ },
+ "SPV_dwd-gcfs2_NH.png": {
+  "model": "DWD GCFS2.2",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-05-01",
+  "over_days": 1.0,
+  "file": "SPV_dwd-gcfs2_NH.png"
+ },
+ "SPV_eccc-cansips_60N.png": {
+  "model": "ECCC canSIPS",
+  "model_end": "2027-06-02",
+  "axis_end": "2027-06-03",
+  "over_days": 1.0,
+  "file": "SPV_eccc-cansips_60N.png"
+ },
+ "SPV_eccc-cansips_NH.png": {
+  "model": "ECCC canSIPS",
+  "model_end": "2027-06-02",
+  "axis_end": "2027-06-03",
+  "over_days": 1.0,
+  "file": "SPV_eccc-cansips_NH.png"
+ },
+ "SPV_ecmwf-seas5_60N.png": {
+  "model": "ECMWF SEAS5",
+  "model_end": "2027-06-03",
+  "axis_end": "2027-06-04",
+  "over_days": 1.5,
+  "file": "SPV_ecmwf-seas5_60N.png"
+ },
+ "SPV_ecmwf-seas5_NH.png": {
+  "model": "ECMWF SEAS5",
+  "model_end": "2027-06-03",
+  "axis_end": "2027-06-04",
+  "over_days": 1.5,
+  "file": "SPV_ecmwf-seas5_NH.png"
+ },
+ "SPV_jma-jra3_60N.png": {
+  "model": "JMA CPS4",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_jma-jra3_60N.png"
+ },
+ "SPV_jma-jra3_NH.png": {
+  "model": "JMA CPS4",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_jma-jra3_NH.png"
+ },
+ "SPV_meteo-france-s9_60N.png": {
+  "model": "METFR System 9",
+  "model_end": "2027-05-31",
+  "axis_end": "2027-06-01",
+  "over_days": 1.0,
+  "file": "SPV_meteo-france-s9_60N.png"
+ },
+ "SPV_meteo-france-s9_NH.png": {
+  "model": "METFR System 9",
+  "model_end": "2027-05-31",
+  "axis_end": "2027-06-01",
+  "over_days": 1.0,
+  "file": "SPV_meteo-france-s9_NH.png"
+ },
+ "SPV_ukmo-gloseas6_60N.png": {
+  "model": "UKMO GloSeas6-GC5.1",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_ukmo-gloseas6_60N.png"
+ },
+ "SPV_ukmo-gloseas6_NH.png": {
+  "model": "UKMO GloSeas6-GC5.1",
+  "model_end": "2027-04-30",
+  "axis_end": "2027-04-30",
+  "over_days": 0.0,
+  "file": "SPV_ukmo-gloseas6_NH.png"
+ }
+}

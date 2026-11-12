@@ -44,7 +44,8 @@ fingerprint() {
     # reanalysis in front of it.  A new chunk extends the section, so both
     # have to be watched.
     for f in data/polar_model_z.json data/polar_era5_recent.npz \
-             data/polar_ec46_z.json; do
+             data/polar_ec46_z.json data/polar_cap_clim.npz \
+             data/polar_cap_clim_monthly.npz; do
         [ -f "$f" ] && printf '%s %s %s\n' "$f" "$(stat -c %s "$f")" \
             "$(stat -c %Y "$f")"
     done
