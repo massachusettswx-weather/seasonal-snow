@@ -110,6 +110,18 @@ STUCK_S = 60 * 60
 # are refused.
 DAILY_CHUNK = 72
 
+# The archive answers a sub-daily request with a capped amount of data, so
+# a centre with a big ensemble gets a short chunk: the UKMO's 60-member
+# 72-day request came back with two members and the JMA's 155-member
+# request with five, while the 50-member CMCC request came back whole.
+# The centres that hit the cap are asked for fewer days at a time.
+DAILY_CHUNK_LEN = {"ukmo-gloseas6": 36, "jma-jra3": 12, "bom-access-s2": 24}
+
+
+def chunk_len(tag):
+    """How many days one request asks for, for this centre."""
+    return DAILY_CHUNK_LEN.get(tag, DAILY_CHUNK)
+
 # How many days each centre's daily series covers - its own forecast range.
 DAILY_DAYS = {
     "ecmwf-seas5": 215, "ukmo-gloseas6": 215, "eccc-canesm5": 214,
@@ -189,7 +201,8 @@ def daily_steps():
         if daily_given_up(tag):
             continue           # the sub-daily product does not serve it
         n = DAILY_DAYS.get(tag, 215)
-        for k in range(0, (n + DAILY_CHUNK - 1) // DAILY_CHUNK):
+        cl = chunk_len(tag)
+        for k in range(0, (n + cl - 1) // cl):
             out.append(("u10d:%s:%d" % (tag, k), tag, "u10d"))
     return out
 
@@ -479,8 +492,9 @@ def build_request(tag, kind, chunk=None):
                 [("ext", "snowfall_ext.grib")])
     if kind == "u10d":
         n = DAILY_DAYS.get(tag, 215)
-        start = chunk * DAILY_CHUNK
-        hours = [str(12 + 24 * k) for k in range(start, min(start + DAILY_CHUNK, n))]
+        cl = chunk_len(tag)
+        start = chunk * cl
+        hours = [str(12 + 24 * k) for k in range(start, min(start + cl, n))]
         return (DS_ORIGINAL_PL,
                 dict(common, variable="u_component_of_wind", pressure_level="10",
                      day="01", leadtime_hour=hours),
@@ -519,6 +533,15 @@ def daily_given_up(tag):
     """-> True when the centre's daily series has been given up on."""
     return any(j.get("tag") == tag and j.get("given_up")
                for j in daily_state()["jobs"])
+
+
+def daily_best_members(tag):
+    """The most members any decoded chunk of a centre has had."""
+    n = 0
+    for j in daily_state()["jobs"]:
+        if j.get("tag") == tag and j.get("status") == "decoded":
+            n = max(n, int(j.get("members") or 0))
+    return n
 
 
 def daily_done():
@@ -618,10 +641,18 @@ def decode_daily(path, tag, chunk):
     # would give the chart a couple of lines where it should have sixty,
     # so a chunk that is far short of the centre's ensemble is thrown away
     # and asked for again.
-    want = expected_members(tag)
-    if want and len(members) < max(3, want // 2):
-        print("   %s: chunk %d came back with %d members of about %d - "
-              "discarding it" % (tag, chunk, len(members), want), flush=True)
+    # A chunk can come back with only a part of the ensemble - the UKMO's
+    # first chunk arrived with two members out of sixty.  What matters is
+    # not how big the centre's monthly ensemble is (a sub-daily product may
+    # serve a different number of members) but whether the answer is
+    # broken: fewer than ten members is not a series at all, and fewer
+    # than a chunk that already came back whole is a truncated download.
+    have = len(members)
+    best = daily_best_members(tag)
+    if have < 10 or (best and have < best):
+        print("   %s: chunk %d came back with %d members (the best so far "
+              "is %d) - discarding it" % (tag, chunk, have, best or have),
+              flush=True)
         return False
     dates, m60, mnh = build_matrix(recs, members)
     npz = os.path.join(MDIR, tag, "u10_daily.npz")
@@ -637,7 +668,7 @@ def decode_daily(path, tag, chunk):
                        init=centre_init(tag)))
     print("   %s: chunk %d decoded (%d records, %d members, %d days)"
           % (tag, chunk, len(recs), len(members), len(dates)), flush=True)
-    return True
+    return True, len(members)
 
 
 # ------------------------------------------------------------------- pool
@@ -772,18 +803,21 @@ class Pool(object):
             os.makedirs(os.path.dirname(gpath), exist_ok=True)
             self.c.download_job(jid, gpath)
             ok = False
+            nmem = 0
             try:
-                ok = decode_daily(gpath, tag, chunk)
+                ok, nmem = decode_daily(gpath, tag, chunk)
             finally:
                 if os.path.exists(gpath):
                     os.remove(gpath)       # keep the disk small
-            if not ok:
-                # a short chunk - the pool asks for it again, but not often:
-                # the UKMO's sub-daily product serves only two members of
-                # its sixty, so that centre's daily series will never work
-                # and the pool gives up on it after a few attempts.
+            if ok:
+                daily_set(jid, tag, chunk, "decoded", members=nmem)
+            else:
+                # a broken chunk - the pool asks for it again, but not often:
+                # a centre whose sub-daily product never comes back whole
+                # is given up on after a few attempts, and its monthly wind
+                # serves the chart instead.
                 n = daily_shorts(tag) + 1
-                daily_set(jid, tag, chunk, "short", shorts=n)
+                daily_set(jid, tag, chunk, "short", shorts=n, members=nmem)
                 if n >= 3:
                     print("   %s: %d short chunks - the sub-daily product "
                           "does not serve this centre's full ensemble, so "
@@ -1035,7 +1069,8 @@ def run(c, steps, only=None, dry=False):
                         continue
                     # finish one centre before starting the next
                     n = DAILY_DAYS.get(tag, 215)
-                    nch = (n + DAILY_CHUNK - 1) // DAILY_CHUNK
+                    cl = chunk_len(tag)
+                    nch = (n + cl - 1) // cl
                     if any((kk not in done.get(tag, ()))
                            for kk in range(nch) if kk < k):
                         continue

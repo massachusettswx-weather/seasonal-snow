@@ -14,6 +14,7 @@ when the state is not coherent enough to publish.
 """
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +24,9 @@ DOCS = os.path.join(HERE, "docs")
 
 sys.path.insert(0, HERE)
 import init_info                                            # noqa: E402
+
+MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+          "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
 
 
 def npz_init(path):
@@ -141,11 +145,13 @@ def main():
 
     # the registry that is published
     reg = {}
+    reg_note = {}
     rp = os.path.join(DOCS, "data", "models_public.json")
     if os.path.exists(rp):
         try:
             for m in json.load(open(rp)).get("models", []):
                 reg[m.get("id")] = m.get("init")
+                reg_note[m.get("id")] = m.get("note") or ""
         except Exception:
             pass
 
@@ -175,6 +181,23 @@ def main():
                             % (tag, own, pub))
         if not pub:
             verdict = "not published"
+        else:
+            # the date written in the card has to be the model's own init:
+            # the notes used to carry the init that was current when they
+            # were written, so a card could claim an October init months
+            # after the model had moved on
+            m = re.search(r"init (\d{1,2}) ([A-Z][a-z]{2,8}) (\d{4})",
+                          reg_note.get(tag, ""))
+            if m and own:
+                mm = MONTHS.get(m.group(2)[:3].lower())
+                if not mm:
+                    continue
+                said = "%s-%02d" % (m.group(3), mm)
+                if said != own:
+                    verdict = "THE CARD SAYS %s (the model is on %s)" % (said, own)
+                    problems.append("%s: the card says the %s init but the "
+                                    "model is on the %s init"
+                                    % (tag, said, own))
         print("%-22s %-14s %-14s %-14s %s"
               % (tag, own or "-", pub or "-", ",".join(uniq) or "-", verdict))
 

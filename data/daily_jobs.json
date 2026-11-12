@@ -1530,7 +1530,8 @@
    "system": "610",
    "init": "2026-11",
    "status": "short",
-   "_t0": 1794427064.803704
+   "_t0": 1794427064.803704,
+   "shorts": 0
   },
   {
    "job": "1ed229e7-e75d-4d64-82ae-0907bb1ae4f9",
@@ -1540,7 +1541,8 @@
    "system": "610",
    "init": "2026-11",
    "status": "short",
-   "_t0": 1794427167.1139193
+   "_t0": 1794427167.1139193,
+   "shorts": 0
   },
   {
    "job": "c4172253-c1f8-42c5-b114-10db61299690",
@@ -1550,7 +1552,8 @@
    "system": "610",
    "init": "2026-11",
    "status": "short",
-   "_t0": 1794427298.2191336
+   "_t0": 1794427298.2191336,
+   "shorts": 0
   },
   {
    "job": "f672a5ed-b631-4d2c-9315-8485005a476c",
@@ -1561,7 +1564,7 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794427430.0721767,
-   "shorts": 1
+   "shorts": 0
   },
   {
    "job": "e5143f7b-42a7-4640-b720-e87b71046324",
@@ -1572,7 +1575,7 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794427560.577698,
-   "shorts": 2
+   "shorts": 0
   },
   {
    "job": "8e14ed14-a85e-470e-92ed-cf0f465678e8",
@@ -1583,8 +1586,8 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794427693.1039042,
-   "shorts": 3,
-   "given_up": true
+   "shorts": 0,
+   "given_up": false
   },
   {
    "job": "33b2f569-13a4-4922-b873-e85e4d6c6f59",
@@ -1595,8 +1598,8 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794427823.570488,
-   "shorts": 4,
-   "given_up": true
+   "shorts": 0,
+   "given_up": false
   },
   {
    "job": "053633b8-6e96-4e4d-818e-f30d54b0d6a7",
@@ -1607,8 +1610,8 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794427954.5499752,
-   "shorts": 5,
-   "given_up": true
+   "shorts": 0,
+   "given_up": false
   },
   {
    "job": "dd225bd1-6592-4341-a8eb-0dbc079b2c51",
@@ -1709,7 +1712,7 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794429814.0937548,
-   "shorts": 1
+   "shorts": 0
   },
   {
    "job": "b627ca24-9c2a-40d5-8e4a-e2bfc1728813",
@@ -1720,7 +1723,7 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794429945.5860813,
-   "shorts": 2
+   "shorts": 0
   },
   {
    "job": "e8dde55d-ee37-4676-86d1-1d39b3abf93d",
@@ -1731,8 +1734,8 @@
    "init": "2026-11",
    "status": "short",
    "_t0": 1794430076.9958937,
-   "shorts": 3,
-   "given_up": true
+   "shorts": 0,
+   "given_up": false
   },
   {
    "job": "cb851e0b-7b65-4b4f-bbb3-bf45833ec924",
