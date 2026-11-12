@@ -54,9 +54,12 @@ CENTRES = [
     ("eccc-gem5", "eccc", "5"),
 ]
 
-# the days per chunk: the archive's response cap bites well before the
-# ensemble size, so the chunks are short.
-CHUNK_DAYS = 30
+# the days per chunk: the archive caps the RESPONSE SIZE, and the S4S
+# ensemble is 51 members over ten levels, so the chunks are short.  A chunk
+# of 30 days at twelve levels over the polar cap is about 800 MB before
+# compression, which is over what the archive will serve with every member
+# in it; 15 days fits.
+CHUNK_DAYS = 15
 
 # a chunk that carries fewer members than the model has is a broken answer
 MIN_MEMBERS = 10
@@ -108,8 +111,16 @@ def chunk_list(n_days):
 
 
 def build_request(tag, centre, system, year, month, day0, day1):
-    """The request for one chunk: daily lead times from day0 to day1."""
-    hours = [str(24 * k) for k in range(day0, day1)]
+    """The request for one chunk: the daily 12Z lead times from day0 to day1.
+
+    The C3S seasonal runs are initialised at 00Z on the 1st of the month,
+    so the 12Z value of a day sits at a lead time of 12 + 24k hours.  The
+    ERA5 half of the section is on the same 12Z clock, and the
+    climatology is keyed by calendar day, so the forecast has to be on 12Z
+    too - a 24k lead time would be the 00Z value of a different day and
+    would land against the wrong calendar day in the climatology.
+    """
+    hours = [str(12 + 24 * k) for k in range(day0, day1)]
     return {
         "originating_centre": centre,
         "system": system,
@@ -117,7 +128,7 @@ def build_request(tag, centre, system, year, month, day0, day1):
         "pressure_level": LV,
         "year": [str(year)],
         "month": ["%02d" % month],
-        "day": ["%02d" % day],
+        "day": ["01"],
         "leadtime_hour": hours,
         "area": AREA,
         "data_format": "grib",
@@ -125,11 +136,25 @@ def build_request(tag, centre, system, year, month, day0, day1):
 
 
 def account_inflight(cds):
+    """How many jobs the ACCOUNT holds right now, on any dataset.
+
+    The CDS admission gate is ACCOUNT-WIDE at two: with two of our requests
+    sitting queued, a third is refused whatever dataset it targets.  So the
+    count has to come from the account's own job list, not from our own
+    state file.
+
+    The list only carries the most recent records, so it can undercount if
+    the account holds a lot of old jobs; the count is therefore raised by
+    our own jobs that are still in flight.
+    """
+    n = 0
     try:
-        return sum(1 for j in cds.live_jobs()
-                   if j.get("status") in ("accepted", "running", "queued"))
+        for j in cds.live_jobs():
+            if j.get("status") in ("accepted", "running", "queued"):
+                n += 1
     except Exception:
         return None
+    return n
 
 
 def members_in(grib_path):
@@ -237,6 +262,12 @@ def main():
             failed = {j["chunk"] for j in st["jobs"]
                       if j.get("tag") == tag and j.get("status") in ("short", "failed")}
             for c0, c1 in chunk_list(RUN_DAYS.get(tag, 215)):
+                # the room counter has to be checked INSIDE the chunk loop:
+                # the archive's admission gate is account-wide at two, and a
+                # submission past it is refused (the refusal is free, but it
+                # is still fifteen wasted requests to the archive)
+                if room <= 0:
+                    break
                 if c0 in have or c0 in pending:
                     continue
                 if c0 in failed:

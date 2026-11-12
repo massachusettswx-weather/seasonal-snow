@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polar Cap &middot; Seasonal Forecast Graphics</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="top">
+  <h1>Seasonal Forecast Graphics</h1>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems</span>
+  <span class="spacer"></span>
+  <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
+     rel="noopener">GitHub</a>
+</header>
+<nav class="tabs"><a href="index.html">Home</a><a href="model.html">Model</a><a href="snow.html">Snowfall</a><a href="spv.html">Zonal Wind (10 hPa)</a><a href="polar.html" class="active">Polar Cap</a><a href="enso.html">ENSO</a></nav>
+<div class="wrap">
+<div class="card">
+  <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
+    <a href="model.html">Choose a variable</a></div>
+  <h2 class="sec">Polar Cap (60-90N) Geopotential Height Anomaly</h2>
+  <p class="lead">A time-height section of the polar cap: the area-weighted
+  mean geopotential height from 60&deg;N to the pole, on a set of pressure
+  levels, with the anomaly divided by its own 1991&ndash;2020 standard
+  deviation. The pressure axis is logarithmic and the section runs from the
+  stratosphere at the top to the surface at the bottom. On the left of the
+  dashed line is the analysis; on the right is the model&rsquo;s own
+  forecast, running to the end of that model&rsquo;s run.</p>
+  <div class="picker">
+    <label for="modelSel">Model</label>
+    <select id="modelSel" class="ctrl"><option value="ecmwf-ifs" selected>ECMWF IFS (15-day)</option></select>
+  </div>
+</div>
+
+<div class="card">
+  <div class="stage"><img id="pcImg" alt="Polar cap geopotential height anomaly"></div>
+  <div class="cap" id="pcCap"></div>
+</div>
+<script>
+const MODELS={"ecmwf-ifs": {"id": "ecmwf-ifs", "name": "ECMWF IFS (15-day)", "file": "assets/polar/polar_cap_ifs.png?v=20261112111226", "caption": "Polar cap (60-90N) normalised geopotential height anomaly - the ECMWF IFS 15-day forecast."}};
+const sel=document.getElementById('modelSel');
+function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
+if(q('m') && MODELS[q('m')]) sel.value=q('m');
+function render(){
+  const m=MODELS[sel.value];
+  const img=document.getElementById('pcImg');
+  if(!m){img.removeAttribute('src');img.alt='';
+    document.getElementById('pcCap').textContent='No section for this model.';return;}
+  img.src=m.file; img.alt=m.caption;
+  document.getElementById('pcCap').textContent=m.caption;
+}
+sel.addEventListener('change',render);
+render();
+</script>
+</div>
+</body>
+</html>

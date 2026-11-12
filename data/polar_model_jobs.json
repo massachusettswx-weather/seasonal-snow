@@ -1,0 +1,14 @@
+{
+ "jobs": [
+  {
+   "tag": "ecmwf-seas5",
+   "centre": "ecmwf",
+   "system": "51",
+   "chunk": 0,
+   "end": 15,
+   "job": "285efe40-aabe-49a5-aecf-1820cde1c39d",
+   "status": "accepted",
+   "init": "2026-11"
+  }
+ ]
+}

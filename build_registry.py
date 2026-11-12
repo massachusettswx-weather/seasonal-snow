@@ -439,6 +439,26 @@ def main():
                 info["table"] = json.load(open(os.path.join(OUT, d["tbl"])))
             entry["spv"]["60" if dom == "60N" else "NH"] = info
 
+    # the polar-cap time-height sections
+    POLARDIR = os.path.join(ASSETS, "polar")
+    os.makedirs(POLARDIR, exist_ok=True)
+    # the IFS section is not a model: it is copied on its own, because it is
+    # the one chart that does not depend on the seasonal archive
+    ifs_src = os.path.join(OUT, "polar_cap", "polar_cap_ifs.png")
+    if os.path.exists(ifs_src):
+        shutil.copyfile(ifs_src, os.path.join(POLARDIR, "polar_cap_ifs.png"))
+    for entry in reg["models"]:
+        src = os.path.join(OUT, "polar_cap", "polar_cap_%s.png" % entry["id"])
+        if not os.path.exists(src):
+            continue
+        fn = "polar_cap_%s.png" % entry["id"]
+        shutil.copyfile(src, os.path.join(POLARDIR, fn))
+        entry["polar"] = {
+            "file": "assets/polar/" + fn,
+            "caption": "Polar cap (60-90N) normalised geopotential height "
+                       "anomaly - %s." % entry["name"],
+        }
+
     # Cache-bust every asset URL.  GitHub Pages serves the PNGs with a long
     # cache lifetime, so without a version query the browser keeps showing the
     # previous build even though the files on the server have changed.
@@ -457,6 +477,16 @@ def main():
                 bust(it)
 
     bust(reg["models"])
+
+    # the IFS section is not a model, so it is carried at the top of the
+    # registry and busted with the same version - without the query the
+    # browser would keep showing the previous build
+    if os.path.exists(ifs_src):
+        reg["polar_ifs"] = {
+            "file": "assets/polar/polar_cap_ifs.png?v=%s" % version,
+            "caption": "Polar cap (60-90N) normalised geopotential height "
+                       "anomaly - the ECMWF IFS 15-day forecast.",
+        }
 
     json.dump(reg, open(os.path.join(DATA, "models.json"), "w"), indent=1)
 

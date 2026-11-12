@@ -7,7 +7,8 @@ import sys
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else \
     "https://massachusettswx-weather.github.io/seasonal-snow/"
-PAGES = ("index.html", "model.html", "snow.html", "spv.html", "enso.html")
+PAGES = ("index.html", "model.html", "snow.html", "spv.html", "polar.html",
+         "enso.html")
 
 
 async def main():

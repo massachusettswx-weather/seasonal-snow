@@ -37,6 +37,7 @@ def load_registry():
     for m in reg.get("models", []):
         m["snow_ok"] = False
         m["spv_ok"] = False
+        m["polar_ok"] = False
         for fr in m.get("frames", []):
             if os.path.exists(os.path.join(SITE, fr["file"].split("?")[0])):
                 fr["ok"] = True
@@ -48,6 +49,10 @@ def load_registry():
             if os.path.exists(os.path.join(SITE, info["file"].split("?")[0])):
                 info["ok"] = True
                 m["spv_ok"] = True
+        pol = m.get("polar")
+        if pol and os.path.exists(os.path.join(SITE, pol["file"].split("?")[0])):
+            pol["ok"] = True
+            m["polar_ok"] = True
     return reg
 
 
@@ -60,6 +65,7 @@ def public_map(reg=None):
         p = dict(m)
         p["snow_ok"] = m.get("snow_ok", False)
         p["spv_ok"] = m.get("spv_ok", False)
+        p["polar_ok"] = m.get("polar_ok", False)
         out[m["id"]] = p
     return out
 
@@ -219,6 +225,7 @@ def header(active):
             ("model.html", "Model"),
             ("snow.html", "Snowfall"),
             ("spv.html", "Zonal Wind (10 hPa)"),
+            ("polar.html", "Polar Cap"),
             ("enso.html", "ENSO")]
     links = "".join(
         '<a href="%s"%s>%s</a>' % (h, ' class="active"' if h == active else "", t)
@@ -417,6 +424,13 @@ function render(){
     href:'spv.html?m='+m.id,
     img:(m.spv&&m.spv['60']&&m.spv['60'].file)||'',
     on:!!m.spv_ok
+  });
+  vars.push({
+    title:'Polar cap geopotential height',
+    desc:'A time-height section of the polar cap (60-90N): the normalised geopotential height anomaly from 10 hPa down to the surface, with the ERA5 analysis in front of the model&rsquo;s own forecast.',
+    href:'polar.html?m='+m.id,
+    img:(m.polar&&m.polar.file)||'',
+    on:!!m.polar_ok
   });
   vars.push({
     title:'ENSO plumes',
@@ -751,6 +765,13 @@ def main():
     build_snow(reg)
     build_enso(reg)
     build_spv(reg)
+    # the polar-cap page is optional: it exists only once the section has
+    # been rendered for at least one model
+    try:
+        import build_polar_page
+        build_polar_page.build_polar_cap(reg)
+    except Exception as e:
+        print("   the polar-cap page was skipped: %s" % str(e)[:120])
     print("site built:", SITE)
     for m in reg.get("models", []):
         print("  %-16s snow=%s spv=%s" % (m["id"], m["snow_ok"], m["spv_ok"]))
