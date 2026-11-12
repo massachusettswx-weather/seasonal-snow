@@ -40,6 +40,14 @@ fingerprint() {
         [ -f "$f" ] && printf '%s %s %s\n' "$f" "$(stat -c %s "$f")" \
             "$(stat -c %Y "$f")"
     done
+    # the polar-cap section: the model's own daily series and the ERA5
+    # reanalysis in front of it.  A new chunk extends the section, so both
+    # have to be watched.
+    for f in data/polar_model_z.json data/polar_era5_recent.npz \
+             data/polar_ec46_z.json; do
+        [ -f "$f" ] && printf '%s %s %s\n' "$f" "$(stat -c %s "$f")" \
+            "$(stat -c %Y "$f")"
+    done
 }
 
 # The fingerprint is kept in a file, so that a restart of this watcher
@@ -88,6 +96,11 @@ while true; do
             python3 -u plot_snow_models.py --unit snow >> logs_auto_publish.log 2>&1
             python3 -u plot_snow_multi.py >> logs_auto_publish.log 2>&1
             python3 -u plot_enso.py >> logs_auto_publish.log 2>&1
+            # the polar-cap time-height sections
+            python3 -u plot_polar_cap.py ecmwf-seas5 "ECMWF SEAS5" >> logs_auto_publish.log 2>&1
+            if [ -f data/polar_ec46_z.json ]; then
+                python3 -u plot_polar_cap.py ec46 "ECMWF EC46" >> logs_auto_publish.log 2>&1
+            fi
             # A revoked token would fail the push and leave a dead
             # credential behind, so it is checked once.  Either way the site
             # is rebuilt and committed locally; only the push is
