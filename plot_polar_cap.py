@@ -86,7 +86,12 @@ def load_recent():
     vals = np.asarray(d["values"], float)
     levels = [int(x) for x in (d["levels"] if "levels" in d else LEVELS)]
     if len(times) < 20:
-        raise ValueError("the recent ERA5 file holds only %d days" % len(times))
+        # too few days to draw a section: the reanalysis half is simply left
+        # out.  It must NOT raise, or a partly fetched file would stop the
+        # whole site from being published.
+        print("   the recent ERA5 holds only %d days - the section is drawn "
+              "without the reanalysis half" % len(times))
+        return [], np.zeros((0, len(LEVELS))), {}
     i10 = levels.index(10) if 10 in levels else 0
     if not np.all(np.isfinite(vals[:, i10])) or vals[:, i10].max() < 1e5:
         raise ValueError("the recent ERA5 file does not hold real polar-cap "

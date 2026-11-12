@@ -107,6 +107,7 @@ def main():
 
     times, values = load()
     have = set(t[:10] for t in times)
+    dirty = False
     st = json.load(open(STATE)) if os.path.exists(STATE) else {"jobs": []}
     plan = requests_for(start, end)
 
@@ -138,7 +139,8 @@ def main():
                 n += 1
             print("   the %s job decoded: %d days" % (j["key"], n), flush=True)
             j["status"] = "decoded"
-            save(times, values)
+            if n:
+                dirty = True
             json.dump(st, open(STATE, "w"), indent=1)
 
         # 2. submit what is still missing, if the account has room
@@ -174,10 +176,15 @@ def main():
             time.sleep(10)
 
         order = np.argsort(times) if times else []
-        if len(times):
+        if len(times) and dirty:
+            # the file is only rewritten when the CONTENT changed.  Writing
+            # it every minute would change its timestamp, and the publisher
+            # watches that file - it would rebuild and publish the whole site
+            # once a minute for nothing.
             times = [times[i] for i in order]
             values = np.asarray(values, float)[order]
             save(times, values)
+            dirty = False
 
         want = set()
         d = start
