@@ -38,7 +38,7 @@
   <div class="cap" id="pcCap"></div>
 </div>
 <script>
-const MODELS={"ecmwf-ifs": {"id": "ecmwf-ifs", "name": "ECMWF IFS (15-day)", "file": "assets/polar/polar_cap_ifs.png?v=20261112165543", "caption": "Polar cap (60-90N) normalised geopotential height anomaly - the ECMWF IFS 15-day forecast."}, "ecmwf-seas5": {"id": "ecmwf-seas5", "name": "ECMWF SEAS5", "file": "assets/polar/polar_cap_ecmwf-seas5.png?v=20261112165543", "caption": "Polar cap (60-90N) normalised geopotential height anomaly - ECMWF SEAS5."}};
+const MODELS={"ecmwf-ifs": {"id": "ecmwf-ifs", "name": "ECMWF IFS (15-day)", "file": "assets/polar/polar_cap_ifs.png?v=20261112172650", "caption": "Polar cap (60-90N) normalised geopotential height anomaly - the ECMWF IFS 15-day forecast."}, "ecmwf-seas5": {"id": "ecmwf-seas5", "name": "ECMWF SEAS5", "file": "assets/polar/polar_cap_ecmwf-seas5.png?v=20261112172650", "caption": "Polar cap (60-90N) normalised geopotential height anomaly - ECMWF SEAS5."}};
 const sel=document.getElementById('modelSel');
 function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
 if(q('m') && MODELS[q('m')]) sel.value=q('m');

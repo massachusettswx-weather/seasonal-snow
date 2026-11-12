@@ -49,7 +49,10 @@ request at one year, so the climatology comes from
   whole step file.
 - The 503s come in bursts and roughly **30-40% of the requests succeed**, so
   the answer is volume, not patience: many quick retries, and the byte
-  ranges fetched with 4 threads.
+  ranges fetched with 8 threads.
+- **The bucket throttles by DURATION as well as by burst**: after a heavy
+  fetch it answers nothing for minutes.  A long pause clears it.  Probing it
+  repeatedly while a fetch is running makes the throttle WORSE.
 - Steps run 0..360 h at 3-hourly = **15 days**.
 - The IFS open data does **NOT** carry 30 hPa (its levels are 10, 50, 100,
   150, 200, 250, 300, 400, 500, 600, 700, 850, 925, 1000), so an IFS
@@ -58,16 +61,18 @@ request at one year, so the climatology comes from
 - The bucket retains every daily cycle for about a month, so the **analysis
   half is the step-0 field of each day's 12Z cycle** - no ERA5 needed.
 
-## The seasonal route: the C3S sub-daily archive
+## The seasonal route: the C3S sub-daily archive  (PROVEN WORKING)
 `seasonal-original-pressure-levels` carries `geopotential` at exactly the
 reference's twelve levels, with `leadtime_hour` out to 5159 h = **215 days =
 the full run**, plus an `area` widget.  There is **no member-selection
-parameter** - all the members always come back.
+parameter** - all the members always come back (SEAS5 gives 51).
 - The runs are initialised at **00Z on the 1st**, so the 12Z value of a day
   is at lead time **12 + 24k** hours, not 24k (a 24k lead lands against the
   wrong calendar day in the climatology).
 - The archive caps the response size, so the request is chunked: 15 days at
   twelve levels over the polar cap fits; 30 days does not.
+- A three-day request (the leads 36, 60, 84) is enough to get through the
+  queue when the archive is congested.
 
 ## The GRIB reader: read validityDate, not dataDate
 `eccodes.codes_get(gid, "dataDate")` returns a STRING ("20261015"), and
@@ -77,6 +82,13 @@ day out.  Use **`validityDate`/`validityTime`**, which already carry the
 reference time plus the step and work for both conventions:
 - ERA5: dataTime 1200, step 0 -> validity 12Z
 - the seasonal archive: the 00Z init plus the lead time -> validity 12Z
+- `eccodes.codes_grib_new_from_file(f)` returns a HANDLE, not a generator:
+  iterating over it raises a TypeError.
+
+## The sandbox limits
+- **3 GB of memory.**  A 100 MB byte-range buffer plus Python overhead gets
+  the process OOM-killed.  Write the ranges straight to a file.
+- Detached background processes are reaped when they sit idle.
 
 ## The validation that says the method is right
 - The normalised anomaly of the ERA5 October against its own 1991-2020

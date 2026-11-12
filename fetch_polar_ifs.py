@@ -129,6 +129,22 @@ def _get_parallel(jobs, out_path=None):
 
     missing = [i for i, o in enumerate(out) if o is None]
     if missing:
+        # the bucket throttles by duration as well as by burst, and a long
+        # pause clears it: the stragglers are worth one more round after a
+        # real wait
+        time.sleep(20)
+        for attempt in range(30):
+            todo = [i for i in range(len(jobs)) if out[i] is None]
+            if not todo:
+                break
+            random.shuffle(todo)
+            for i in todo:
+                if out[i] is None:
+                    out[i] = one(i)
+            if any(o is None for o in out):
+                time.sleep(5)
+        missing = [i for i, o in enumerate(out) if o is None]
+    if missing:
         raise RuntimeError("%d byte ranges did not come back" % len(missing))
 
     if out_path:

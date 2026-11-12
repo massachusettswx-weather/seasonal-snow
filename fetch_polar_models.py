@@ -232,12 +232,26 @@ def main():
                         j["status"] = "short"
                         continue
                     rec = out.setdefault(j["tag"], {"times": [], "values": [],
-                                                    "members": nmem})
+                                                    "members": nmem,
+                                                    "levels": list(LEVELS)})
+                    # the chunks overlap, so a time that is already in the
+                    # record is replaced rather than appended: otherwise the
+                    # same day is counted three times
+                    have = {t: i for i, t in enumerate(rec["times"])}
                     for t, v in vals.items():
                         row = [v.get(l) for l in LEVELS]
-                        if all(x is not None for x in row):
+                        if not all(x is not None for x in row):
+                            continue
+                        if t in have:
+                            rec["values"][have[t]] = row
+                        else:
+                            have[t] = len(rec["times"])
                             rec["times"].append(t)
                             rec["values"].append(row)
+                    order = sorted(range(len(rec["times"])),
+                                   key=lambda i: rec["times"][i])
+                    rec["times"] = [rec["times"][i] for i in order]
+                    rec["values"] = [rec["values"][i] for i in order]
                     rec["members"] = max(rec.get("members", 0), nmem)
                     save_out(out)
                     j["status"] = "decoded"
