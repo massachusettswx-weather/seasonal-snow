@@ -50,14 +50,34 @@ FPFILE="data/.publish_fingerprint"
 prev=""
 [ -f "$FPFILE" ] && prev=$(cat "$FPFILE")
 while true; do
+    # The daily refresh.  The NOAA systems are read straight from NOAA and
+    # are not in the CDS queue, and the observed SST series has to be
+    # carried forward every day - so once a day they are refreshed here.
+    # Without this the December run would never be picked up for the NOAA
+    # models, and the plume's observed line would stop at the day the
+    # series was last built.
+    MARK="data/.daily_fetch_$(date -u +%Y-%m-%d)"
+    if [ ! -f "$MARK" ]; then
+        log "the daily refresh"
+        touch "$MARK"
+        python3 -u fetch_oisst.py    >> logs_auto_publish.log 2>&1
+        python3 -u fetch_sfs.py      >> logs_auto_publish.log 2>&1
+        python3 -u fetch_cfsv2.py    >> logs_auto_publish.log 2>&1
+        python3 -u fetch_enso_noaa.py >> logs_auto_publish.log 2>&1
+    fi
     cur=$(fingerprint)
     if [ -n "$cur" ] && [ "$cur" != "$prev" ]; then
         if [ -z "$prev" ]; then
             log "first look - nothing to do yet"
         else
             log "the data changed - rebuilding"
-            # the plume indices of any centre whose SST has just landed
-            for tag in jma-jra3 bom-access-s2 eccc-gem5 eccc-canesm5; do
+            # The plume indices of every centre whose SST is on disk.  A
+            # centre that moves to a new init has its SST replaced, and the
+            # plume has to follow it - otherwise the card would keep the
+            # old init's indices while its label says the new one.
+            for tag in ecmwf-seas5 ukmo-gloseas6 meteo-france-s9 cmcc-sps4 \
+                       dwd-gcfs2 eccc-gem5 eccc-canesm5 jma-jra3 \
+                       bom-access-s2; do
                 if [ -f "data/models/$tag/sst_monthly.grib" ]; then
                     python3 -u build_enso_json.py "$tag" >> logs_auto_publish.log 2>&1
                 fi

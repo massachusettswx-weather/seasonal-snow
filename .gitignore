@@ -48,3 +48,6 @@ data/jma_snow_job.txt
 
 # the GitHub token: mode 600, never committed
 data/.github_token
+
+# the daily refresh marker (the machine, not the repo)
+data/.daily_fetch_*
