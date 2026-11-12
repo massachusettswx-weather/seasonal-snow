@@ -23,6 +23,7 @@ difference between two climatologies and not a forecast signal.
     python3 plot_enso.py --all           # the staged centres too
 """
 import argparse
+import calendar
 import json
 import os
 
@@ -69,41 +70,72 @@ KINDNAME = {"oni": "ONI", "roni": "RONI"}
 
 
 # ----------------------------------------------------------------------
+# The observed line is the ERSST up to the last complete month and the OI
+# SST for the current one.  NOAA's two products do not agree: during the
+# current rapid El Nino the OI SST runs up to 0.65 C warmer in the
+# eastern equatorial Pacific than the ERSST, and that gap moves from month
+# to month.  The OI SST value for the current month is therefore put on
+# the ERSST's scale with the mean difference over the last few complete
+# months, so the observed line stays continuous, every value on the chart
+# still lines up with the published Nino index, and no plume value moves.
+LOCAL_BIAS_MONTHS = 3
+
+
 def load_analysis():
     """The observed line for the plumes.
 
-    NOAA OI SST v2.1 is preferred because it is produced daily with a
-    one-day latency, so the observed line can run up to today instead of
-    stopping at the end of last month.  It is bias-corrected onto ERSST -
-    the dataset NOAA builds the published Nino indices from, and the one
-    the chart has always used - so the scale, and therefore every plume
-    value, is unchanged.  The ERSST tropical climatology is kept for the
-    relative index so that nothing about the plume moves.
+    The complete months come from NOAA ERSST v6 - the dataset NOAA builds
+    the published Nino indices from, so the chart stays on the official
+    scale.  The current, still-running month comes from NOAA OI SST v2.1,
+    which is produced daily with a one-day latency and is therefore the
+    only one of the two that can reach today; it is put on the ERSST's
+    scale with the recent difference between the two.  The ERSST tropical
+    climatology is kept for the relative index so that nothing about the
+    plume moves.
     """
     ers = np.load(os.path.join(DATA, "ersst_enso.npz"), allow_pickle=True)
     op = os.path.join(DATA, "oisst_enso.npz")
+    d = {k: ers[k] for k in ers.files}          # the months, tm_clim, k
+    d["source"] = "NOAA ERSST v6"
+    d["tail_source"] = None
+    d["partial"] = None
     if not os.path.exists(op):
-        d = {k: ers[k] for k in ers.files}
-        d["source"] = "NOAA ERSST v6"
-        d["partial"] = None
         return d
     o = np.load(op, allow_pickle=True)
     if not int(np.asarray(o.get("bias_applied", 0)).ravel()[0]):
-        d = {k: ers[k] for k in ers.files}
-        d["source"] = "NOAA ERSST v6"
-        d["partial"] = None
         return d
-    d = {k: ers[k] for k in ers.files}          # the months, tm_clim, k
-    d["basin"] = o["basin_bc"]                  # the bias-corrected values
-    d["tm"] = o["tm_bc"]
-    d["months"] = o["months"]
-    d["source"] = "NOAA OI SST v2.1"
-    # the current month is incomplete: how many days it stands on
     nd = np.asarray(o["ndays"]) if "ndays" in o.files else None
     last = np.asarray(o["last_day"]) if "last_day" in o.files else None
-    d["partial"] = None
-    if nd is not None and last is not None and len(nd):
-        d["partial"] = (str(o["months"][-1]), int(nd[-1]), str(last[-1]))
+    if nd is None or last is None or not len(nd):
+        return d
+
+    em = [str(m) for m in ers["months"]]
+    om = [str(m) for m in o["months"]]
+    eb = np.asarray(ers["basin"], float)        # the absolute SST, Celsius
+    et = np.asarray(ers["tm"], float)
+    ob = np.asarray(o["basin_bc"], float)       # the bias-corrected SST
+    ot = np.asarray(o["tm_bc"], float)
+    # the months the two products share, aligned at the end: the OI SST
+    # carries the ERSST's months plus the current one
+    n_over = min(len(em), len(om) - 1)
+    if n_over < LOCAL_BIAS_MONTHS:
+        return d
+    e_sel = np.arange(len(em) - n_over, len(em))
+    o_sel = np.arange(len(om) - 1 - n_over, len(om) - 1)
+    tail = np.arange(-LOCAL_BIAS_MONTHS, 0)
+    d_b = np.mean(ob[o_sel[tail]] - eb[e_sel[tail]], axis=0)
+    d_t = float(np.mean(ot[o_sel[tail]] - et[e_sel[tail]]))
+
+    # the observed series: the ERSST's months, then the current month
+    d["basin"] = np.vstack([eb, (ob[-1] - d_b)[None, :]])
+    d["tm"] = np.append(et, ot[-1] - d_t)
+    d["months"] = np.array(em + [om[-1]])
+    d["source"] = "NOAA ERSST v6"
+    d["tail_source"] = "NOAA OI SST v2.1"
+    d["local_bias_basin"] = d_b
+    d["local_bias_tm"] = d_t
+    # the current month is incomplete: how many days it stands on
+    d["partial"] = (str(om[-1]), int(nd[-1]), str(last[-1]))
     return d
 
 
@@ -218,6 +250,7 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
     months = rec["months"]
     bi = rec["basins"].index(basin)
     ana_src = ana.get("source", "NOAA ERSST v6")
+    tail_src = ana.get("tail_source")
 
     # the analysis file may be in Kelvin (ERA5) or Celsius (ERSST)
     kshift = 273.15 if float(np.nanmedian(ana["basin"])) > 100.0 else 0.0
@@ -303,7 +336,8 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
                 marker="o", ms=3.4, label="analysis (%s)" % ana_src, zorder=4)
         ax.plot(xs[ipart], obs_v[ipart], color=ANALYSIS, lw=0, marker="o",
                 ms=5.6, mfc="white", mec=ANALYSIS, mew=1.8, zorder=5,
-                label="the current month, a running mean")
+                label=("the current month, %s, a running mean" % tail_src
+                       if tail_src else "the current month, a running mean"))
     ax.axhline(0, color=ZERO, lw=1.0, ls="--", zorder=1)
 
     # the init marker
@@ -345,25 +379,50 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
         _d = part[2]
         endtxt = "%s %s (%d-day mean)" % (int(_d[8:10]), MON[int(_d[5:7])],
                                           part[1])
+        # the line runs the ERSST up to the last complete month and the OI
+        # SST for the current one, so both are named
+        _p = obs_m[-2] if len(obs_m) > 1 else obs_m[-1]
+        _py, _pm = int(_p[:4]), int(_p[5:7])
+        _ptxt = "%s %d" % (MON[_pm], calendar.monthrange(_py, _pm)[1])
+        ana_txt = ("analysis %s to %s, %s to %s" % (ana_src, _ptxt,
+                                                   tail_src or ana_src,
+                                                   endtxt))
     else:
         endtxt = obs_m[-1] if obs_m else "-"
-    ax.text(0, 1.02,
-            "init %s · %s · SST anomaly vs 1991-2020 · analysis %s to %s" %
-            (init_label(init), mdesc, ana_src, endtxt),
-            transform=ax.transAxes, fontsize=8.6, color="#6b6b6b", va="bottom")
-    ax.text(0.995, 1.02, "max %+.2f / min %+.2f °C" % (float(mean.max()),
-                                                       float(mean.min())),
-            transform=ax.transAxes, fontsize=9, color="#555555",
-            ha="right", va="bottom")
+        ana_txt = "analysis %s to %s" % (ana_src, endtxt)
+    desc_t = ax.text(0, 1.02,
+                     "init %s · %s · SST anomaly vs 1991-2020 · %s" %
+                     (init_label(init), mdesc, ana_txt),
+                     transform=ax.transAxes, fontsize=8.6, color="#6b6b6b",
+                     va="bottom")
+    stamp_t = ax.text(0.995, 1.02, "max %+.2f / min %+.2f °C" % (float(mean.max()),
+                                                                 float(mean.min())),
+                      transform=ax.transAxes, fontsize=9, color="#555555",
+                      ha="right", va="bottom")
+    # the descriptor and the max/min stamp must never collide: the
+    # descriptor is measured and shrunk until it clears the stamp
+    fig.canvas.draw()
+    rend = fig.canvas.get_renderer()
+    for _ in range(12):
+        db = desc_t.get_window_extent(rend)
+        sb = stamp_t.get_window_extent(rend)
+        if db.x1 <= sb.x0 + 4.0:
+            break
+        fs = desc_t.get_fontsize()
+        if fs <= 6.0:
+            break
+        desc_t.set_fontsize(fs - 0.35)
+        fig.canvas.draw()
     leg = ax.legend(loc="upper left", fontsize=8, frameon=False, ncol=3,
                     handlelength=1.8, columnspacing=1.2)
     for t in leg.get_texts():
         t.set_color("#444444")
     fig.text(0.995, 0.02, "@Massachusettswx", ha="right", fontsize=11,
              fontweight="bold")
-    fig.text(0.005, 0.02, "Data: %s · analysis %s · forecast anchored to the "
-             "analysis" % (NOTES.get(tag, rec.get("note", "C3S seasonal")),
-                           ana_src),
+    fig.text(0.005, 0.02, "Data: %s · analysis %s%s · forecast anchored to "
+             "the analysis" % (NOTES.get(tag, rec.get("note", "C3S seasonal")),
+                               ana_src,
+                               (" + " + tail_src) if tail_src else ""),
              ha="left", fontsize=7.6, color="#8a8a8a")
     fig.tight_layout(rect=[0, 0.05, 1, 1])
     fn = "ENSO_%s_%s_%s.png" % (tag.upper().replace("-", "_"),

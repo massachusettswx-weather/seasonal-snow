@@ -604,7 +604,9 @@ def build_enso(reg):
   The thick red line is the ensemble mean, the light red lines are the
   members, the shaded envelope is the member spread, and the black line in
   front is the observed analysis &mdash; NOAA&rsquo;s ERSST v6, the dataset
-  NOAA/CPC builds the ONI and the RONI from. <b>ONI</b> is the plain anomaly;
+  NOAA/CPC builds the ONI and the RONI from, carried into the current,
+  still-running month by NOAA&rsquo;s OI SST v2.1, which is produced daily
+  with a one-day latency. <b>ONI</b> is the plain anomaly;
   <b>RONI</b> has the tropical-mean (20&deg;S&ndash;20&deg;N) SST anomaly
   subtracted and is rescaled to the ONI&rsquo;s own spread, so it says whether
   the Pacific is warm or cold <i>relative to the rest of the ocean</i>. The

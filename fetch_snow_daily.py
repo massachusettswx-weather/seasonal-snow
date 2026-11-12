@@ -100,21 +100,21 @@ def _normlon(lon):
 
 
 def read_snow(path):
-    """-> (months, members, acc[nmem, nmon, nlat, nlon], lats, lons)
+    """-> (months, members, acc[nmem, nmon, nlat, nlon], lats, lons, ndays)
 
-    ``acc`` holds metres of water equivalent accumulated in each lead month
-    for each ensemble member, on the CONUS crop.
+    The daily and sub-daily products carry the total snowfall accumulated
+    FROM THE INIT, not the amount that falls in the day, so the amount for
+    a calendar day is the difference between the total at the end of that
+    day and the total at the end of the day before.  ``acc`` holds the
+    metres of water equivalent that falls in each lead month for each
+    ensemble member, on the CONUS crop, and the last item says how many
+    days of that month the file actually covers.
     """
-    months = []
-    midx = {}
+    vals = {}           # (member, valid time) -> the cropped values
     members = []
     mid = {}
-    acc = None
     lats = lons = None
     grid = None
-    seen = set()
-    days = {}          # calendar month -> the days it actually covers
-    daykeys = {}       # calendar month -> the set of days seen
 
     with open(path, "rb") as f:
         while True:
@@ -131,19 +131,6 @@ def read_snow(path):
                 dd = int(dd)
                 st = int(_g(gid, "step", 0) or 0)
                 valid = date(dd // 10000, (dd // 100) % 100, dd % 100) + timedelta(hours=st)
-                # the accumulation covers [valid-step, valid); a 12 h step that
-                # lands at 12Z belongs to the same calendar day, so the lead
-                # month is the month of the valid date.
-                ref = valid - timedelta(hours=st)
-                key = (ref.year, ref.month)
-                if key not in midx:
-                    midx[key] = len(months)
-                    months.append(key)
-                mi = midx[key]
-                # which calendar day does this step contribute to?
-                dkey = (ref.year, ref.month, ref.day)
-                if dkey not in daykeys.setdefault(key, set()):
-                    daykeys[key].add(dkey)
 
                 pn = int(_g(gid, "perturbationNumber", 0) or 0)
                 num = int(_g(gid, "number", 0) or 0)
@@ -190,8 +177,6 @@ def read_snow(path):
                     grid = (rlat, rlon)
                     glat = lats[rlat]
                     glon = lons[rlon]
-                    acc = np.zeros((max(len(members), 1), 24, len(rlat), len(rlon)),
-                                   np.float32)
                 else:
                     rlat, rlon = grid
                     if not (np.allclose(lats[rlat], glat) and
@@ -204,14 +189,7 @@ def read_snow(path):
                 else:
                     val = v
                 rlat, rlon = grid
-                if acc.shape[0] <= ii or acc.shape[1] <= mi:
-                    newshape = (max(acc.shape[0], ii + 1), max(acc.shape[1], mi + 1),
-                                acc.shape[2], acc.shape[3])
-                    g = np.zeros(newshape, np.float32)
-                    g[:acc.shape[0], :acc.shape[1]] = acc
-                    acc = g
-                acc[ii, mi] += val[np.ix_(rlat, rlon)].astype(np.float32)
-                seen.add(mi)
+                vals[(mem, valid)] = val[np.ix_(rlat, rlon)].astype(np.float32)
             except Exception:
                 pass
             finally:
@@ -220,8 +198,44 @@ def read_snow(path):
                 except Exception:
                     pass
 
-    if acc is None:
+    if not vals:
         return [], [], None, None, None, []
+    # the product steps every `spacing` hours, so each record's total covers
+    # that period; the amount that falls in a calendar day is the
+    # difference between the totals at the end of that day and the day
+    # before
+    # the product carries the total accumulated FROM THE INIT, so the amount
+    # that falls between two valid times is the difference of the two totals
+    # and it belongs to the calendar day that period falls in
+    months = []
+    midx = {}
+    daykeys = {}
+    totals = {}         # (month index, member) -> the amount that falls in it
+    per_member = {}
+    for (mem, valid), arr in vals.items():
+        per_member.setdefault(mem, {})[valid] = arr
+    for mem, series in per_member.items():
+        tv = sorted(series)
+        for v1, v2 in zip(tv, tv[1:]):
+            amount = series[v2] - series[v1]
+            # the period is [v1, v2): a daily step covers the calendar day
+            # of v1, and a 12-hourly one covers half of it
+            day = v1
+            key = (day.year, day.month)
+            if key not in midx:
+                midx[key] = len(months)
+                months.append(key)
+            mi = midx[key]
+            daykeys.setdefault(key, set()).add((day.year, day.month, day.day))
+            cur = totals.get((mi, mem))
+            totals[(mi, mem)] = amount if cur is None else cur + amount
+
+    # the monthly totals, member by member
+    acc = np.zeros((max(len(members), 1), len(months), len(glat), len(glon)),
+                   np.float32)
+    for (mi, mem), amount in totals.items():
+        if mem in mid:
+            acc[mid[mem], mi] = amount.astype(np.float32)
     order = np.argsort([m[0] * 100 + m[1] for m in months])
     months = [months[i] for i in order]
     acc = acc[:, order]
