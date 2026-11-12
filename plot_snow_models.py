@@ -60,6 +60,9 @@ def unit_suffix():
 OUT = os.path.join(HERE, "output")
 MDIR = os.path.join(DATA, "models")
 
+# the ECMWF's attribution, on the graphics made from its data
+from ecmwf_credit import ECMWF_CREDIT, ECMWF_TAGS, credit_for  # noqa: E402
+
 # the house anomaly palette: deep brown -> white -> deep teal
 ANOM_LEVELS = np.array([-4, -2, -1, -0.5, -0.25, -0.1, 0,
                          0.1, 0.25, 0.5, 1, 2, 4], dtype=float)
@@ -248,7 +251,9 @@ def read_extended(path):
     out = {}
     for i, ym in enumerate(months):
         nd = ndays[i] if i < len(ndays) else 0
-        out[ym] = (lat, lon, acc[:, i].mean(axis=0).ravel(), nd)
+        # the axes are one-dimensional (the latitudes and the longitudes) and
+        # the field is indexed [latitude, longitude], like the monthly one
+        out[ym] = (lat, lon, acc[:, i].mean(axis=0), nd)
     return out
 
 
@@ -468,6 +473,8 @@ def main():
 
         # ---------------- draw ----------------
         initlabel = "%s-%s-01 00Z" % (init[:4], init[5:7])
+        # the ECMWF's attribution, on its own systems' graphics
+        credit = credit_for(tag)
         # the accumulation window covered by the run: 1st of the first lead
         # month -> last day of the last lead month
         y0, m0 = yms[0]
@@ -491,7 +498,8 @@ def main():
                  total_in, X, Y, in_us, relief, states, provs, countries,
                  wm_cmap, BoundaryNorm(wm_levels, wm_cmap.N, clip=True), wm_levels,
                  "Accumulated snowfall (%s)" % unit_label(),
-                 white_below=float(wm_levels[0]), prefix=title_prefix)
+                 white_below=float(wm_levels[0]), prefix=title_prefix,
+                 credit=credit)
         for k, lab in enumerate(labels):
             mf = "snow_%s_month%02d_in%s.png" % (tag, k + 1, unit_suffix())
             manifest[mf] = {"label": lab, "lead": k + 1}
@@ -513,7 +521,8 @@ def main():
                      monthly_in[k], X, Y, in_us, relief, states, provs, countries,
                      pcmap, BoundaryNorm(lv, pcmap.N, clip=True), lv,
                      "Accumulated snowfall (%s)" % unit_label(),
-                     white_below=float(lv[0]), prefix=title_prefix)
+                     white_below=float(lv[0]), prefix=title_prefix,
+                     credit=credit)
         for (m, y, lead, a, cl_in) in anoms:
             # An anomaly where the model itself expects essentially no snow is
             # noise, not signal: it made the Gulf Coast and Florida look "dry"
@@ -531,7 +540,7 @@ def main():
                      a, X, Y, in_us, relief, states, provs, countries,
                      acmap, anorm, ANOM_LEVELS * unit_mult(),
                      "Snowfall anomaly (%s)" % unit_label(),
-                     prefix=title_prefix)
+                     prefix=title_prefix, credit=credit)
         # drop any panel left over from an earlier, longer run
         keep = set(manifest.keys())
         keep.add("snow_%s_total_run_in%s.png" % (tag, unit_suffix()))
@@ -558,16 +567,18 @@ def main():
 
 def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
              countries, cmap, norm, levels, cbar_label, white_below=None,
-             prefix=""):
+             prefix="", credit=""):
     plt.rcParams.update({"font.family": "DejaVu Sans"})
     xr = float(X.max() - X.min()); yr = float(Y.max() - Y.min())
     fig_w = 14.0
     ax_w = 0.975
     ax_h = ax_w * fig_w / (xr / yr)
-    fig_h = ax_h + 1.05 + 1.15
+    # the margins are kept tight: the title block above and the colour bar
+    # below are all the space the figure needs
+    fig_h = ax_h + 0.95 + 0.95
     fig = plt.figure(figsize=(fig_w, fig_h), dpi=130)
     fig.patch.set_facecolor("white")
-    ax = fig.add_axes([0.013, 1.15 / fig_h, ax_w, ax_h / fig_h])
+    ax = fig.add_axes([0.013, 0.95 / fig_h, ax_w, ax_h / fig_h])
     ax.set_aspect("equal"); ax.set_axis_off()
 
     ax.pcolormesh(X, Y, relief, shading="nearest", rasterized=True, zorder=1,
@@ -663,17 +674,21 @@ def draw_map(fname, title, subtitle, field, X, Y, in_us, relief, states, provs,
     if stamp:
         fig.text(0.987, 1 - 0.40 / fig_h, stamp,
                  fontsize=10.5, ha="right", va="center", color="#111111")
-    cax = fig.add_axes([0.30, 0.62 / fig_h, 0.40, 0.16 / fig_h])
+    cax = fig.add_axes([0.30, 0.56 / fig_h, 0.40, 0.16 / fig_h])
     cb = fig.colorbar(pc, cax=cax, boundaries=levels, spacing="uniform",
                       orientation="horizontal")
     ticks = levels[::2].tolist() if len(levels) > 12 else levels.tolist()
     cb.set_ticks(ticks)
     cb.ax.tick_params(labelsize=9.5, colors="#202020", length=3, width=0.8)
     cb.outline.set_edgecolor("#303030"); cb.outline.set_linewidth(1.0)
-    fig.text(0.50, 0.24 / fig_h, cbar_label, fontsize=10.5, ha="center",
+    fig.text(0.50, 0.30 / fig_h, cbar_label, fontsize=10.5, ha="center",
              va="center", color="#202020")
-    fig.text(0.987, 0.016, "@Massachusettswx", fontsize=13, fontweight="bold",
-             ha="right", va="bottom", color="#111111")
+    fig.text(0.987, 0.13 / fig_h, "@Massachusettswx", fontsize=13,
+             fontweight="bold", ha="right", va="bottom", color="#111111")
+    if credit:
+        # the ECMWF's own attribution, on the bottom right inside the graphic
+        fig.text(0.987, 0.015 / fig_h, credit, fontsize=7.6, ha="right",
+                 va="bottom", color="#4a4a4a")
     fig.savefig(fname, dpi=130, facecolor="white")
     plt.close(fig)
 

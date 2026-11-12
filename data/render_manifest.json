@@ -599,6 +599,10 @@
   "label": "March 2027",
   "lead": 5
  },
+ "snow_ecmwf-seas5_month07_in.png": {
+  "label": "May 2027",
+  "lead": 7
+ },
  "snow_c3s-multi_month01_in.png": {
   "label": "November 2026",
   "lead": 1
@@ -622,5 +626,9 @@
  "snow_c3s-multi_month06_in.png": {
   "label": "April 2027",
   "lead": 6
+ },
+ "snow_c3s-multi_month07_in.png": {
+  "label": "May 2027",
+  "lead": 7
  }
 }

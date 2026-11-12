@@ -8,10 +8,20 @@
 set -e
 cd "$(dirname "$0")"
 
-TOKEN="${1:-}"
 MSG="${2:-Refresh seasonal graphics}"
+# The token is read from data/.github_token (mode 600, gitignored) so it
+# never appears in the process list.  An argument is only used when it is a
+# real token.
+TOKEN="${1:-}"
+if [ -z "$TOKEN" ] || [ "$TOKEN" = "none" ]; then
+    TOKEN="$(cat data/.github_token 2>/dev/null || true)"
+    PUSH_ARG=""
+else
+    PUSH_ARG="$TOKEN"
+fi
 if [ -z "$TOKEN" ]; then
-  echo "usage: $0 <github-token> [message]" >&2
+  echo "usage: $0 <github-token|empty> [message]" >&2
+  echo "   (or put the token in data/.github_token)" >&2
   exit 1
 fi
 
@@ -39,5 +49,5 @@ if [ "${SKIP_PUSH:-0}" = "1" ]; then
     echo ">> not pushing (no working token) - the site is current locally"
 else
     echo ">> publishing"
-    ./push_to_github.sh "$TOKEN"
+    ./push_to_github.sh "$PUSH_ARG"
 fi

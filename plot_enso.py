@@ -26,6 +26,7 @@ import argparse
 import calendar
 import json
 import os
+import sys
 
 import numpy as np
 import matplotlib
@@ -34,6 +35,8 @@ import matplotlib.pyplot as plt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
+sys.path.insert(0, HERE)
+from ecmwf_credit import credit_for  # noqa: E402
 OUT = os.path.join(HERE, "output")
 MON = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
        "Nov", "Dec"]
@@ -417,13 +420,19 @@ def plot_basin(tag, name, rec, clim, ana, basin, kind, k, init):
                     handlelength=1.8, columnspacing=1.2)
     for t in leg.get_texts():
         t.set_color("#444444")
-    fig.text(0.995, 0.02, "@Massachusettswx", ha="right", fontsize=11,
-             fontweight="bold")
-    fig.text(0.005, 0.02, "Data: %s · analysis %s%s · forecast anchored to "
-             "the analysis" % (NOTES.get(tag, rec.get("note", "C3S seasonal")),
-                               ana_src,
-                               (" + " + tail_src) if tail_src else ""),
-             ha="left", fontsize=7.6, color="#8a8a8a")
+    fig.text(0.995, 0.075, "@Massachusettswx", ha="right", va="bottom",
+             fontsize=11, fontweight="bold")
+    credit = credit_for(tag)
+    if credit:
+        # the ECMWF's own attribution, on the bottom right inside the graphic
+        # 6.5 pt so it clears the data-source line on the left
+        fig.text(0.995, 0.014, credit, ha="right", va="bottom",
+                 fontsize=6.5, color="#8a8a8a")
+    # the analysis source is named in the descriptor above, so the footer
+    # keeps only the data source and the note about the anchoring
+    fig.text(0.005, 0.014, "Data: %s · forecast anchored to the analysis"
+             % (NOTES.get(tag, rec.get("note", "C3S seasonal"))),
+             ha="left", va="bottom", fontsize=7.6, color="#8a8a8a")
     fig.tight_layout(rect=[0, 0.05, 1, 1])
     fn = "ENSO_%s_%s_%s.png" % (tag.upper().replace("-", "_"),
                                 basin.replace(" ", "").replace("+", "p"),

@@ -19,6 +19,8 @@ import matplotlib.dates as mdates
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from datetime import datetime, timedelta
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from ecmwf_credit import ECMWF_CREDIT, credit_for  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
@@ -137,7 +139,8 @@ def model_climate_curve(init_y, init_m, mc_monthly, m7=None):
 
 def render_spv(members, times, model_name, out_path, domain="60",
                era5=None, model_clim=None, model_clim_label=None,
-               n_members=None, subtitle=None, footer=None, title=None):
+               n_members=None, subtitle=None, footer=None, title=None,
+             credit=""):
     """members: [member, day]; times: list of datetime."""
     label = "60°N" if domain == "60" else "NH (0–90°N)"
     mem = np.asarray(members, dtype=float)
@@ -228,8 +231,12 @@ def render_spv(members, times, model_name, out_path, domain="60",
     fig.text(0.062, 0.905, unent(subtitle or ""), fontsize=9.8, color="#4b5563", va="center")
     fig.text(0.062, 0.032, unent(footer or ""), fontsize=8.2, color="#6b7280",
              ha="left", va="center")
-    fig.text(0.98, 0.032, "@Massachusettswx", fontsize=10.5, fontweight="bold",
+    fig.text(0.98, 0.055, "@Massachusettswx", fontsize=10.5, fontweight="bold",
              color=C_TEXT, ha="right", va="center")
+    if credit:
+        # the ECMWF's own attribution, on the bottom right inside the graphic
+        fig.text(0.98, 0.012, credit, fontsize=7.6, color="#6b7280",
+                 ha="right", va="center")
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     fig.savefig(out_path, facecolor="white")

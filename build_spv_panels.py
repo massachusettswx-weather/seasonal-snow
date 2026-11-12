@@ -27,6 +27,7 @@ from datetime import datetime, timedelta, date
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from plot_spv import render_spv, load_era5   # noqa: E402
+from ecmwf_credit import credit_for           # noqa: E402
 from u10_daily import load_npz               # noqa: E402
 
 DATA = os.path.join(HERE, "data")
@@ -149,7 +150,7 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
         label = "60°N" if dom == "60" else "Northern Hemisphere"
         fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
         render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
-                   n_members=mat.shape[0],
+                   n_members=mat.shape[0], credit=credit_for(tag),
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
                             " · lead months 1–%d (through %d %s %d) · "
                             "ERA5 climatology 1991–2020"
@@ -190,6 +191,7 @@ def build_ecmwf_daily(name, init):
         fn = os.path.join(OUT, "SPV_ecmwf-seas5_%s.png" % key)
         render_spv(mem, times, name, fn, domain=dom, era5=era, model_clim=mc,
                    model_clim_label="ECMWF model-climate mean (init Nov)",
+                   credit=credit_for("ecmwf-seas5"),
                    n_members=mem.shape[0],
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
                             " · lead months 1–%d · ERA5 climatology 1991–2020"
@@ -351,7 +353,7 @@ def build_one(tag, name, init):
             res = grid_res(ug)
             resnote = (" · %s grid" % res) if res else ""
             render_spv(arr, times, name, fn, domain=dom, era5=era_cut,
-                       model_clim=None, n_members=nmem,
+                       model_clim=None, n_members=nmem, credit=credit_for(tag),
                        subtitle="Run init 01 %s %d · %d members · monthly means at "
                                 "10 hPa%s · ERA5 climatology 1991–2020"
                                 % (MONTHS[int(init[-2:]) - 1], int(init[:4]), nmem,
