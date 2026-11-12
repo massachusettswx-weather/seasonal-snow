@@ -11,7 +11,7 @@ ECMWF_CREDIT = ("© %d European Centre for Medium-Range Weather Forecasts "
                 "ECMWF." % date.today().year)
 
 # the systems whose data comes from ECMWF
-ECMWF_TAGS = {"ecmwf-seas5", "ecmwf-s4s"}
+ECMWF_TAGS = {"ecmwf-seas5", "ecmwf-s4s", "ec46"}
 
 
 def credit_for(tag):

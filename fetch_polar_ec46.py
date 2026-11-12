@@ -41,6 +41,10 @@ from polar_cap import zonal_mean  # noqa: E402
 ECDS = "https://ecds.ecmwf.int/api"
 OUT = os.path.join(DATA, "polar_ec46_z.json")
 STATE = os.path.join(DATA, "polar_ec46_jobs.json")
+# the seasonal puller keeps every model's series in one file, and the
+# plotter reads them from there.  The EC46 series is merged into it as
+# well, so the same drawing routine serves every route.
+CACHE = os.path.join(DATA, "polar_model_z.json")
 
 # the levels the S2S archive serves (the ten of the reference's twelve that
 # the S2S catalogue actually carries)
@@ -125,10 +129,14 @@ def read_grib(path):
                     v = v.reshape(len(lats), len(lons))
                     lat2d = np.repeat(lats[:, None], len(lons), axis=1)
                 lats = lat2d[:, 0]
-                dd = int(eccodes.codes_get(gid, "dataDate"))
-                st = int(eccodes.codes_get(gid, "step", 0) or 0)
-                valid = date(dd // 10000, (dd // 100) % 100, dd % 100) \
-                    + timedelta(hours=st)
+                # the VALIDITY time, not the data time: the S2S fields are
+                # initialised at 00Z or 12Z and carry the lead time as the
+                # step, so validityDate/validityTime is the only pair that
+                # gives the right calendar day
+                vd = int(eccodes.codes_get(gid, "validityDate"))
+                vt = int(eccodes.codes_get(gid, "validityTime"))
+                valid = date(vd // 10000, (vd // 100) % 100, vd % 100) \
+                    + timedelta(hours=vt)
                 lev = int(eccodes.codes_get(gid, "level"))
                 key = valid.strftime("%Y-%m-%d %H")
                 out.setdefault(key, {})[lev] = zonal_mean(v, lats)
@@ -144,12 +152,17 @@ def submit(s, run_date, run_time, day0, day1):
            "month": "%02d" % run_date.month, "day": "%02d" % run_date.day,
            "time": run_time, "level_type": "pressure",
            "variable": ["geopotential_height"],
-           "level_value": ["%d_hpa" % l for l in LEVELS],
+           # the enum holds the BARE pressure - "1000", "100", "10" - and not
+           # "1000_hpa"; that spelling is what the catalogue lists
+           "level_value": ["%d" % l for l in LEVELS],
            "forecast_type": ["control_forecast", "perturbed_forecast"],
-           "leadtime_hour": [str(24 * k) for k in range(day0, day1)],
+           # the daily leads run 24...1560; the first day is +24 h
+           "leadtime_hour": [str(24 * (k + 1)) for k in range(day0, day1)],
            "area": AREA, "data_format": "grib"}
     r = s.post("%s/retrieve/v1/processes/s2s-forecasts/execute" % ECDS,
-               json={"inputs": req}, timeout=180)
+               json={"inputs": req,
+                     "outputs": {"asset": {"value": {"type": "file"}}}},
+               timeout=180)
     if r.status_code >= 400:
         raise RuntimeError("submit failed HTTP %d: %s" % (r.status_code, r.text[:200]))
     j = r.json()
@@ -210,14 +223,23 @@ def main():
         download(s, jid, path)
         vals = read_grib(path)
         os.remove(path)
-        rec = out.setdefault("ec46", {"times": [], "values": []})
+        rec = out.setdefault("ec46", {"times": [], "values": [],
+                                      "levels": list(LEVELS)})
         for t in sorted(vals):
             row = [vals[t].get(l) for l in LEVELS]
             if any(x is None for x in row):
                 continue
             rec["times"].append(t)
             rec["values"].append(row)
+        rec["run"] = "%s %s" % (run_date, run_time)
+        rec["members"] = 51
         json.dump(out, open(OUT, "w"), indent=1)
+        # and into the shared cache, under the same key the plotter reads
+        cache = json.load(open(CACHE)) if os.path.exists(CACHE) else {}
+        cache["ec46"] = {"times": rec["times"], "values": rec["values"],
+                         "levels": list(LEVELS), "run": rec["run"],
+                         "members": 51}
+        json.dump(cache, open(CACHE, "w"), indent=1)
         st["jobs"].append({"chunk": day0, "job": jid, "status": "decoded"})
         json.dump(st, open(STATE, "w"), indent=1)
         print("   the chunk decoded: %d times so far" % len(rec["times"]), flush=True)

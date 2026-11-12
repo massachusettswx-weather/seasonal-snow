@@ -91,6 +91,13 @@ MODELS = {
                         "\u00b7 weekly means out to 46 days \u00b7 read from ECMWF's own "
                         "climate store. A sub-seasonal system: its plume covers the "
                         "first six weeks of the run, not whole seasons."),
+    "ec46":            ("ECMWF EC46",
+                        "ECMWF sub-seasonal ensemble (EC46) \u00b7 51 members \u00b7 a "
+                        "46-day run, so this section covers the first six weeks of "
+                        "the run rather than whole seasons. The polar-cap "
+                        "geopotential height is read from ECMWF's own climate "
+                        "store, which carries ten pressure levels rather than "
+                        "the twelve the seasonal archive carries."),
     "sfsv1":           ("NOAA SFSv1",
                         "Experimental \u00b7 NOAA Seasonal Forecast System v1 \u00b7 31-member "
                         "ensemble \u00b7 0.5\u00b0 grid \u00b7 init 1 Nov 2026 \u00b7 read "
@@ -390,6 +397,36 @@ def main():
             "members": st.get("members", "?"),
             "init": st.get("init", "?"),
         })
+
+    # a model whose only published product is the polar-cap section (the
+    # ECMWF sub-seasonal ensemble, EC46) still needs its own entry
+    have = {e["id"] for e in reg["models"]}
+    pdir = os.path.join(OUT, "polar_cap")
+    if os.path.isdir(pdir):
+        for fn in sorted(os.listdir(pdir)):
+            if not fn.startswith("polar_cap_") or not fn.endswith(".png"):
+                continue
+            tag = fn[len("polar_cap_"):-4]
+            if tag in have:
+                continue
+            name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
+            nmem = "?"
+            init = "?"
+            zp = os.path.join(DATA, "polar_ec46_z.json")
+            if tag == "ec46" and os.path.exists(zp):
+                try:
+                    z = json.load(open(zp)).get("ec46", {})
+                    nmem = z.get("members", "?")
+                    init = z.get("run", "?")
+                except Exception:
+                    pass
+            reg["models"].append({
+                "id": tag,
+                "name": name,
+                "note": note,
+                "members": nmem,
+                "init": init,
+            })
 
     # attach the ENSO plume charts
     for entry in reg["models"]:
