@@ -17,6 +17,7 @@ from matplotlib.colors import BoundaryNorm
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import init_info
 from plot_snow_models import (draw_map, grid_axes, interp_to, read_snowfall,
                             read_extended,
                               setup_grid, to_2d)
@@ -126,7 +127,7 @@ def main():
         for k, v in json.load(open(fp)).items():
             if v.get("init"):
                 inits[k] = v["init"]
-    latest = max(inits.values()) if inits else "2026-11"
+    latest = max(inits.values()) if inits else init_info.newest_init("ecmwf-seas5")
     first = (int(latest[:4]), int(latest[5:7]))
     WINDOW = [ym for ym in ALL_MONTHS
               if ym >= first and any(ym in f for f in fields.values())]

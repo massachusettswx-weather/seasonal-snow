@@ -26,6 +26,7 @@ import json
 import shutil
 
 import numpy as np
+import init_info
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MDIR = os.path.join(HERE, "data", "models")
@@ -64,9 +65,28 @@ def merge_u10(dst, paths):
     np.savez(dst, dates=dates, members60=m60, members_nh=mnh,
              member_numbers=np.arange(1, n + 1),
              meta=json.dumps({"tag": DST, "centre": "eccc",
-                              "system": "cansips", "init": "2026-11",
+                              "system": "cansips", "init": src_init(),
                               "merged_from": SRC}))
     return True, n
+
+
+def src_init():
+    """The init the two pooled systems are on.
+
+    The canSIPS ensemble is whatever the ECCC's own two systems are on,
+    so the label follows them and not a constant.
+    """
+    st = {}
+    sp = os.path.join(HERE, "data", "models_fetched.json")
+    if os.path.exists(sp):
+        try:
+            st = json.load(open(sp))
+        except Exception:
+            st = {}
+    inits = [st.get(t, {}).get("init") for t in SRC if st.get(t, {}).get("init")]
+    if not inits:
+        return init_info.newest_init("ecmwf-seas5")
+    return max(inits)
 
 
 def merge_enso(dst, paths):
@@ -195,7 +215,7 @@ def main():
         "name": NAME,
         "centre": "eccc",
         "system": "cansips",
-        "init": "2026-11",
+        "init": src_init(),
         "members": members,
         "leads": 7,
         "merged_from": SRC,

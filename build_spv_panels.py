@@ -20,6 +20,7 @@ that date), so the model trace and the ERA5 climatology line - which is also a
 
 usage: python3 build_spv_panels.py
 """
+import glob
 import os, sys, json, collections, calendar
 import numpy as np
 from datetime import datetime, timedelta, date
@@ -28,6 +29,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from plot_spv import render_spv, load_era5   # noqa: E402
 from ecmwf_credit import credit_for           # noqa: E402
+import init_info                             # noqa: E402
 from u10_daily import load_npz               # noqa: E402
 
 DATA = os.path.join(HERE, "data")
@@ -167,14 +169,37 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
         print("wrote %s  (daily, %d members, %d days)" % (fn, mat.shape[0], len(times)))
 
 
+def seas5_daily_file(kind="daily"):
+    """The newest SEAS5 daily file on disk.
+
+    The file is named for its init (seas5_202611_daily.npz), so the
+    December run is found by looking for the newest one rather than by
+    having the name written into this script.
+    """
+    best = None
+    for p in glob.glob(os.path.join(DATA, "seas5_*_%s.npz" % kind)):
+        tag = os.path.basename(p)[len("seas5_"):-len("_%s.npz" % kind)]
+        if best is None or tag > best[0]:
+            best = (tag, p)
+    return best
+
+
 def build_ecmwf_daily(name, init):
     """The ECMWF run has daily 12Z members -> the full daily SPV chart."""
     from plot_spv import model_climate_curve
-    d = np.load(os.path.join(DATA, "seas5_202611_daily.npz"))
+    got = seas5_daily_file("daily")
+    if not got:
+        print("  no SEAS5 daily series on disk")
+        return
+    if got[0] != init.replace("-", ""):
+        print("  the SEAS5 daily series is the %s init, the model is on %s"
+              % (got[0], init))
+    d = np.load(got[1])
     steps = d["steps"]
     init_dt = datetime(int(init[:4]), int(init[-2:]), 1)
     times = [init_dt + timedelta(hours=int(s)) for s in steps]
-    clim = np.load(os.path.join(DATA, "seas5_202611_clim.npz"))
+    clim = np.load(seas5_daily_file("clim")[1]
+                   if seas5_daily_file("clim") else got[1])
     p7 = os.path.join(DATA, "model_clim_m7_month%02d.npz" % int(init[-2:]))
     m7 = np.load(p7) if os.path.exists(p7) else None
     for dom, key in (("60", "60N"), ("NH", "NH")):
@@ -223,7 +248,7 @@ def main():
             # is not published
             continue
         name = meta.get("name", tag)
-        init = meta.get("init", "2026-11")
+        init = meta.get("init") or init_info.recorded_init(tag)
         try:
             build_one(tag, name, init)
         except Exception as e:
@@ -257,8 +282,7 @@ def set_panel_kind(tag, kind):
 
 
 def build_one(tag, name, init):
-        if tag == "ecmwf-seas5" and os.path.exists(
-                os.path.join(DATA, "seas5_202611_daily.npz")):
+        if tag == "ecmwf-seas5" and seas5_daily_file("daily"):
             build_ecmwf_daily(name, init)
             return
 
@@ -384,8 +408,7 @@ def prune_stale_panels(state):
     def has_data(tag):
         return (os.path.exists(os.path.join(MDIR, tag, "u10_daily.npz")) or
                 os.path.exists(os.path.join(MDIR, tag, "u10_monthly.grib")) or
-                (tag == "ecmwf-seas5" and os.path.exists(
-                    os.path.join(DATA, "seas5_202611_daily.npz"))))
+                (tag == "ecmwf-seas5" and seas5_daily_file("daily")))
 
     n = 0
     for d in (OUT, os.path.join(HERE, "docs", "assets", "spv")):

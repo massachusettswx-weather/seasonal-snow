@@ -49,6 +49,7 @@ from datetime import datetime
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import cds_direct                                       # noqa: E402
+import init_info                                         # noqa: E402
 
 DATA = os.path.join(HERE, "data")
 MDIR = os.path.join(DATA, "models")
@@ -56,7 +57,10 @@ STATE = os.path.join(DATA, "models_fetched.json")
 PENDING = os.path.join(DATA, "nov_pending.json")
 DAILY_STATE = os.path.join(DATA, "daily_jobs.json")
 
-INIT = "2026-11"
+# the init is never written down: it comes from init_info, which knows the
+# C3S release calendar, and from the state file, which keeps what each
+# centre is actually on
+
 LEADS = [str(k) for k in range(1, 7)]
 
 DS_MONTHLY_SL = "seasonal-monthly-single-levels"
@@ -209,7 +213,7 @@ def u10m_steps():
             continue
         p = os.path.join(MDIR, tag, "u10_monthly.grib")
         if os.path.exists(p) and os.path.getsize(p) > 10000:
-            if u10_init_on_disk(p) == INIT:
+            if u10_init_on_disk(p) == newest_init(tag):
                 continue           # already the newest init
         out.append(("u10m:" + tag, tag, "u10m"))
     return out
@@ -275,36 +279,91 @@ def target_for(tag, kind):
     }[kind]
 
 
-def record_init(tag, init=INIT):
+def record_init(tag, init=None):
+    """Record the init a centre is on, and clear what the old init left.
+
+    When a centre moves to a new init the files of the old one must go:
+    the daily series is merged member by member, so a November chunk left
+    in the file would be averaged into the December one.  The files that
+    are simply overwritten (the monthly GRIBs) need no attention, but the
+    derived ones - the daily series, the extension, the plume indices -
+    are removed here.
+    """
+    if init is None:
+        init = newest_init(tag)
     p = STATE
     st = json.load(open(p)) if os.path.exists(p) else {}
     name, centre, system = CENTRES.get(tag, (tag, "", ""))
     rec = st.get(tag, {})
+    old = rec.get("init")
     rec.update({"name": name, "centre": centre, "system": system,
                 "init": init, "probe_date": time.strftime("%Y-%m-%d")})
     st[tag] = rec
     json.dump(st, open(p, "w"), indent=1)
-    print("   %s is on the %s init" % (tag, init), flush=True)
+    if old and old != init:
+        print("   %s moved from the %s init to the %s init - clearing the "
+              "old data" % (tag, old, init), flush=True)
+        wipe_centre(tag)
+    else:
+        print("   %s is on the %s init" % (tag, init), flush=True)
+
+
+def wipe_centre(tag):
+    """Remove the files that belong to a centre's previous init.
+
+    The monthly GRIBs are overwritten by the next fetch, but the daily
+    series, the extension and the plume indices are merged or appended, so
+    they have to go when the init moves.
+    """
+    d = os.path.join(MDIR, tag)
+    if not os.path.isdir(d):
+        return
+    for fn in ("u10_daily.npz", "snowfall_ext.npz", "enso.json",
+               "sst_extended.npz", "u10_daily_c0.grib", "u10_daily_c1.grib",
+               "u10_daily_c2.grib", "snowfall_ext.grib"):
+        p = os.path.join(d, fn)
+        if os.path.exists(p):
+            try:
+                os.remove(p)
+                print("      removed the old %s" % fn, flush=True)
+            except OSError:
+                pass
+
+
+# The C3S release calendar lives in init_info.py: the ECMWF publishes on
+# the 6th of the month and every other centre on the 10th, and the pool
+# uses that to know when to try the next init.
+
+
+def init_of(kind, tag):
+    """The init a request of this kind is made for."""
+    if kind in ("snow", "clim", "sst", "u10m"):
+        return newest_init(tag)
+    return centre_init(tag)
+
+
+def newest_init(tag):
+    """The newest init a centre could be serving today.
+
+    Before its release day a centre is still on last month's init, so the
+    request is not made and the queue is not spent on a date the archive
+    does not have yet.
+    """
+    return init_info.newest_init(tag)
 
 
 def centre_init(tag):
     """The init a centre is actually on.
 
-    Every centre is being moved onto the November init, but until its
-    November forecast is actually on disk it is still on whatever it was
-    serving - and the request has to ask for THAT init, or the archive
-    answers with nothing.  The monthly request always asks for the
-    November init; the extension and the daily wind follow the init that
-    the monthly request established.
-
-    The sea surface temperature is the exception: it is asked for by the
-    newest init whatever the centre is on, because a newer init's SST is
-    simply better and the plume should use it.  Asking for the state's
-    init here is how the ECCC centres kept being given a fresh copy of
-    their October SST.
+    A centre stays on the init it was last seen on until its next monthly
+    forecast has actually been downloaded, so the extension and the daily
+    wind - which follow the monthly - keep asking for the init the centre
+    really has.  The monthly request itself asks for the newest init the
+    centre could be serving (see newest_init), so the centre moves on the
+    day its new forecast is released.
     """
     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
-    return st.get(tag, {}).get("init", INIT)
+    return st.get(tag, {}).get("init") or newest_init(tag)
 
 
 def u10_init_on_disk(path):
@@ -358,7 +417,7 @@ def sst_init_on_disk(path):
 def build_request(tag, kind, chunk=None):
     """-> (dataset, request-dict, [(kind, filename), ...])"""
     name, centre, system = CENTRES[tag]
-    init = INIT if kind in ("snow", "clim", "sst", "u10m") else centre_init(tag)
+    init = newest_init(tag) if kind in ("snow", "clim", "sst", "u10m") else centre_init(tag)
     common = {"originating_centre": centre, "system": system,
               "year": init[:4], "month": init[5:7], "data_format": "grib"}
     if kind == "snow":
@@ -478,7 +537,8 @@ def daily_set(jid, tag, chunk, status, **kw):
         name, centre, system = CENTRES.get(tag, (tag, "", ""))
         st["jobs"].append({"job": jid, "tag": tag, "chunk": chunk,
                            "centre": centre, "system": system,
-                           "init": INIT, "status": status, "_t0": time.time()})
+                           "init": init_of(kind, tag), "status": status,
+                           "_t0": time.time()})
         st["jobs"][-1].update(kw)
     json.dump(st, open(DAILY_STATE, "w"), indent=1)
 
@@ -522,7 +582,8 @@ def decode_ext(path, tag):
     months, members, acc, glat, glon, ndays = read_snow(path)
     if months and acc is not None:
         save_npz(path.replace(".grib", ".npz"), months, members, acc, glat, glon,
-                 meta=dict(tag=tag, init=INIT, kind="extended"), ndays=ndays)
+                 meta=dict(tag=tag, init=centre_init(tag), kind="extended"),
+                 ndays=ndays)
         print("   %s/ext: %d extended month(s) %s (%s days each)"
               % (tag, len(months), ["%04d-%02d" % m for m in months], ndays),
               flush=True)
@@ -568,7 +629,8 @@ def decode_daily(path, tag, chunk):
         merged = (dates, m60, mnh, members)
     name, centre, system = CENTRES.get(tag, (tag, "", ""))
     save_npz(npz, merged[0], merged[1], merged[2], merged[3],
-             meta=dict(tag=tag, centre=centre, system=system, init=INIT))
+             meta=dict(tag=tag, centre=centre, system=system,
+                       init=centre_init(tag)))
     print("   %s: chunk %d decoded (%d records, %d members, %d days)"
           % (tag, chunk, len(recs), len(members), len(dates)), flush=True)
     return True
@@ -934,7 +996,7 @@ def run(c, steps, only=None, dry=False):
                     p = target_for(tag, "snow")
                     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
                     if (os.path.exists(p) and os.path.getsize(p) > 10000
-                            and st.get(tag, {}).get("init") == INIT):
+                            and st.get(tag, {}).get("init") == newest_init(tag)):
                         continue
                 elif kind == "sst":
                     # the SST has to be the NEWEST init's, not merely a
@@ -943,14 +1005,14 @@ def run(c, steps, only=None, dry=False):
                     # skipped the request for the November one
                     p = target_for(tag, "sst")
                     if (os.path.exists(p) and os.path.getsize(p) > 10000
-                            and sst_init_on_disk(p) == INIT):
+                            and sst_init_on_disk(p) == newest_init(tag)):
                         continue
                 elif kind == "u10m":
                     # skipped only when the monthly wind on disk is already
                     # the newest init
                     p = target_for(tag, "u10m")
                     if (os.path.exists(p) and os.path.getsize(p) > 10000
-                            and u10_init_on_disk(p) == INIT):
+                            and u10_init_on_disk(p) == newest_init(tag)):
                         continue
                 elif kind == "clim":
                     # the hindcast climate does not change between inits, so
@@ -996,8 +1058,8 @@ def run(c, steps, only=None, dry=False):
                 # one the previous init left behind
                 if os.path.exists(p) and os.path.getmtime(p) > time.time() - 3600:
                     st = json.load(open(STATE)) if os.path.exists(STATE) else {}
-                    if st.get(tag, {}).get("init") != INIT:
-                        record_init(tag)
+                    if st.get(tag, {}).get("init") != newest_init(tag):
+                        record_init(tag, newest_init(tag))
         if time.time() - last_report > 300:
             last_report = time.time()
             print("   [pool] %d in flight: %s"

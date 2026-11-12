@@ -63,6 +63,28 @@ def forecast_path(init, exp=EXP):
     return "experiments/%s/forecast/%s/atm_monthly.zarr" % (exp, init)
 
 
+def newest_init(fs=None, exp=EXP, back=6):
+    """The newest init the store actually holds.
+
+    The SFS publishes a new init every month, so the December run has to
+    be found rather than written down.  The store does not allow its
+    buckets to be listed, so the candidate months are tried instead: the
+    newest one that opens is the one to use.
+    """
+    fs = fs or _fs()
+    today = date.today()
+    total = today.year * 12 + (today.month - 1)
+    for k in range(back):
+        y, m = (total - k) // 12, (total - k) % 12 + 1
+        init = "%04d%02d" % (y, m)
+        try:
+            open_zarr(fs, forecast_path(init, exp))
+            return init
+        except Exception:
+            continue
+    return None
+
+
 def reforecast_path(month, exp=EXP):
     return "experiments/%s/reforecast/%02d/atm_monthly.zarr" % (exp, month)
 
@@ -179,8 +201,15 @@ def fetch(init="202611", exp=EXP, tag="sfsv1"):
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--init", default="202611")
+    ap.add_argument("--init", default="",
+                    help="the init (YYYYMM); by default the newest one the "
+                         "store holds")
     ap.add_argument("--exp", default=EXP)
     ap.add_argument("--tag", default="sfsv1")
     a = ap.parse_args()
-    fetch(a.init, a.exp, a.tag)
+    init = a.init or newest_init(exp=a.exp)
+    if not init:
+        print("   no init found in the forecast store")
+        raise SystemExit(1)
+    print("   the SFS init: %s" % init)
+    fetch(init, a.exp, a.tag)

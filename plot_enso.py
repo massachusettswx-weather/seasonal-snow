@@ -37,6 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 from ecmwf_credit import credit_for  # noqa: E402
+import init_info                                # noqa: E402
 OUT = os.path.join(HERE, "output")
 MON = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
        "Nov", "Dec"]
@@ -464,7 +465,7 @@ def main():
             print("== %s: staged, not published yet" % tag, flush=True)
             continue
         name = NAMES.get(tag, tag)
-        init = rec.get("init") or "2026-11"
+        init = rec.get("init") or init_info.recorded_init(tag)
         print("== %s (%s, init %s, %d months)" %
               (tag, name, init, len(rec["months"])), flush=True)
         for basin in rec["basins"]:

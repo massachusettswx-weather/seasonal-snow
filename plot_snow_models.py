@@ -62,6 +62,7 @@ MDIR = os.path.join(DATA, "models")
 
 # the ECMWF's attribution, on the graphics made from its data
 from ecmwf_credit import ECMWF_CREDIT, ECMWF_TAGS, credit_for  # noqa: E402
+import init_info                                    # noqa: E402
 
 # the house anomaly palette: deep brown -> white -> deep teal
 ANOM_LEVELS = np.array([-4, -2, -1, -0.5, -0.25, -0.1, 0,
@@ -394,7 +395,7 @@ def main():
             print("skip %s (no snowfall)" % tag)
             continue
         name = meta.get("name", tag)
-        init = meta.get("init", "2026-11")
+        init = meta.get("init") or init_info.recorded_init(tag)
         iy, im = int(init[:4]), int(init[-2:])
 
         by_step = read_snowfall(fg)

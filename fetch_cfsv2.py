@@ -95,6 +95,11 @@ def fetch(tag="cfsv2"):
     prec, plat, plon, t, punit = read_cpc(pp)
     mons = months_from_cpc(t)
     print("CFSv2 lead months:", ["%04d-%02d" % m for m in mons], "| precip units:", punit)
+    # the first lead month identifies the init: the CPC replaces the file in
+    # place when a new run starts, so the init comes from the data and not
+    # from a constant that would have to be edited every month
+    init = "%04d-%02d" % mons[0]
+    print("CFSv2 init: %s" % init)
 
     # ERA5 1991-2020 climatology for the absolute snowfall panels
     clim_path = os.path.join(DATA, "era5_snow_clim_arco_conus.npz")
@@ -158,7 +163,7 @@ def fetch(tag="cfsv2"):
                         values=pack(fcst),
                         lat=lat, lon=lon,
                         meta=np.array(json.dumps(
-                            dict(tag=tag, name="NOAA CFSv2", init="2026-11",
+                            dict(tag=tag, name="NOAA CFSv2", init=init,
                                  members=40, source="NCEP CPC monthly means",
                                  note="absolute snowfall = the ERA5 1991-2020 climatology "
                                       "plus the CFSv2 hindcast anomaly"))))
@@ -171,12 +176,12 @@ def fetch(tag="cfsv2"):
                         months=np.array(months),
                         values=pack(base),
                         lat=lat, lon=lon,
-                        meta=np.array(json.dumps(dict(init="2026-11"))))
+                        meta=np.array(json.dumps(dict(init=init))))
     print("wrote", tag, "npz files")
 
     sp = os.path.join(DATA, "models_fetched.json")
     state = json.load(open(sp)) if os.path.exists(sp) else {}
-    state[tag] = {"name": "NOAA CFSv2", "init": "2026-11", "members": 40,
+    state[tag] = {"name": "NOAA CFSv2", "init": init, "members": 40,
                   "source": "NCEP CPC", "leads": len(mons)}
     json.dump(state, open(sp, "w"), indent=1)
     print("registered %s in models_fetched.json" % tag)

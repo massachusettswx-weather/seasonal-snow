@@ -20,6 +20,7 @@ import os
 import sys
 
 import numpy as np
+import init_info
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
@@ -83,7 +84,7 @@ def fetch_c3s_sst(tag, centre, system, leads, init=None):
         # better, and the plume should use it even when the centre's
         # snowfall is still on an older init
         init = state.get(tag, {}).get("target_init") or state.get(
-            tag, {}).get("init") or "2026-11"
+            tag, {}).get("init") or init_info.recorded_init(tag)
     if not init:
         print("  %s: no init known - skipping" % tag, flush=True)
         return None

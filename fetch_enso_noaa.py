@@ -50,9 +50,15 @@ def sfs():
     """
     import s3fs
     import zarr
+    from fetch_sfs import newest_init
     fs = s3fs.S3FileSystem(anon=True)
+    init = newest_init(fs)
+    if not init:
+        raise SystemExit("no SFS init found in the store")
+    print("   the SFS init: %s" % init, flush=True)
     z = zarr.open_group(fs.get_mapper(
-        "%s/experiments/beta3/forecast/202611/ocn_monthly.zarr" % BUCKET), mode="r")
+        "%s/experiments/beta3/forecast/%s/ocn_monthly.zarr" % (BUCKET, init)),
+        mode="r")
     v = z["SST"]
     la = np.asarray(z["latitude"][:], float)
     lo = np.asarray(z["longitude"][:], float)
@@ -89,7 +95,7 @@ def sfs():
     out_t = [[trop[i * nmem + j] for j in range(nmem)] for i in range(len(months))]
     write("sfsv1", months, out, "noaa-sst",
           "NOAA SFSv1 sea surface temperature from the NODD ocean store, 31 members",
-          tropical=out_t, init="2026-11")
+          tropical=out_t, init="%s-%s" % (init[:4], init[4:6]))
 
 
 CPC_IDX = "https://www.cpc.ncep.noaa.gov/products/CFSv2/dataInd1"
@@ -191,9 +197,13 @@ def cfsv2():
             print("  members per month: %d | tropical term %.3f .. %.3f"
                   % (len(tv), min(tv), max(tv)), flush=True)
 
+    # the first forecast month identifies the init: CPC replaces the file
+    # when a new run starts, so the label comes from the data
+    init = months[0][:7] if months else "2026-11"
+    print("  the CFSv2 init: %s" % init, flush=True)
     write("cfsv2", months, series, "noaa-anom",
           "NOAA CFSv2 published Nino indices (40-member ensemble, CPC)",
-          tropical=trop, init="2026-11")
+          tropical=trop, init=init)
 
 
 if __name__ == "__main__":
