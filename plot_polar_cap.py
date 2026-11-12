@@ -31,15 +31,15 @@ PROFILES = os.path.join(DATA, "era5_polarcap_profiles.npz")
 RECENT = os.path.join(DATA, "polar_era5_recent.npz")
 MODEL_CACHE = os.path.join(DATA, "polar_model_z.json")
 CLIM = os.path.join(DATA, "polar_cap_clim.npz")
-# the climatology in the NATIVE ERA5 convention.  It has to be preferred:
-# the reduced store's remap moves the polar-cap mean by 0.2-0.8%, and the
-# day-to-day spread of the polar cap in October is only about 800, so a
-# reanalysis drawn against the remapped climate comes out 2-3 sigma too
-# cold on every day.  See fetch_polar_clim_arco.py.
+# the climatology in the ARCO NATIVE store's own convention.  It is NOT
+# used: that store mutes the stratospheric variability (the January 2013
+# sudden warming comes out at -0.2 sigma there against +2.1 sigma in the
+# reduced store and in the seasonal models), so a climatology built from
+# it would misstate every anomaly.  It is kept only for the record.
 CLIM_NATIVE = os.path.join(DATA, "polar_cap_clim_native.npz")
-# the climatology in the NATIVE ERA5 convention - the one that matches the
-# data it normalises.  It is preferred over the daily one whenever it is
-# there; see fetch_polar_clim_monthly.py for why.
+# the climatology in the CDS's own native convention - the one that
+# matches the reanalysis the chart draws.  It is preferred over the
+# daily one whenever it is there; see fetch_polar_clim_monthly.py.
 CLIM_MONTHLY = os.path.join(DATA, "polar_cap_clim_monthly.npz")
 
 # how many days of ERA5 analysis to show before the forecast starts.
@@ -286,17 +286,18 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
     nlev = len(levs)
+    lev_txt = "%d-%d" % (min(levs), max(levs))
     title = ("%s · Polar Cap (60-90°N) Normalised Geopotential Height Anomaly"
              % label)
     clim_txt = {"monthly": "ERA5 1991-2020 monthly climatology",
                 "daily": "ERA5 1991-2020 climatology"}[kind]
     if ana_days:
         subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "
-                    "seasonal forecast from %s to %s · %d hPa levels · %s"
-                    % (len(ana_days), label, init_day, end_day, nlev, clim_txt))
+                    "seasonal forecast from %s to %s · %d levels (%s hPa) · %s"
+                    % (len(ana_days), label, init_day, end_day, nlev, lev_txt, clim_txt))
     else:
-        subtitle = ("the %s seasonal forecast from %s to %s · %d hPa levels · %s"
-                    % (label, init_day, end_day, nlev, clim_txt))
+        subtitle = ("the %s seasonal forecast from %s to %s · %d levels (%s hPa) · %s"
+                    % (label, init_day, end_day, nlev, lev_txt, clim_txt))
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, "polar_cap_%s.png" % tag)
     plot_section(days, norm, levs, p, title, subtitle,

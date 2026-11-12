@@ -339,7 +339,7 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
         if b <= a:
             continue
         p1 = ax.contourf(x[a:b], lev, z[:, a:b], levels=edges, cmap=cmap,
-                         norm=norm_c, extend="both", alpha=alpha)
+                         norm=norm_c, extend="both", alpha=alpha)  # the ends are drawn, the bar is not pointed
 
     ax.set_yscale("log")
     ax.set_ylim(1000.0, 10.0)
@@ -433,7 +433,7 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     sm.set_array([])
     cax = fig.add_axes([0.245, 0.082, 0.48, 0.019])
     cb = fig.colorbar(sm, cax=cax, orientation="horizontal",
-                      boundaries=edges, ticks=edges[1:-1], extend="both",
+                      boundaries=edges, ticks=edges[1:-1], extend="neither",
                       spacing="uniform")
     cb.ax.set_xticklabels(["%g" % e for e in edges[1:-1]], fontsize=8,
                           color=C_TEXT)
