@@ -34,6 +34,18 @@ python3 build_registry.py
 echo ">> rebuilding the site"
 python3 build_site.py
 
+# The publish gate.  The site must never go out with a model whose label
+# disagrees with its own data, or with the C3S centres on two different
+# inits at once - the December release then moves the whole site in one
+# step instead of one card at a time.  ALLOW_MIXED=1 overrides the second
+# check when a centre is deliberately held back.
+echo ">> checking the init coherence"
+if ! python3 audit_inits.py --gate ${ALLOW_MIXED:+--allow-mixed}; then
+  echo "!! the site is NOT coherent - not publishing" >&2
+  echo "   (set ALLOW_MIXED=1 to publish anyway)" >&2
+  exit 2
+fi
+
 echo ">> committing"
 git add -A
 if git diff --cached --quiet; then

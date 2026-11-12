@@ -296,7 +296,11 @@ def record_init(tag, init=None):
     name, centre, system = CENTRES.get(tag, (tag, "", ""))
     rec = st.get(tag, {})
     old = rec.get("init")
-    rec.update({"name": name, "centre": centre, "system": system,
+    # the name the archive gave the system is kept - the centre code is
+    # not the name the site shows
+    rec.update({"centre": rec.get("centre") or centre,
+                "system": rec.get("system") or system,
+                "name": rec.get("name") or name,
                 "init": init, "probe_date": time.strftime("%Y-%m-%d")})
     st[tag] = rec
     json.dump(st, open(p, "w"), indent=1)
@@ -537,7 +541,7 @@ def daily_set(jid, tag, chunk, status, **kw):
         name, centre, system = CENTRES.get(tag, (tag, "", ""))
         st["jobs"].append({"job": jid, "tag": tag, "chunk": chunk,
                            "centre": centre, "system": system,
-                           "init": init_of(kind, tag), "status": status,
+                           "init": centre_init(tag), "status": status,
                            "_t0": time.time()})
         st["jobs"][-1].update(kw)
     json.dump(st, open(DAILY_STATE, "w"), indent=1)

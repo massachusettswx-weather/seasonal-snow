@@ -168,6 +168,11 @@ def main():
                 pub, ",".join(uniq))
             problems.append("%s: the registry says %s but the data is on %s"
                             % (tag, pub, ",".join(uniq)))
+        if pub and own and pub != own:
+            verdict = "THE STATE AND THE REGISTRY DISAGREE (%s vs %s)" % (
+                own, pub)
+            problems.append("%s: the state says %s but the registry says %s"
+                            % (tag, own, pub))
         if not pub:
             verdict = "not published"
         print("%-22s %-14s %-14s %-14s %s"
