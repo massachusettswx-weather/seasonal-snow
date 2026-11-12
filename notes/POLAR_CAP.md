@@ -145,3 +145,30 @@ The IFS 15-day chart and the AIFS ensemble spread were built, validated and
 then **removed** at the user's direction: the section is for the SEASONAL
 guidance and EC46 only.  A medium-range forecast is a different product and
 does not belong here.
+
+## The ARCO native store must NOT be used for the stratosphere (12 Nov 2026)
+
+`ar/full_37-1h-0p25deg-chunk-1.zarr-v3` is ARCO's own vertical interpolation of the
+ERA5 pressure levels, not the CDS product. It **mutes the stratospheric variability**:
+
+| event | reduced store | ARCO native store | seasonal model / IFS |
+|---|---|---|---|
+| Jan 2013 SSW, 14 Jan 2013, 10 hPa | **+2.07 σ** | **−0.17 σ** | agrees with the reduced store |
+| Dec 2010 SSW, 4 Dec 2010, 10 hPa | +0.53 σ | −0.9 σ | (a vortex split, weak cap-mean signal) |
+| Feb 2019 SSW | −0.4 σ | — | (a vortex split) |
+
+The January 2013 event is the clean test: the reduced store shows the textbook
+0 → +2 σ rise over two weeks, the native store flattens it to +0.7 σ and sits 2 σ
+too cold. So:
+
+* the **reduced** store (`1959-2022-1h-240x121_equiangular_with_poles_conservative.zarr`)
+  is faithful, and its climatology is the right one to normalise against — but it
+  **ends in 2022**;
+* the **CDS** (`reanalysis-era5-pressure-levels`) is the native product the seasonal
+  models and the IFS agree with, so it is the route for both the recent 90 days and
+  the climatology (`reanalysis-era5-pressure-levels-monthly-means`);
+* `data/polar_cap_clim_native.npz` (the ARCO native climatology) is kept only for
+  the record and is **not** used.
+
+The rule that follows: *a climatology must be built from the same product and grid
+as the data it normalises* — and here, the same product means the same publisher.
