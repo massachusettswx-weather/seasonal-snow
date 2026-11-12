@@ -140,8 +140,15 @@ def model_climate_curve(init_y, init_m, mc_monthly, m7=None):
 def render_spv(members, times, model_name, out_path, domain="60",
                era5=None, model_clim=None, model_clim_label=None,
                n_members=None, subtitle=None, footer=None, title=None,
-             credit=""):
-    """members: [member, day]; times: list of datetime."""
+               credit="", x_end=None):
+    """members: [member, day]; times: list of datetime.
+
+    x_end: the last day the MODEL covers.  The chart is cut there, so the
+    ERA5 climatology layer never runs on past the end of the run - otherwise
+    the chart shows a month of climatology with no forecast behind it and
+    the reader is left thinking the run is still going.  It comes from the
+    model's own data, so it moves with the init.
+    """
     label = "60°N" if domain == "60" else "NH (0–90°N)"
     mem = np.asarray(members, dtype=float)
     if mem.ndim == 1:
@@ -193,7 +200,15 @@ def render_spv(members, times, model_name, out_path, domain="60",
     from datetime import timedelta as _td
     _x0 = times[0] - _td(days=2)        # a hair of room so the "01 Nov" tick
     x0 = _x0 if _x0 >= era5["t"][0] else era5["t"][0]
-    x1 = max(times[-1], era5["t"][-1])
+    # The chart ENDS with the model.  The ERA5 climatology layer runs over
+    # the whole calendar year, and letting it set the right-hand edge would
+    # leave a month of climatology on the chart with no model data behind
+    # it - the reader would see the run continuing when it has stopped.
+    # The end is the model's own last day, so it moves with the init.
+    _end = x_end if x_end is not None else times[-1]
+    x1 = _end + _td(days=1)
+    if era5["t"][-1] < x1:
+        x1 = era5["t"][-1]
     ax.set_xlim(x0, x1)
     ax.xaxis.set_major_locator(mdates.DayLocator(bymonthday=range(1, 29, 14)))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d %b"))

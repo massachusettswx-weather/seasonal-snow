@@ -40,8 +40,9 @@
    "chunk": 15,
    "end": 30,
    "job": "fcd0db8f-f87e-4b70-b3f7-bdcea2f73aa0",
-   "status": "accepted",
-   "init": "2026-11"
+   "status": "decoded",
+   "init": "2026-11",
+   "members": 51
   },
   {
    "tag": "ecmwf-seas5",
@@ -50,6 +51,16 @@
    "chunk": 45,
    "end": 60,
    "job": "c53110e6-5537-45a0-8a1e-c20e28e7a527",
+   "status": "running",
+   "init": "2026-11"
+  },
+  {
+   "tag": "ecmwf-seas5",
+   "centre": "ecmwf",
+   "system": "51",
+   "chunk": 60,
+   "end": 75,
+   "job": "7fcc140e-d9d1-40cb-ae79-3c7fa327cd82",
    "status": "accepted",
    "init": "2026-11"
   }

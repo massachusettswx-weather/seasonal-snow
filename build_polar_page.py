@@ -1,20 +1,25 @@
-"""The polar-cap page of the site.
+"""The polar-cap section of the Stratosphere page.
 
 The section is a time-height diagram of the polar cap (60-90N) normalised
-geopotential height anomaly: the ERA5 analysis on the left of the
-"forecast starts" line, the model's own forecast on the right, running to
-the end of that model's run.
+geopotential height anomaly: the analysis on the left of the "forecast
+starts" line, the model's own forecast on the right, running to the end of
+that model's run.
+
+It lives on the **Stratosphere** page, next to the 10 hPa zonal-mean zonal
+wind, because it is the same part of the atmosphere seen from the other
+side: the wind at 10 hPa is the vortex proxy, and this is the vortex
+itself, from the stratosphere down to the surface.
 
 Two kinds of chart live on the page:
 
-  * the ECMWF IFS section, built from the open data bucket - the same
-    product the reference figure uses - which is always available because
-    the open data has no queue;
+  * the ERA5 reanalysis of the last 90 days, in front of the model's own
+    forecast - what actually happened, and what might happen;
   * the seasonal sections, one per model, built from the C3S sub-daily
     archive, which run to the end of each model's own run.
 
-The page carries a menu, and the IFS section is the default because it is
-the one that is always there.
+**No medium-range guidance is used.**  The IFS 15-day chart that used to
+sit here has been taken out: a sub-seasonal and a seasonal run are the
+products this section is about.
 
 The charts are rendered into output/polar_cap/ and copied into
 docs/assets/polar/ by build_registry.py.
@@ -37,15 +42,6 @@ MODELS = [
     ("eccc-cansips", "ECCC canSIPS"),
 ]
 
-# the IFS section is not a model, so it is carried on its own
-IFS_ID = "ecmwf-ifs"
-IFS_NAME = "ECMWF IFS (15-day)"
-IFS_FILE = "assets/polar/polar_cap_ifs.png"
-IFS_CAPTION = ("Polar cap (60-90N) normalised geopotential height anomaly - "
-               "the ECMWF IFS 15-day forecast from the 11 Nov 2026 12z run, "
-               "with the ECMWF analysis in front of it.")
-
-
 def available(reg=None):
     """-> [(id, name)] for the models the registry says have a section."""
     if reg is None:
@@ -58,32 +54,14 @@ def available(reg=None):
     return out
 
 
-def ifs_item(reg=None):
-    """The IFS section, if the chart has been rendered.
+def items(reg=None):
+    """Every polar-cap chart the page can show.
 
-    The registry carries it with the cache-busting version query, because
-    GitHub Pages serves the PNGs with a long cache lifetime.
+    Only the SEASONAL guidance is shown.  The ECMWF IFS 15-day chart is not:
+    a medium-range forecast is a different product from a seasonal run, and
+    the section is about the latter.
     """
-    if reg is None:
-        p = os.path.join(SITE, "data", "models.json")
-        reg = json.load(open(p)) if os.path.exists(p) else {}
-    info = reg.get("polar_ifs")
-    if not info:
-        p = os.path.join(SITE, IFS_FILE)
-        if not os.path.exists(p):
-            return None
-        info = {"file": IFS_FILE, "caption": IFS_CAPTION}
-    return {"id": IFS_ID, "name": IFS_NAME, "file": info["file"],
-            "caption": info.get("caption", IFS_CAPTION)}
-
-
-def build_polar_cap(reg):
-    """Write the polar-cap page and copy the charts into the assets."""
-    import build_site
-    items = []
-    ifs = ifs_item(reg)
-    if ifs:
-        items.append(ifs)
+    out = []
     for mid, name in available(reg):
         info = None
         for m in reg.get("models", []):
@@ -91,60 +69,76 @@ def build_polar_cap(reg):
                 info = m.get("polar")
         if not info:
             continue
-        items.append({"id": mid, "name": name, "file": info["file"],
-                      "caption": info.get("caption", "")})
-    if not items:
-        print("   no polar-cap charts yet - the page is skipped")
-        return
+        out.append({"id": mid, "name": name, "file": info["file"],
+                    "caption": info.get("caption", "")})
+    return out
 
-    default = IFS_ID if ifs else items[0]["id"]
+
+def polar_block(reg=None):
+    """The HTML for the polar-cap section, or "" when there is nothing."""
+    its = items(reg)
+    if not its:
+        return ""
+
+    default = its[0]["id"]
     sel = "".join('<option value="%s"%s>%s</option>'
                   % (i["id"], " selected" if i["id"] == default else "",
-                     i["name"]) for i in items)
-    body = """<div class="card">
+                     i["name"]) for i in its)
+    block = """<div class="card" id="polar">
   <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
     <a href="model.html">Choose a variable</a></div>
-  <h2 class="sec">Polar Cap (60-90N) Geopotential Height Anomaly</h2>
+  <h2 class="sec">Polar Cap (60&ndash;90&deg;N) Geopotential Height Anomaly</h2>
   <p class="lead">A time-height section of the polar cap: the area-weighted
   mean geopotential height from 60&deg;N to the pole, on a set of pressure
   levels, with the anomaly divided by its own 1991&ndash;2020 standard
-  deviation. The pressure axis is logarithmic and the section runs from the
-  stratosphere at the top to the surface at the bottom. On the left of the
-  dashed line is the analysis; on the right is the model&rsquo;s own
-  forecast, running to the end of that model&rsquo;s run.</p>
+  deviation. The pressure axis is logarithmic, so the stratosphere at the top
+  has the room it needs, and the section runs down to the surface at the
+  bottom.</p>
+  <p class="lead">The left of the dashed line is <strong>ERA5
+  reanalysis</strong> &mdash; what actually happened. The right is the
+  <strong>seasonal forecast</strong> &mdash; what might happen. The dotted
+  &ldquo;now&rdquo; line marks today, so the model&rsquo;s own past days and
+  the days it is still forecasting are told apart.</p>
   <div class="picker">
-    <label for="modelSel">Model</label>
-    <select id="modelSel" class="ctrl">%s</select>
+    <label for="polarSel">Model</label>
+    <select id="polarSel" class="ctrl">%s</select>
   </div>
 </div>
 
 <div class="card">
-  <div class="stage"><img id="pcImg" alt="Polar cap geopotential height anomaly"></div>
-  <div class="cap" id="pcCap"></div>
+  <div class="stage"><img id="polarImg" alt="Polar cap geopotential height anomaly"></div>
+  <div class="cap" id="polarCap"></div>
 </div>""" % sel
 
     js = """
 <script>
-const MODELS=__MODELS__;
-const sel=document.getElementById('modelSel');
-function q(p){const m=new URLSearchParams(location.search);return m.get(p);}
-if(q('m') && MODELS[q('m')]) sel.value=q('m');
-function render(){
-  const m=MODELS[sel.value];
-  const img=document.getElementById('pcImg');
+const POLARMODELS=__POLARMODELS__;
+const psel=document.getElementById('polarSel');
+function pq(p){const m=new URLSearchParams(location.search);return m.get(p);}
+if(pq('m') && POLARMODELS[pq('m')]) psel.value=pq('m');
+function renderPolar(){
+  const m=POLARMODELS[psel.value];
+  const img=document.getElementById('polarImg');
   if(!m){img.removeAttribute('src');img.alt='';
-    document.getElementById('pcCap').textContent='No section for this model.';return;}
+    document.getElementById('polarCap').textContent='No section for this model.';return;}
   img.src=m.file; img.alt=m.caption;
-  document.getElementById('pcCap').textContent=m.caption;
+  document.getElementById('polarCap').textContent=m.caption;
 }
-sel.addEventListener('change',render);
-render();
+psel.addEventListener('change',renderPolar);
+renderPolar();
 </script>"""
-    body += js.replace("__MODELS__", json.dumps({i["id"]: i for i in items}))
-    open(os.path.join(SITE, "polar.html"), "w").write(
-        build_site.page("Polar Cap", "polar.html", body, build_site.VER))
-    print("   the polar-cap page: %d charts" % len(items))
+    return block + js.replace("__POLARMODELS__",
+                               json.dumps({i["id"]: i for i in its}))
+
+
+def remove_old_page():
+    """The section used to have a page of its own; it does not any more."""
+    p = os.path.join(SITE, "polar.html")
+    if os.path.exists(p):
+        os.remove(p)
+        print("   the old polar-cap page removed")
 
 
 if __name__ == "__main__":
-    build_polar_cap(json.load(open(os.path.join(SITE, "data", "models.json"))))
+    reg = json.load(open(os.path.join(SITE, "data", "models.json")))
+    print(polar_block(reg)[:200])

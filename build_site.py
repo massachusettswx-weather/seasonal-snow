@@ -224,8 +224,7 @@ def header(active):
     tabs = [("index.html", "Home"),
             ("model.html", "Model"),
             ("snow.html", "Snowfall"),
-            ("spv.html", "Zonal Wind (10 hPa)"),
-            ("polar.html", "Polar Cap"),
+            ("spv.html", "Stratosphere"),
             ("enso.html", "ENSO")]
     links = "".join(
         '<a href="%s"%s>%s</a>' % (h, ' class="active"' if h == active else "", t)
@@ -429,7 +428,7 @@ function render(){
   vars.push({
     title:'Polar cap geopotential height',
     desc:'A time-height section of the polar cap (60-90N): the normalised geopotential height anomaly from 10 hPa down to the surface, with the analysis in front of the model&rsquo;s own forecast.',
-    href:'polar.html?m='+m.id,
+    href:'spv.html?m='+m.id+'#polar',
     img:(m.polar&&m.polar.file)||'',
     on:!!m.polar_ok
   });
@@ -695,10 +694,12 @@ def build_spv(reg):
     body = """<div class="card">
   <div class="crumb"><a href="index.html">&larr; All models</a> &middot;
     <a href="model.html">Choose a variable</a></div>
-  <h2 class="sec">10 hPa zonal-mean zonal wind</h2>
+  <h2 class="sec">Stratosphere &mdash; 10 hPa zonal-mean zonal wind</h2>
   <p class="lead">The stratospheric polar vortex proxy at 10&nbsp;hPa, in m/s.
   Each model is shown over its own total lead days, against the
-  ERA5 1991&ndash;2020 climatology.</p>
+  ERA5 1991&ndash;2020 climatology. Below it is the polar-cap
+  geopotential height section, the same atmosphere seen from the other
+  side.</p>
   <div class="picker">
     <label for="modelSel">Model</label>
     <select id="modelSel" class="ctrl">%s</select>
@@ -750,7 +751,17 @@ sel.addEventListener('change',render); dom.addEventListener('change',render);
 render();
 </script>"""
     body += js.replace("__MODELS__", json.dumps(public_map(reg)))
-    open(os.path.join(SITE, "spv.html"), "w").write(page("Zonal Wind", "spv.html", body, VER))
+
+    # the polar-cap height section lives on the same page: it is the
+    # stratosphere seen from the other side
+    try:
+        import build_polar_page
+        body += build_polar_page.polar_block(reg)
+        build_polar_page.remove_old_page()
+    except Exception as e:
+        print("   the polar-cap section was skipped: %s" % str(e)[:120])
+
+    open(os.path.join(SITE, "spv.html"), "w").write(page("Stratosphere", "spv.html", body, VER))
 
 
 def main():
@@ -766,13 +777,6 @@ def main():
     build_snow(reg)
     build_enso(reg)
     build_spv(reg)
-    # the polar-cap page is optional: it exists only once the section has
-    # been rendered for at least one model
-    try:
-        import build_polar_page
-        build_polar_page.build_polar_cap(reg)
-    except Exception as e:
-        print("   the polar-cap page was skipped: %s" % str(e)[:120])
     print("site built:", SITE)
     for m in reg.get("models", []):
         print("  %-16s snow=%s spv=%s" % (m["id"], m["snow_ok"], m["spv_ok"]))

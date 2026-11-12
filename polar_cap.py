@@ -239,103 +239,115 @@ def normalise(times, values, levels, clim):
 
 
 # ---------------------------------------------------------------- the drawing
-# The colour ladder, sampled from the reference figure's own colour bar.
-# Sixteen bands with pointed ends: the breaks are the reference's tick
-# values, and the colours are the reference's, read out of its colour bar
-# pixel by pixel.  The palette runs deep blue -> blue -> pale blue ->
-# white -> yellow -> orange -> red -> dark red, which is NOT RdBu (that
-# goes straight from blue to red through a grey-white and has no yellow).
-REF_BREAKS = [-6, -5, -4, -3, -2, -1.5, -1, -0.5, -0.2,
-              0.2, 0.5, 1, 1.5, 2, 3, 4, 5, 6]
-REF_COLORS = [
-    "#000e4e", "#00238c", "#0045b5", "#0c6fd3", "#359fe8", "#6bbef0",
-    "#a8daf5", "#daeef8", "#ffffff", "#fff685", "#ffff00", "#ffb700",
-    "#ff7300", "#ff3300", "#e20000", "#ac0202", "#6b0000",
+# The colour ladder is this site's own: a navy-to-white-to-orange diverging
+# ramp built from the colours the rest of the site already uses (the navy of
+# the ensemble mean, the orange of the ERA5 trace).  It is NOT the ramp of
+# any published figure.
+BREAKS = [-6, -5, -4, -3, -2, -1.5, -1, -0.5, -0.2,
+          0.2, 0.5, 1, 1.5, 2, 3, 4, 5, 6]
+COLORS = [
+    # nine blues, from the site's navy out to a pale tint
+    "#071a33", "#0b2545", "#123a63", "#1a4f7d", "#27659a",
+    "#3d80b6", "#5f9dcd", "#8bb9de", "#cfe3f2",
+    # the white centre
+    "#ffffff",
+    # seven warms, into the site's orange
+    "#fbe3c4", "#f4c184", "#e89a4a", "#dc7a26", "#c85c17",
+    "#a53f10", "#7d2409",
 ]
 
-# the reference's right-hand axis: the approximate altitude of each pressure
-# level, in km and miles.  These are the reference's own numbers, not a
-# computed barometric height.  The right axis is LINEAR in altitude over the
-# same box as the log-pressure axis, so the two are independent scales.
-REF_ALT_TICKS = [(0, 0), (8, 5), (16, 10), (24, 15), (32, 20)]
-REF_ALT_TOP = 32.2          # the top of the box, a shade above the 32 km tick
+# the house colours, the same ones the zonal-wind panels use
+C_TEXT = "#1f2937"
+C_MUTED = "#6b7280"
+C_GRID = "#d6d3d1"
+C_SPLIT = "#12263f"
+C_TODAY = "#9d174d"
+
+# the approximate height of the pressure levels, for the right-hand axis.
+# A standard atmosphere, not a table lifted from anywhere.
+def _height_km(p):
+    import math
+    return 0.288 * 1000.0 * math.log(1013.25 / p) / 0.0065 / 1000.0 * 10.0
 
 
-def _alt_label(km, mi):
-    return "%d km · %d mi" % (km, mi)
+def _alt_label(km):
+    return "%d km" % round(km)
 
 
 def plot_section(times, norm, levels, out_path, title, subtitle,
                  split=None, split_label="", credit=None, handle="@Massachusettswx",
-                 vmax=5.0, analysis_label=None, forecast_label=None):
+                 vmax=5.0, analysis_label=None, forecast_label=None,
+                 today=None, forecast_alpha=0.55):
     """Draw the time-height section.
 
     times:  (n,)   ISO strings
     norm:   (n, nlev) the normalised anomaly
     levels: (nlev,) the pressure levels, hPa
     split:  the index where the forecast begins, or None
+    today:  the index of "now", drawn as a marker
 
-    The geometry follows the reference: a LOG pressure axis with 10 hPa at
-    the top and 1000 hPa at the bottom, a separate LINEAR altitude axis on
-    the right, the section filled with smooth contours (not blocky cells),
-    and the colour bar below with pointed ends.
+    The layout is this site's own: a bold title and a grey descriptor line
+    on the LEFT, a plain-text summary on the right, the colour bar below
+    the panel and the handle bottom right.  The analysis is drawn at full
+    strength and the forecast at a lighter one, so what has happened and
+    what might happen are told apart at a glance.
     """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.colors import BoundaryNorm, ListedColormap
 
-    cmap = ListedColormap(REF_COLORS)
-    edges = np.array(REF_BREAKS, float)
+    cmap = ListedColormap(COLORS)
+    edges = np.array(BREAKS, float)
     norm_c = BoundaryNorm(edges, cmap.N, clip=False)
 
     lev = np.asarray(levels, float)
-    order = np.argsort(lev)               # ascending, for the contour
+    order = np.argsort(lev)
     lev = lev[order]
     z = np.asarray(norm, float)[:, order].T      # (nlev, ntime)
 
     n = len(times)
     x = np.arange(n)
 
-    fig_w = 13.6
-    fig_h = 8.4
+    fig_w = 13.5
+    fig_h = 7.6
     fig = plt.figure(figsize=(fig_w, fig_h), facecolor="white")
-    ax = fig.add_axes([0.068, 0.175, 0.805, 0.665])
+    ax = fig.add_axes([0.058, 0.165, 0.855, 0.645])
     ax.set_facecolor("white")
 
-    # the reference draws smooth contours on a log pressure axis
-    pcol = ax.contourf(x, lev, z, levels=edges, cmap=cmap, norm=norm_c,
-                        extend="both")
+    # the two halves are drawn separately: the analysis at full strength and
+    # the forecast at a lighter one
+    if split is not None and 0 < split < n:
+        p1 = ax.contourf(x[:split], lev, z[:, :split], levels=edges,
+                         cmap=cmap, norm=norm_c, extend="both")
+        ax.contourf(x[split:], lev, z[:, split:], levels=edges, cmap=cmap,
+                    norm=norm_c, extend="both", alpha=forecast_alpha)
+    else:
+        p1 = ax.contourf(x, lev, z, levels=edges, cmap=cmap, norm=norm_c,
+                         extend="both")
+
     ax.set_yscale("log")
     ax.set_ylim(1000.0, 10.0)
 
-    # the pressure ticks: the reference's own set
-    have = set(int(x) for x in lev)
-    shown = [p for p in (1000, 700, 500, 300, 200, 100, 50, 30, 10) if p in have]
+    # the pressure ticks
+    have = set(int(v) for v in lev)
+    shown = [p for p in (1000, 925, 850, 700, 500, 400, 300, 200, 100, 50, 30, 10) if p in have]
     ax.set_yticks(shown)
-    ax.set_yticklabels(["%d" % p for p in shown], fontsize=10)
-    ax.set_ylabel("Pressure (hPa)", fontsize=11)
+    ax.set_yticklabels(["%d" % p for p in shown], fontsize=10, color=C_TEXT)
+    ax.set_ylabel("Pressure (hPa)", fontsize=11, color=C_TEXT, labelpad=8)
 
     # the date labels: about nine of them, and never two that overlap
     step = max(1, n // 9)
     idx = list(range(0, n, step))
-    # the last tick is the final day, but only if it is far enough from the
-    # one before it - otherwise the two labels collide.  The test is against
-    # the tick that would be second to last, not the one currently there.
     if idx[-1] != n - 1:
         if (n - 1) - idx[-1] >= step * 0.6:
             idx.append(n - 1)
         else:
             idx[-1] = n - 1
-    # and no two labels may sit closer than the space a date needs: a label
-    # is about ten characters, so the gap has to be a real fraction of the
-    # panel.  The last tick always stays.
     while len(idx) > 2:
         gaps = [(idx[i + 1] - idx[i]) for i in range(len(idx) - 1)]
         if min(gaps) >= step * 0.75:
             break
-        # drop the tighter of the two neighbours of the worst gap, keeping
-        # the first and the last
         j = int(np.argmin(gaps))
         if j == 0:
             del idx[1]
@@ -344,64 +356,81 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
         else:
             del idx[j + 1]
     ax.set_xticks(idx)
-    ax.set_xticklabels([times[i][:10] for i in idx], fontsize=9)
+    ax.set_xticklabels([times[i][:10] for i in idx], fontsize=9, color=C_TEXT)
     ax.set_xlim(-0.5, n - 0.5)
 
-    # the light dotted grid the reference has
-    ax.grid(True, color="#bbbbbb", linestyle=(0, (1, 3)), lw=0.6, alpha=0.7)
+    ax.grid(True, color=C_GRID, linestyle=(0, (1, 3)), lw=0.6, alpha=0.8)
+    ax.xaxis.grid(True)
+    ax.yaxis.grid(True)
 
-    # the approximate altitude on the right: a LINEAR scale over the same
-    # box, so it does not share the log-pressure geometry
+    # the approximate height on the right, in this site's own thin grey
     ax2 = ax.twinx()
     ax2.set_yscale("linear")
-    ax2.set_ylim(0.0, REF_ALT_TOP)
-    ax2.set_yticks([t[0] for t in REF_ALT_TICKS])
-    ax2.set_yticklabels([_alt_label(*t) for t in REF_ALT_TICKS],
-                        fontsize=9, color="#333333")
-    ax2.set_ylabel("Approx. Altitude (km / miles)", fontsize=10.5, color="#333333")
+    ax2.set_ylim(0.0, 33.0)
+    hticks = [(0, 0), (8, 5), (16, 10), (24, 15), (32, 20)]
+    ax2.set_yticks([t[0] for t in hticks])
+    ax2.set_yticklabels([_alt_label(t[0]) for t in hticks], fontsize=9,
+                        color=C_MUTED)
+    ax2.set_ylabel("Approximate height", fontsize=10, color=C_MUTED,
+                   labelpad=10)
+    ax2.tick_params(axis="y", length=3, colors=C_MUTED)
 
     ax.spines["top"].set_visible(False)
     ax2.spines["top"].set_visible(False)
     ax2.spines["left"].set_visible(False)
-    ax.tick_params(length=3)
+    for s in ("left", "bottom"):
+        ax.spines[s].set_color("#9ca3af")
+        ax.spines[s].set_linewidth(0.9)
+    ax2.spines["right"].set_color("#9ca3af")
+    ax2.spines["right"].set_linewidth(0.9)
+    ax.tick_params(length=3, colors=C_TEXT)
 
     # the boundary between the analysis and the forecast
     if split is not None and 0 < split < n:
-        ax.axvline(split - 0.5, color="#c0392b", lw=1.6, ls=(0, (5, 3)))
-    # the reference labels the two sides along the top
+        ax.axvline(split - 0.5, color=C_SPLIT, lw=1.3, ls=(0, (5, 3)),
+                   zorder=6)
+    if today is not None and 0 <= today < n:
+        ax.axvline(today, color=C_TODAY, lw=1.1, ls=(0, (1.5, 2.5)), zorder=6)
+
+    # the titles: left aligned, the way the rest of the site does it
+    fig.text(0.058, 0.968, title, fontsize=15.5, fontweight="bold",
+             ha="left", va="top", color=C_TEXT)
+    if subtitle:
+        fig.text(0.058, 0.921, subtitle, fontsize=9.5, color=C_MUTED,
+                 ha="left", va="top")
+
+    # the two sides are named above the panel
     if analysis_label and split:
-        ax.text((split - 0.5) / 2.0, 1.02, "◄ %s" % analysis_label,
-                transform=ax.get_xaxis_transform(), fontsize=10.5,
-                color="#12467f", ha="center", va="bottom", fontweight="bold")
-    if forecast_label and split and split < n:
-        ax.text((split - 0.5 + n) / 2.0, 1.02, "%s ►" % forecast_label,
-                transform=ax.get_xaxis_transform(), fontsize=10.5,
-                color="#c0392b", ha="center", va="bottom", fontweight="bold")
+        fig.text(0.062, 0.845, analysis_label, fontsize=10,
+                 fontweight="bold", color=C_SPLIT, ha="left", va="bottom")
+    if forecast_label:
+        fig.text(0.908, 0.845, forecast_label, fontsize=10,
+                 fontweight="bold", color=C_SPLIT, ha="right", va="bottom")
+    if today is not None and 0 <= today < n:
+        ax.text(today, 1.004, "now", transform=ax.get_xaxis_transform(),
+                fontsize=9, color=C_TODAY, ha="center", va="bottom")
 
-    # the titles, centred over the panel the way the reference has them
-    fig.text(0.4705, 0.962, title, fontsize=15, fontweight="bold", ha="center",
-             va="top")
-    fig.text(0.4705, 0.925, subtitle, fontsize=10, color="#333333", ha="center",
-             va="top")
-
-    # the colour bar, below the panel, with pointed ends like the reference
-    cax = fig.add_axes([0.225, 0.085, 0.50, 0.022])
-    cb = fig.colorbar(pcol, cax=cax, orientation="horizontal",
+    # the colour bar, below the panel
+    cax = fig.add_axes([0.245, 0.082, 0.48, 0.019])
+    cb = fig.colorbar(p1, cax=cax, orientation="horizontal",
                       boundaries=edges, ticks=edges[1:-1], extend="both",
                       spacing="uniform")
-    cb.ax.set_xticklabels(["%g" % e for e in edges[1:-1]], fontsize=8)
-    cb.outline.set_visible(False)
-    cb.ax.tick_params(length=2)
-    fig.text(0.475, 0.050, "Polar Cap (60°-90°N) Normalized Geopotential "
-             "Height Anomaly (σ)", fontsize=10.5, ha="center", va="center",
-             fontweight="bold")
+    cb.ax.set_xticklabels(["%g" % e for e in edges[1:-1]], fontsize=8,
+                          color=C_TEXT)
+    cb.outline.set_visible(True)
+    cb.outline.set_edgecolor("#c8c5c2")
+    cb.outline.set_linewidth(0.8)
+    cb.ax.tick_params(length=2, colors=C_TEXT)
+    fig.text(0.485, 0.040, "Normalised geopotential height anomaly (σ)",
+             fontsize=10.5, ha="center", va="center", fontweight="bold",
+             color=C_TEXT)
 
     if credit:
-        fig.text(0.975, 0.018, credit, fontsize=6.0, color="#555555",
+        fig.text(0.985, 0.016, credit, fontsize=6.0, color="#777777",
                  ha="right", va="bottom", linespacing=1.35)
     if handle:
-        fig.text(0.975, 0.046, handle, fontsize=9.5, fontweight="bold",
-                 color="#111111", ha="right", va="bottom")
+        fig.text(0.985, 0.044, handle, fontsize=9.5, fontweight="bold",
+                 color=C_TEXT, ha="right", va="bottom")
 
     fig.savefig(out_path, dpi=150, facecolor="white")
     plt.close(fig)

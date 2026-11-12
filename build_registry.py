@@ -442,11 +442,13 @@ def main():
     # the polar-cap time-height sections
     POLARDIR = os.path.join(ASSETS, "polar")
     os.makedirs(POLARDIR, exist_ok=True)
-    # the IFS section is not a model: it is copied on its own, because it is
-    # the one chart that does not depend on the seasonal archive
-    ifs_src = os.path.join(OUT, "polar_cap", "polar_cap_ifs.png")
-    if os.path.exists(ifs_src):
-        shutil.copyfile(ifs_src, os.path.join(POLARDIR, "polar_cap_ifs.png"))
+    # The ECMWF IFS 15-day section used to be copied here.  It is gone: the
+    # section is for the seasonal guidance, and a medium-range forecast is a
+    # different product.
+    ifs_stale = os.path.join(POLARDIR, "polar_cap_ifs.png")
+    if os.path.exists(ifs_stale):
+        os.remove(ifs_stale)
+        print("   the medium-range polar-cap chart removed")
     for entry in reg["models"]:
         src = os.path.join(OUT, "polar_cap", "polar_cap_%s.png" % entry["id"])
         if not os.path.exists(src):
@@ -478,15 +480,11 @@ def main():
 
     bust(reg["models"])
 
-    # the IFS section is not a model, so it is carried at the top of the
-    # registry and busted with the same version - without the query the
-    # browser would keep showing the previous build
-    if os.path.exists(ifs_src):
-        reg["polar_ifs"] = {
-            "file": "assets/polar/polar_cap_ifs.png?v=%s" % version,
-            "caption": "Polar cap (60-90N) normalised geopotential height "
-                       "anomaly - the ECMWF IFS 15-day forecast.",
-        }
+    # the medium-range (ECMWF IFS) polar-cap section used to be carried here
+    # as a top-level entry.  It is gone: the section is for the seasonal
+    # guidance only.
+    if "polar_ifs" in reg:
+        del reg["polar_ifs"]
 
     json.dump(reg, open(os.path.join(DATA, "models.json"), "w"), indent=1)
 

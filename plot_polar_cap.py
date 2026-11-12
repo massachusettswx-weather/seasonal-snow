@@ -28,14 +28,14 @@ from ecmwf_credit import credit_for  # noqa: E402
 
 OUT = os.path.join(HERE, "output", "polar_cap")
 PROFILES = os.path.join(DATA, "era5_polarcap_profiles.npz")
-RECENT = os.path.join(DATA, "polar_cap_recent.npz")
+RECENT = os.path.join(DATA, "polar_era5_recent.npz")
 MODEL_CACHE = os.path.join(DATA, "polar_model_z.json")
 CLIM = os.path.join(DATA, "polar_cap_clim.npz")
 
 # how many days of ERA5 analysis to show before the forecast starts.
 # Thirty days matches the reference's own analysis window, and it is
 # covered by the October and November ERA5 requests on their own.
-ANA_DAYS = 30
+ANA_DAYS = 90
 
 
 def cap_mean(profiles, lat, levels):
@@ -72,7 +72,7 @@ def build_clim():
 
 
 def load_recent():
-    """The ERA5 analysis just before the init -> (times, values).
+    """The ERA5 reanalysis in front of the forecast -> (times, values, levels).
 
     The file is checked for signs of being synthetic: the polar-cap mean
     geopotential height is a positive number of a few hundred thousand m2/s2
@@ -131,33 +131,6 @@ def load_series(path, tag):
     return times, vals, levels
 
 
-def load_ifs_analysis():
-    """The ECMWF IFS analyses before the init -> (times, values, levels).
-
-    The open data bucket keeps every daily cycle for about a month, and the
-    step-0 field of each day's 12Z cycle is that day's analysis.  It is the
-    same product the reference figure uses for its analysis half.
-    """
-    p = os.path.join(DATA, "polar_analysis.json")
-    if not os.path.exists(p):
-        return [], np.zeros((0, len(LEVELS))), {}
-    d = json.load(open(p))
-    rec = d.get("ifs-analysis")
-    if not rec:
-        return [], np.zeros((0, len(LEVELS))), {}
-    times = [str(t) for t in rec["times"]]
-    vals = np.asarray(rec["values"], float)
-    levels = [int(x) for x in (rec.get("levels") or LEVELS)]
-    order = np.argsort(times)
-    times = [times[i] for i in order]
-    vals = vals[order]
-    i10 = levels.index(10) if 10 in levels else 0
-    if vals.size == 0 or not np.all(np.isfinite(vals[:, i10])) \
-            or vals[:, i10].max() < 1e5:
-        return [], np.zeros((0, len(LEVELS))), {}
-    return times, vals, {"levels": levels}
-
-
 def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     # 1. the climatology
     if not os.path.exists(CLIM):
@@ -169,11 +142,6 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
 
     # 2. the analysis (the recent past, up to the model's init)
     rt, rv, d_recent = load_recent()
-    if not rt:
-        # the ERA5 analysis is not always there, but the ECMWF IFS analyses
-        # are: the bucket keeps every daily cycle for about a month, and the
-        # step-0 field of each day's 12Z cycle is that day's analysis
-        rt, rv, d_recent = load_ifs_analysis()
 
     # 3. the model's own forecast
     mt, mv, ser_levels = load_series(MODEL_CACHE, tag)
@@ -201,9 +169,10 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     mday = {t[:10]: i for i, t in enumerate(mt)}
 
     first = mt[0][:10]
-    # the analysis half may carry a different level set from the forecast
-    # (the IFS analyses have no 30 hPa), so the section is drawn on the
-    # levels BOTH sides have
+    # the ERA5 half may carry a different level set from the forecast
+    # (the ERA5 reanalysis product serves the same twelve levels, but a
+    # series built from another source may not), so the section is drawn on
+    # the levels BOTH sides have
     rlevs = [int(x) for x in (d_recent.get("levels") if d_recent else LEVELS)]
     common = [l for l in levs if l in rlevs] if rt else list(levs)
     if rt and len(common) != len(levs):
@@ -213,6 +182,9 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
         mv = mv[:, mcols]
         levs = common
 
+    # The ERA5 reanalysis ends the day before the model's init, and the
+    # model's own run follows from its init.  The two halves therefore meet
+    # exactly at the run's start, and no day is drawn twice.
     ana_days = sorted(d for d in rday if d < first)[-ANA_DAYS:]
     fc_days = sorted(mday)
     days = ana_days + fc_days
@@ -225,23 +197,43 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     values = np.vstack(parts)
     split = len(ana_days)
 
+    # where "now" falls, so the reader can tell the model's past days from
+    # the days it is still forecasting
+    today = None
+    import datetime as _dt
+    _now = _dt.date.today().isoformat()
+    for i, d in enumerate(days):
+        if d <= _now:
+            today = i
+    if today is not None and split and today < split:
+        today = None
+
     cdays, clevs, cmean, csigma = clim
     keep = [clevs.index(l) for l in levs]
     anom, norm = normalise(days, values, levs,
                            (cdays, levs, cmean[:, keep], csigma[:, keep]))
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
-    title = "%s: Polar Cap (60-90N) Normalized Geopotential Height Anomaly" % label
-    subtitle = ("Data: %s seasonal forecast & ERA5 (1991-2020 Climatology)   "
-                "Plot by: @Massachusettswx" % label)
+    nlev = len(levs)
+    title = ("%s · Polar Cap (60-90°N) Normalised Geopotential Height Anomaly"
+             % label)
+    if ana_days:
+        subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "
+                    "seasonal forecast from %s to %s · %d hPa levels · "
+                    "ERA5 1991-2020 climatology"
+                    % (len(ana_days), label, init_day, end_day, nlev))
+    else:
+        subtitle = ("the %s seasonal forecast from %s to %s · %d hPa levels · "
+                    "ERA5 1991-2020 climatology"
+                    % (label, init_day, end_day, nlev))
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, "polar_cap_%s.png" % tag)
     plot_section(days, norm, levs, p, title, subtitle,
                  split=split if split else None,
                  credit=credit_for(tag),
-                 analysis_label=("ERA5 ANALYSIS" if d_recent.get("era5")
-                                 else "ECMWF ANALYSIS"),
-                 forecast_label="%s FORECAST (%s)" % (label.upper(), init_day))
+                 analysis_label="ERA5 reanalysis" if ana_days else None,
+                 forecast_label="%s seasonal forecast" % label,
+                 today=today)
     print("   the figure: %s" % p)
     return p
 

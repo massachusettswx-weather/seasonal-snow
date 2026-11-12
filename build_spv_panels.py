@@ -153,6 +153,7 @@ def render_daily(tag, name, init, times, m60, mnh, daily_label):
         fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
         render_spv(mat, times, name, fn, domain=dom, era5=era, model_clim=None,
                    n_members=mat.shape[0], credit=credit_for(tag),
+                   x_end=last,
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
                             " · lead months 1–%d (through %d %s %d) · "
                             "ERA5 climatology 1991–2020"
@@ -214,12 +215,15 @@ def build_ecmwf_daily(name, init):
             mc = model_climate_curve(int(init[:4]), int(init[-2:]), mcv, m7v)
         label = "60°N" if dom == "60" else "Northern Hemisphere"
         fn = os.path.join(OUT, "SPV_ecmwf-seas5_%s.png" % key)
+        last = times[-1]
         render_spv(mem, times, name, fn, domain=dom, era5=era, model_clim=mc,
                    model_clim_label="ECMWF model-climate mean (init Nov)",
                    credit=credit_for("ecmwf-seas5"),
                    n_members=mem.shape[0],
+                   x_end=last,
                    subtitle="Run init 01 %s %d · %d daily 12Z steps (%d members)%s"
-                            " · lead months 1–%d · ERA5 climatology 1991–2020"
+                            " · lead months 1–%d (through %d %s %d) · "
+                            "ERA5 climatology 1991–2020"
                             % (MONTHS[int(init[-2:]) - 1], int(init[:4]), len(times),
                                mem.shape[0],
                                (" · %s grid" % grid_res(
@@ -227,7 +231,8 @@ def build_ecmwf_daily(name, init):
                                                 "u10_monthly.grib")))
                                if os.path.exists(os.path.join(MDIR, "ecmwf-seas5",
                                                              "u10_monthly.grib")) else "",
-                               len({(t.year, t.month) for t in times})),
+                               len({(t.year, t.month) for t in times}),
+                               last.day, MONTHS[last.month - 1], last.year),
                    footer="Data: ECMWF seasonal forecast (CDS) · ERA5 climatology "
                           "1991–2020 · lead month 7 model climate reconstructed from "
                           "the model's own past runs",
@@ -376,12 +381,18 @@ def build_one(tag, name, init):
             fn = os.path.join(OUT, "SPV_%s_%s.png" % (tag, key))
             res = grid_res(ug)
             resnote = (" · %s grid" % res) if res else ""
+            # the chart ends with the model's last lead month
+            x_end = datetime(rep[-1].year, rep[-1].month,
+                             calendar.monthrange(rep[-1].year, rep[-1].month)[1])
             render_spv(arr, times, name, fn, domain=dom, era5=era_cut,
                        model_clim=None, n_members=nmem, credit=credit_for(tag),
+                       x_end=x_end,
                        subtitle="Run init 01 %s %d · %d members · monthly means at "
-                                "10 hPa%s · ERA5 climatology 1991–2020"
+                                "10 hPa%s · %d lead months (through %d %s %d) · "
+                                "ERA5 climatology 1991–2020"
                                 % (MONTHS[int(init[-2:]) - 1], int(init[:4]), nmem,
-                                   resnote),
+                                   resnote, len(times),
+                                   x_end.day, MONTHS[x_end.month - 1], x_end.year),
                        footer="Data: %s seasonal forecast (CDS) · ERA5 climatology "
                               "1991–2020" % name,
                        title="%s · 10 hPa · %s Zonal-Mean Zonal Wind (m/s)"

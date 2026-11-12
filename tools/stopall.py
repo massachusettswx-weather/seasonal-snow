@@ -14,9 +14,8 @@ PATTERNS = ("run_nov_queue.py", "auto_publish.sh", "run_nov_pool.sh",
             "plot_snow_models.py", "plot_snow_multi.py", "plot_enso.py",
             "fetch_models_daily.py", "fetch_snow_daily.py",
             "build_spv_panels.py", "plot_spv.py",
-            "fetch_polar_era5.py", "fetch_polar_era5_arco.py",
-            "fetch_polar_models.py", "fetch_polar_ec46.py",
-            "fetch_polar_ifs.py", "fetch_polar_recent.py")
+            "fetch_polar_era5_arco.py", "fetch_polar_era5_recent.py",
+            "fetch_polar_models.py", "fetch_polar_ec46.py")
 
 
 def ancestry():
