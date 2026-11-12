@@ -111,10 +111,14 @@ def read_daily_u10(path):
             finally:
                 eccodes.codes_release(gid)
 
-    # `number` (the GRIB ensemble member) and `perturbationNumber` are identical
-    # for every C3S seasonal centre we have seen.  Prefer `number`; fall back to
-    # the perturbation number for centres that leave `number` at zero.
-    use_num = len({n for _, n in raw}) > 1
+    # `number` (the GRIB ensemble member) and `perturbationNumber` are
+    # identical for every C3S seasonal centre we have seen, but a centre
+    # that numbers its perturbations differently would be read as a
+    # two-member ensemble.  Whichever key carries the most distinct
+    # values is the member id; `number` wins a tie.
+    n_num = len({n for _, n in raw})
+    n_pn = len({p for p, _ in raw})
+    use_num = n_num >= n_pn and n_num > 1
     key = "num" if use_num else "pn"
     for r in recs:
         r["member"] = r[key]

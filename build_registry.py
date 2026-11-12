@@ -26,6 +26,24 @@ MONTH_ABBR = {"Jan": "January", "Feb": "February", "Mar": "March",
               "Aug": "August", "Sep": "September", "Oct": "October",
               "Nov": "November", "Dec": "December"}
 
+
+def init_text(init):
+    """'1 Nov 2026' for an init like '2026-11'.
+
+    A seasonal run starts on the first of its month, so that is the date
+    the cards quote.
+    """
+    if not init or len(init) < 7:
+        return ""
+    try:
+        m = int(init[5:7])
+    except ValueError:
+        return ""
+    if not 1 <= m <= 12:
+        return ""
+    abbr = [k for k, v in MONTH_ABBR.items() if v == FULLMONTHS[m - 1]]
+    return "1 %s %s" % (abbr[0] if abbr else FULLMONTHS[m - 1], init[:4])
+
 # the model registry: id -> display info
 MODELS = {
     "ecmwf-seas5":     ("ECMWF SEAS5",
@@ -245,6 +263,20 @@ def main():
                                "is still queued.",
                                "The ENSO plume is published; the 10 hPa wind "
                                "has not come down yet."))
+
+    # The date in a note has to be the date the model is actually on.  The
+    # notes used to carry the init that was current when they were written,
+    # so a card could claim an October init months after the model had
+    # moved to November.  The date is now taken from the model's own data.
+    for tag in list(MODELS):
+        init = (fstate.get(tag, {}) or {}).get("init")
+        txt = init_text(init)
+        if not txt:
+            continue
+        note = re.sub(r"init \d{1,2} [A-Z][a-z]{2,8} \d{4}",
+                      "init " + txt, MODELS[tag][1])
+        note = re.sub(r"init \d{4}-\d{2}", "init " + txt, note)
+        MODELS[tag] = (MODELS[tag][0], note)
 
     for tag in sorted(snow.keys()):
         if tag in POOLED_INTO:
