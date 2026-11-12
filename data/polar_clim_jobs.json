@@ -1,0 +1,14 @@
+{
+ "jobs": [
+  {
+   "job": "8c741baf-7352-413c-b2f2-3c13e05f7943",
+   "status": "accepted",
+   "what": "the 1991-2020 monthly means, the native grid"
+  },
+  {
+   "job": "2e8aa707-80f4-4638-b7c3-777567877278",
+   "status": "rejected",
+   "what": "a duplicate, the queue refused it"
+  }
+ ]
+}

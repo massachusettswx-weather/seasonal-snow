@@ -31,11 +31,56 @@ PROFILES = os.path.join(DATA, "era5_polarcap_profiles.npz")
 RECENT = os.path.join(DATA, "polar_era5_recent.npz")
 MODEL_CACHE = os.path.join(DATA, "polar_model_z.json")
 CLIM = os.path.join(DATA, "polar_cap_clim.npz")
+# the climatology in the NATIVE ERA5 convention - the one that matches the
+# data it normalises.  It is preferred over the daily one whenever it is
+# there; see fetch_polar_clim_monthly.py for why.
+CLIM_MONTHLY = os.path.join(DATA, "polar_cap_clim_monthly.npz")
 
 # how many days of ERA5 analysis to show before the forecast starts.
 # Thirty days matches the reference's own analysis window, and it is
 # covered by the October and November ERA5 requests on their own.
 ANA_DAYS = 90
+
+
+def load_clim_monthly():
+    """The monthly climatology -> (months, levels, mean, sigma), or None."""
+    if not os.path.exists(CLIM_MONTHLY):
+        return None
+    try:
+        d = np.load(CLIM_MONTHLY, allow_pickle=True)
+    except Exception:
+        return None
+    if "mean" not in d:
+        return None
+    return ([int(x) for x in d["months"]], [int(x) for x in d["levels"]],
+            np.asarray(d["mean"], float), np.asarray(d["sigma"], float))
+
+
+def normalise_monthly(times, values, levels, clim):
+    """The normalised anomaly against the monthly climatology.
+
+    The monthly climate is the scale a seasonal forecast is judged against,
+    and it is also the scale that does not blow the summer up: the day to
+    day spread of the polar cap in July is a few tens of metres, so a daily
+    standard deviation there is meaningless.
+    """
+    months, clevels, cmean, csigma = clim
+    cidx = {l: i for i, l in enumerate(clevels)}
+    mean = np.full((len(times), len(levels)), np.nan)
+    sigma = np.full((len(times), len(levels)), np.nan)
+    for i, t in enumerate(times):
+        m = int(t[5:7])
+        if m not in months:
+            continue
+        j = months.index(m)
+        for k, l in enumerate(levels):
+            if l in cidx:
+                mean[i, k] = cmean[j, cidx[l]]
+                sigma[i, k] = csigma[j, cidx[l]]
+    anom = values - mean
+    with np.errstate(invalid="ignore", divide="ignore"):
+        norm = np.where(sigma > 0, anom / sigma, np.nan)
+    return anom, norm
 
 
 def cap_mean(profiles, lat, levels):
@@ -137,13 +182,21 @@ def load_series(path, tag):
 
 
 def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
-    # 1. the climatology
-    if not os.path.exists(CLIM):
-        if not os.path.exists(PROFILES):
-            print("   no ERA5 polar-cap profiles yet")
-            return
-        build_clim()
-    clim = load_climatology(CLIM)
+    # 1. the climatology.  The monthly one, in the native ERA5 convention,
+    # is the one that matches the data; the daily one built from ARCO's
+    # reduced store is kept only as a fallback.
+    clim_m = load_clim_monthly()
+    if clim_m is not None:
+        clim = clim_m
+        kind = "monthly"
+    else:
+        if not os.path.exists(CLIM):
+            if not os.path.exists(PROFILES):
+                print("   no ERA5 polar-cap profiles yet")
+                return
+            build_clim()
+        clim = load_climatology(CLIM)
+        kind = "daily"
 
     # 2. the analysis (the recent past, up to the model's init)
     rt, rv, d_recent = load_recent()
@@ -213,24 +266,31 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     if today is not None and split and today < split:
         today = None
 
-    cdays, clevs, cmean, csigma = clim
-    keep = [clevs.index(l) for l in levs]
-    anom, norm = normalise(days, values, levs,
-                           (cdays, levs, cmean[:, keep], csigma[:, keep]))
+    if kind == "monthly":
+        cmonths, clevs, cmean, csigma = clim
+        keep = [clevs.index(l) for l in levs]
+        anom, norm = normalise_monthly(days, values, levs,
+                                       (cmonths, levs, cmean[:, keep],
+                                        csigma[:, keep]))
+    else:
+        cdays, clevs, cmean, csigma = clim
+        keep = [clevs.index(l) for l in levs]
+        anom, norm = normalise(days, values, levs,
+                               (cdays, levs, cmean[:, keep], csigma[:, keep]))
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
     nlev = len(levs)
     title = ("%s · Polar Cap (60-90°N) Normalised Geopotential Height Anomaly"
              % label)
+    clim_txt = ("ERA5 1991-2020 monthly climatology" if kind == "monthly"
+                else "ERA5 1991-2020 climatology")
     if ana_days:
         subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "
-                    "seasonal forecast from %s to %s · %d hPa levels · "
-                    "ERA5 1991-2020 climatology"
-                    % (len(ana_days), label, init_day, end_day, nlev))
+                    "seasonal forecast from %s to %s · %d hPa levels · %s"
+                    % (len(ana_days), label, init_day, end_day, nlev, clim_txt))
     else:
-        subtitle = ("the %s seasonal forecast from %s to %s · %d hPa levels · "
-                    "ERA5 1991-2020 climatology"
-                    % (label, init_day, end_day, nlev))
+        subtitle = ("the %s seasonal forecast from %s to %s · %d hPa levels · %s"
+                    % (label, init_day, end_day, nlev, clim_txt))
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, "polar_cap_%s.png" % tag)
     plot_section(days, norm, levs, p, title, subtitle,
