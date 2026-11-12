@@ -212,10 +212,14 @@ def main():
     while True:
         # 1. harvest
         for j in list(st["jobs"]):
-            if j.get("status") in ("accepted", "running", "queued"):
-                status = cds.job_status(j["job"])
-                j["status"] = status
-                if status in ("completed", "successful"):
+            # a job with no status (or one that is not yet finished) is
+            # asked again: the harvest must not skip a job that the
+            # archive has in fact completed
+            if j.get("status") in ("decoded", "short", "failed", "superseded"):
+                continue
+            status = cds.job_status(j["job"])
+            j["status"] = status
+            if status in ("completed", "successful"):
                     path = os.path.join(DATA, "_polz_%s_%d.grib"
                                         % (j["tag"], j["chunk"]))
                     cds.download_job(j["job"], path)
@@ -240,7 +244,7 @@ def main():
                     j["members"] = nmem
                     print("   the %s chunk %d decoded: %d members, %d times"
                           % (j["tag"], j["chunk"], nmem, len(rec["times"])), flush=True)
-                elif status in ("failed", "rejected", "dismissed", "gone"):
+            elif status in ("failed", "rejected", "dismissed", "gone"):
                     print("   the %s chunk %d is %s" % (j["tag"], j["chunk"], status),
                           flush=True)
                     j["status"] = "failed"

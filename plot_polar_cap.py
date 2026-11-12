@@ -92,7 +92,7 @@ def load_recent():
         raise ValueError("the recent ERA5 file does not hold real polar-cap "
                          "geopotential heights (the 10 hPa values are %s)"
                          % vals[:, i10][:3])
-    return times, vals, {"levels": levels}
+    return times, vals, {"levels": levels, "era5": True}
 
 
 def load_series(path, tag):
@@ -119,7 +119,9 @@ def load_series(path, tag):
     keep = [i for i, t in enumerate(times) if t.endswith("12") or len(t) == 10]
     times = [times[i] for i in keep]
     vals = vals[keep]
-    if len(times) < 5:
+    if len(times) < 3:
+        # three days is the least that shows a trend; a section with fewer
+        # than that is not worth drawing
         return None, None, []
     i10 = levels.index(10) if 10 in levels else 0
     if not np.all(np.isfinite(vals[:, i10])) or vals[:, i10].max() < 1e5:
@@ -127,6 +129,33 @@ def load_series(path, tag):
                          "geopotential heights (the 10 hPa values are %s)"
                          % (tag, vals[:, i10][:3]))
     return times, vals, levels
+
+
+def load_ifs_analysis():
+    """The ECMWF IFS analyses before the init -> (times, values, levels).
+
+    The open data bucket keeps every daily cycle for about a month, and the
+    step-0 field of each day's 12Z cycle is that day's analysis.  It is the
+    same product the reference figure uses for its analysis half.
+    """
+    p = os.path.join(DATA, "polar_analysis.json")
+    if not os.path.exists(p):
+        return [], np.zeros((0, len(LEVELS))), {}
+    d = json.load(open(p))
+    rec = d.get("ifs-analysis")
+    if not rec:
+        return [], np.zeros((0, len(LEVELS))), {}
+    times = [str(t) for t in rec["times"]]
+    vals = np.asarray(rec["values"], float)
+    levels = [int(x) for x in (rec.get("levels") or LEVELS)]
+    order = np.argsort(times)
+    times = [times[i] for i in order]
+    vals = vals[order]
+    i10 = levels.index(10) if 10 in levels else 0
+    if vals.size == 0 or not np.all(np.isfinite(vals[:, i10])) \
+            or vals[:, i10].max() < 1e5:
+        return [], np.zeros((0, len(LEVELS))), {}
+    return times, vals, {"levels": levels}
 
 
 def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
@@ -138,8 +167,13 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
         build_clim()
     clim = load_climatology(CLIM)
 
-    # 2. the ERA5 analysis (the recent past, up to the model's init)
+    # 2. the analysis (the recent past, up to the model's init)
     rt, rv, d_recent = load_recent()
+    if not rt:
+        # the ERA5 analysis is not always there, but the ECMWF IFS analyses
+        # are: the bucket keeps every daily cycle for about a month, and the
+        # step-0 field of each day's 12Z cycle is that day's analysis
+        rt, rv, d_recent = load_ifs_analysis()
 
     # 3. the model's own forecast
     mt, mv, ser_levels = load_series(MODEL_CACHE, tag)
@@ -167,14 +201,24 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     mday = {t[:10]: i for i, t in enumerate(mt)}
 
     first = mt[0][:10]
+    # the analysis half may carry a different level set from the forecast
+    # (the IFS analyses have no 30 hPa), so the section is drawn on the
+    # levels BOTH sides have
+    rlevs = [int(x) for x in (d_recent.get("levels") if d_recent else LEVELS)]
+    common = [l for l in levs if l in rlevs] if rt else list(levs)
+    if rt and len(common) != len(levs):
+        print("   the analysis carries %d of the %d levels; the section is "
+              "drawn on those" % (len(common), len(levs)))
+        mcols = [levs.index(l) for l in common]
+        mv = mv[:, mcols]
+        levs = common
+
     ana_days = sorted(d for d in rday if d < first)[-ANA_DAYS:]
     fc_days = sorted(mday)
     days = ana_days + fc_days
     parts = []
     if ana_days:
-        # the recent file may carry a different level set, so the columns
-        # are picked by level rather than by position
-        rlevs = [int(x) for x in (d_recent.get("levels") if d_recent else LEVELS)]
+        # the columns are picked by level rather than by position
         rcols = [rlevs.index(l) for l in levs]
         parts.append(rv[[rday[d] for d in ana_days]][:, rcols])
     parts.append(mv[[mday[d] for d in fc_days]])
@@ -195,7 +239,8 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     plot_section(days, norm, levs, p, title, subtitle,
                  split=split if split else None,
                  credit=credit_for(tag),
-                 analysis_label="ERA5 ANALYSIS",
+                 analysis_label=("ERA5 ANALYSIS" if d_recent.get("era5")
+                                 else "ECMWF ANALYSIS"),
                  forecast_label="%s FORECAST (%s)" % (label.upper(), init_day))
     print("   the figure: %s" % p)
     return p

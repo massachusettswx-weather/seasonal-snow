@@ -24,6 +24,7 @@ everywhere else in the pipeline (cos(lat) weights over 60-90N).
 """
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -94,25 +95,32 @@ def _get_parallel(jobs, out_path=None):
         except Exception:
             return None
 
-    # sixteen workers is what gets through: the bucket answers about a third
-    # of a burst with eight and about half with sixteen, and the stragglers
+    # eight workers is the sweet spot: the bucket answers about half of a
+    # burst with eight and about a third with sixteen, and the stragglers
     # are picked up by the retries
     for attempt in range(40):
         todo = [i for i in range(len(jobs)) if out[i] is None]
         if not todo:
             break
-        with ThreadPoolExecutor(max_workers=16) as ex:
+        # the stragglers are shuffled: the same ranges fail over and over
+        # if they are always asked for in the same order
+        random.shuffle(todo)
+        with ThreadPoolExecutor(max_workers=8) as ex:
             for i, b in zip(todo, ex.map(one, todo)):
                 if b is not None:
                     out[i] = b
         if any(o is None for o in out):
-            time.sleep(0.5 + 0.3 * attempt)
+            # the bucket throttles by DURATION as well as by burst: after a
+            # heavy fetch it answers nothing for a while, so the pause grows
+            # with the number of attempts
+            time.sleep(min(20.0, 1.0 + 0.8 * attempt))
 
     # the stragglers, one at a time
     for attempt in range(60):
         todo = [i for i in range(len(jobs)) if out[i] is None]
         if not todo:
             break
+        random.shuffle(todo)
         for i in todo:
             if out[i] is None:
                 out[i] = one(i)

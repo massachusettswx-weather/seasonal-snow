@@ -320,12 +320,29 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     step = max(1, n // 9)
     idx = list(range(0, n, step))
     # the last tick is the final day, but only if it is far enough from the
-    # one before it - otherwise the two labels collide
+    # one before it - otherwise the two labels collide.  The test is against
+    # the tick that would be second to last, not the one currently there.
     if idx[-1] != n - 1:
         if (n - 1) - idx[-1] >= step * 0.6:
             idx.append(n - 1)
         else:
             idx[-1] = n - 1
+    # and no two labels may sit closer than the space a date needs: a label
+    # is about ten characters, so the gap has to be a real fraction of the
+    # panel.  The last tick always stays.
+    while len(idx) > 2:
+        gaps = [(idx[i + 1] - idx[i]) for i in range(len(idx) - 1)]
+        if min(gaps) >= step * 0.75:
+            break
+        # drop the tighter of the two neighbours of the worst gap, keeping
+        # the first and the last
+        j = int(np.argmin(gaps))
+        if j == 0:
+            del idx[1]
+        elif j == len(gaps) - 1:
+            del idx[-2]
+        else:
+            del idx[j + 1]
     ax.set_xticks(idx)
     ax.set_xticklabels([times[i][:10] for i in idx], fontsize=9)
     ax.set_xlim(-0.5, n - 0.5)

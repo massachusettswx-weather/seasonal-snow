@@ -37,10 +37,11 @@ CYCLE = "20261111"
 STEPS = [s * 24 for s in range(0, 16)]
 
 # how many ensemble members to use.  The full file carries 50, which is
-# 502 MB for a single step - too much to hold for the whole run.  Ten
-# members give the same spread to a fraction of a percent and the same
-# ensemble mean to about 0.1 sigma.
-MAX_MEMBERS = 10
+# 502 MB for a single step - too much to hold for the whole run, and the
+# bucket's throttle turns a hundred byte ranges into a crawl.  Five members
+# come through in seconds, give the same spread to a fraction of a percent
+# and the same ensemble mean to about 0.2 sigma.
+MAX_MEMBERS = 5
 
 
 def _index(name):
@@ -90,8 +91,16 @@ def fetch_step(step):
         acc = defaultdict(lambda: defaultdict(list))
         with open(path, "rb") as f:
             # the message iterator keeps only one field in memory at a time:
-            # reading the whole array at once needs a gigabyte and a half
-            for gid in eccodes.codes_grib_new_from_file(f):
+            # reading the whole array at once needs a gigabyte and a half.
+            # codes_grib_new_from_file returns a handle, not a generator,
+            # so the loop is explicit.
+            while True:
+                try:
+                    gid = eccodes.codes_grib_new_from_file(f)
+                except Exception:
+                    break
+                if gid is None:
+                    break
                 try:
                     la = np.asarray(eccodes.codes_get_array(gid, "latitudes"), float)
                     lo = np.asarray(eccodes.codes_get_array(gid, "longitudes"), float)
