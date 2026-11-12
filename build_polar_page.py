@@ -93,12 +93,14 @@ def polar_block(reg=None):
   levels, with the anomaly divided by its own 1991&ndash;2020 standard
   deviation. The pressure axis is logarithmic, so the stratosphere at the top
   has the room it needs, and the section runs down to the surface at the
-  bottom.</p>
+  bottom. The climate is ERA5&rsquo;s own, on the same grid as the data, so
+  the anomaly is a real departure and not a difference of grids.</p>
   <p class="lead">The left of the dashed line is <strong>ERA5
-  reanalysis</strong> &mdash; what actually happened. The right is the
-  <strong>seasonal forecast</strong> &mdash; what might happen. The dotted
-  &ldquo;now&rdquo; line marks today, so the model&rsquo;s own past days and
-  the days it is still forecasting are told apart.</p>
+  reanalysis</strong> &mdash; what actually happened, up to the model&rsquo;s
+  own run. The right is the <strong>seasonal forecast</strong> &mdash; what
+  might happen, running to the end of that model&rsquo;s run. The dotted
+  &ldquo;now&rdquo; line marks today, so the model&rsquo;s own days that have
+  already passed and the days it is still forecasting are told apart.</p>
   <div class="picker">
     <label for="polarSel">Model</label>
     <select id="polarSel" class="ctrl">%s</select>
