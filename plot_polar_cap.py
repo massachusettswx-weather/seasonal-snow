@@ -26,7 +26,7 @@ from polar_cap import (CAP_N, CAP_S, LEVELS, build_climatology,  # noqa: E402
                        load_climatology, normalise, plot_section)
 from ecmwf_credit import credit_for  # noqa: E402
 
-OUT = os.path.join(DATA, "polar_cap")
+OUT = os.path.join(HERE, "output", "polar_cap")
 PROFILES = os.path.join(DATA, "era5_polarcap_profiles.npz")
 RECENT = os.path.join(DATA, "polar_cap_recent.npz")
 MODEL_CACHE = os.path.join(DATA, "polar_model_z.json")
@@ -80,22 +80,23 @@ def load_recent():
     fewer days than the window, is refused rather than drawn.
     """
     if not os.path.exists(RECENT):
-        return [], np.zeros((0, len(LEVELS)))
+        return [], np.zeros((0, len(LEVELS))), {}
     d = np.load(RECENT, allow_pickle=True)
     times = [str(t) for t in d["times"]]
     vals = np.asarray(d["values"], float)
+    levels = [int(x) for x in (d["levels"] if "levels" in d else LEVELS)]
     if len(times) < 20:
         raise ValueError("the recent ERA5 file holds only %d days" % len(times))
-    i10 = list(LEVELS).index(10)
+    i10 = levels.index(10) if 10 in levels else 0
     if not np.all(np.isfinite(vals[:, i10])) or vals[:, i10].max() < 1e5:
         raise ValueError("the recent ERA5 file does not hold real polar-cap "
                          "geopotential heights (the 10 hPa values are %s)"
                          % vals[:, i10][:3])
-    return times, vals
+    return times, vals, {"levels": levels}
 
 
 def load_series(path, tag):
-    """-> (times, values (n, nlev)) for one model's daily series.
+    """-> (times, values (n, nlev), levels) for one model's daily series.
 
     The same guard as the ERA5 side: the model's polar-cap mean
     geopotential height is a positive number of a few hundred thousand
@@ -103,13 +104,14 @@ def load_series(path, tag):
     drawn.
     """
     if not os.path.exists(path):
-        return None, None
+        return None, None, []
     d = json.load(open(path))
     rec = d.get(tag)
     if not rec:
-        return None, None
+        return None, None, []
     times = list(rec["times"])
     vals = np.array(rec["values"], float)
+    levels = [int(x) for x in (rec.get("levels") or LEVELS)]
     order = np.argsort(times)
     times = [times[i] for i in order]
     vals = vals[order]
@@ -118,13 +120,13 @@ def load_series(path, tag):
     times = [times[i] for i in keep]
     vals = vals[keep]
     if len(times) < 5:
-        return None, None
-    i10 = list(LEVELS).index(10)
+        return None, None, []
+    i10 = levels.index(10) if 10 in levels else 0
     if not np.all(np.isfinite(vals[:, i10])) or vals[:, i10].max() < 1e5:
         raise ValueError("the %s series does not hold real polar-cap "
                          "geopotential heights (the 10 hPa values are %s)"
                          % (tag, vals[:, i10][:3]))
-    return times, vals
+    return times, vals, levels
 
 
 def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
@@ -137,12 +139,27 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     clim = load_climatology(CLIM)
 
     # 2. the ERA5 analysis (the recent past, up to the model's init)
-    rt, rv = load_recent()
+    rt, rv, d_recent = load_recent()
 
     # 3. the model's own forecast
-    mt, mv = load_series(MODEL_CACHE, tag)
+    mt, mv, ser_levels = load_series(MODEL_CACHE, tag)
     if mt is None:
         print("   no series for %s yet" % tag)
+        # a chart left over from an earlier build would be published with
+        # no data behind it, so it goes
+        stale = os.path.join(OUT, "polar_cap_%s.png" % tag)
+        if os.path.exists(stale):
+            os.remove(stale)
+            print("   the stale chart removed: %s" % stale)
+        return None
+
+    # the levels actually present: the seasonal archive carries all twelve
+    # of the reference's levels, but a series built from another source may
+    # not, and the climatology has to be subset to match
+    levs = [l for l in LEVELS if l in list(ser_levels or LEVELS)]
+    if not levs or mv.shape[1] != len(levs):
+        print("   the %s series carries %d levels, which do not match the "
+              "climatology" % (tag, mv.shape[1]))
         return
 
     # 4. join them on the calendar day
@@ -155,12 +172,19 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     days = ana_days + fc_days
     parts = []
     if ana_days:
-        parts.append(rv[[rday[d] for d in ana_days]])
+        # the recent file may carry a different level set, so the columns
+        # are picked by level rather than by position
+        rlevs = [int(x) for x in (d_recent.get("levels") if d_recent else LEVELS)]
+        rcols = [rlevs.index(l) for l in levs]
+        parts.append(rv[[rday[d] for d in ana_days]][:, rcols])
     parts.append(mv[[mday[d] for d in fc_days]])
     values = np.vstack(parts)
     split = len(ana_days)
 
-    anom, norm = normalise(days, values, LEVELS, clim)
+    cdays, clevs, cmean, csigma = clim
+    keep = [clevs.index(l) for l in levs]
+    anom, norm = normalise(days, values, levs,
+                           (cdays, levs, cmean[:, keep], csigma[:, keep]))
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
     title = "%s: Polar Cap (60-90N) Normalized Geopotential Height Anomaly" % label
@@ -168,7 +192,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
                 "Plot by: @Massachusettswx" % label)
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, "polar_cap_%s.png" % tag)
-    plot_section(days, norm, LEVELS, p, title, subtitle,
+    plot_section(days, norm, levs, p, title, subtitle,
                  split=split if split else None,
                  credit=credit_for(tag),
                  analysis_label="ERA5 ANALYSIS",

@@ -19,7 +19,7 @@ python3 - <<'PY'
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath("build_site.py")))
 need = ["data/era5_polarcap_profiles.npz", "data/polar_cap_clim.npz",
-        "data/polar_cap_recent.npz", "data/polar_model_z.json"]
+        "data/polar_model_z.json"]
 missing = [p for p in need if not os.path.exists(p)]
 if missing:
     print("   the section is not ready, missing:")
