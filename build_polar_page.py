@@ -90,11 +90,11 @@ def polar_block(reg=None):
   <h2 class="sec">Polar Cap (60&ndash;90&deg;N) Geopotential Height Anomaly</h2>
   <p class="lead">A time-height section of the polar cap: the area-weighted
   mean geopotential height from 60&deg;N to the pole, on a set of pressure
-  levels, with the anomaly divided by its own 1991&ndash;2020 standard
-  deviation. The pressure axis is logarithmic, so the stratosphere at the top
+  levels, as an anomaly against ERA5&rsquo;s own 1991&ndash;2020 climate
+  &mdash; in metres, so every system on this page can be read on the same
+  scale. The pressure axis is logarithmic, so the stratosphere at the top
   has the room it needs, and the section runs down to the surface at the
-  bottom. The climate is ERA5&rsquo;s own, on the same grid as the data, so
-  the anomaly is a real departure and not a difference of grids.</p>
+  bottom.</p>
   <p class="lead">The left of the dashed line is <strong>ERA5
   reanalysis</strong> &mdash; what actually happened, up to the model&rsquo;s
   own run. The right is the <strong>seasonal forecast</strong> &mdash; what

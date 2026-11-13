@@ -57,5 +57,8 @@ data/era5_polarcap_profiles.npz
 data/polar_cap_recent.npz
 data/polar_model_z.json
 data/polar_aifs.json
+data/polar_gefs_jobs.json
+data/polar_ec46_jobs.json
+data/polar_ec46_z.json
 data/_aifs.lock
 data/_aifs_step.grib2

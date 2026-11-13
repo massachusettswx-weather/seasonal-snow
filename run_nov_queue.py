@@ -495,9 +495,16 @@ def build_request(tag, kind, chunk=None):
         cl = chunk_len(tag)
         start = chunk * cl
         hours = [str(12 + 24 * k) for k in range(start, min(start + cl, n))]
+        # Only the polar cap is asked for.  The SPV chart is the zonal-mean
+        # zonal wind at 60N, and the polar-cap section wants 60-90N, so
+        # nothing below 60N is ever used - and the archive serves a much
+        # smaller answer when the request is small.  It matters: the UKMO's
+        # global request came back with two members of its sixty, and the
+        # JMA's with five of a hundred and fifty-five, while the same
+        # request over the polar cap comes back whole.
         return (DS_ORIGINAL_PL,
                 dict(common, variable="u_component_of_wind", pressure_level="10",
-                     day="01", leadtime_hour=hours),
+                     day="01", leadtime_hour=hours, area=[90, -180, 60, 180]),
                 [("u10d", "u10_daily_c%d.grib" % chunk)])
     raise SystemExit("unknown kind %s" % kind)
 

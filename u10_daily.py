@@ -104,7 +104,8 @@ def read_daily_u10(path):
 
                 recs.append(dict(valid=valid, member=0, pn=pn, num=num,
                                  s60=point_mean(v, lats, 60.0),
-                                 sNH=zonal_mean(v, lats)))
+                                 sNH=zonal_mean(v, lats)
+                                 if lats.max() > 85.0 else float("nan")))
                 raw.append((pn, num))
             except Exception:
                 pass

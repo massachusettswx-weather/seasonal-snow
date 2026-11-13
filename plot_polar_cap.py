@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import (CAP_N, CAP_S, LEVELS, build_climatology,  # noqa: E402
+from polar_cap import (CAP_N, CAP_S, G0, LEVELS, build_climatology,  # noqa: E402
                        load_climatology, normalise, plot_section)
 from ecmwf_credit import credit_for  # noqa: E402
 
@@ -275,19 +275,24 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     if kind == "monthly":
         cmonths, clevs, cmean, csigma = clim
         keep = [clevs.index(l) for l in levs]
-        anom, norm = normalise_monthly(days, values, levs,
+        anom, _sig = normalise_monthly(days, values, levs,
                                        (cmonths, levs, cmean[:, keep],
                                         csigma[:, keep]))
     else:
         cdays, clevs, cmean, csigma = clim
         keep = [clevs.index(l) for l in levs]
-        anom, norm = normalise(days, values, levs,
+        anom, _sig = normalise(days, values, levs,
                                (cdays, levs, cmean[:, keep], csigma[:, keep]))
+    # The field is the geopotential height ANOMALY IN METRES.  A normalised
+    # anomaly would need a climatology of its own for every system - and the
+    # subseasonal guidance has no hindcast to build one from - while a height
+    # anomaly in metres can be put straight beside the reanalysis.
+    norm = anom / G0
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
     nlev = len(levs)
     lev_txt = "%d-%d" % (min(levs), max(levs))
-    title = ("%s · Polar Cap (60-90°N) Normalised Geopotential Height Anomaly"
+    title = ("%s · Polar Cap (60-90°N) Geopotential Height Anomaly"
              % label)
     clim_txt = {"monthly": "ERA5 1991-2020 monthly climatology",
                 "daily": "ERA5 1991-2020 climatology"}[kind]
@@ -304,7 +309,9 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
                  split=split if split else None,
                  credit=credit_for(tag),
                  analysis_label="ERA5 reanalysis" if ana_days else None,
-                 forecast_label="%s seasonal forecast" % label,
+                 forecast_label="%s %s forecast" % (
+                     label, "sub-seasonal" if (mt and len(mt) <= 90)
+                     else "seasonal"),
                  today=today)
     print("   the figure: %s" % p)
     return p

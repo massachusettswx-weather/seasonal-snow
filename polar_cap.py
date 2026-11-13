@@ -239,21 +239,27 @@ def normalise(times, values, levels, clim):
 
 
 # ---------------------------------------------------------------- the drawing
-# The colour ladder is this site's own: a navy-to-white-to-orange diverging
-# ramp built from the colours the rest of the site already uses (the navy of
-# the ensemble mean, the orange of the ERA5 trace).  It is NOT the ramp of
-# any published figure.
-BREAKS = [-6, -5, -4, -3, -2, -1.5, -1, -0.5, -0.2,
-          0.2, 0.5, 1, 1.5, 2, 3, 4, 5, 6]
+# The colour ladder is this site's own: a blue-to-white-to-red diverging
+# ramp.  It is NOT the ramp of any published figure, and it is not the
+# yellow-orange ramp of the first version of this chart.
+#
+# The field is the geopotential height ANOMALY IN METRES, not a normalised
+# one.  A normalised anomaly needs a climatology of its own for every system
+# - and the subseasonal guidance has no hindcast to build one from - while a
+# height anomaly in metres can be put straight next to the reanalysis.  The
+# trade-off is that the anomaly is much larger in the stratosphere than in
+# the troposphere, so the scale is set by the stratosphere.
+BREAKS = [-600, -480, -380, -300, -230, -170, -115, -60, -20,
+          20, 60, 115, 170, 230, 300, 380, 480, 600]
 COLORS = [
     # nine blues, from the site's navy out to a pale tint
     "#071a33", "#0b2545", "#123a63", "#1a4f7d", "#27659a",
     "#3d80b6", "#5f9dcd", "#8bb9de", "#cfe3f2",
     # the white centre
     "#ffffff",
-    # seven warms, into the site's orange
-    "#fbe3c4", "#f4c184", "#e89a4a", "#dc7a26", "#c85c17",
-    "#a53f10", "#7d2409",
+    # seven reds, into the site's own deep red
+    "#fbdcd9", "#f5b3ad", "#ec8580", "#df5a55", "#cc3a35",
+    "#a92825", "#7d1a18",
 ]
 
 # the house colours, the same ones the zonal-wind panels use
@@ -263,11 +269,27 @@ C_GRID = "#d6d3d1"
 C_SPLIT = "#12263f"
 C_TODAY = "#9d174d"
 
+# the standard gravity, for turning a geopotential into a height
+G0 = 9.80665
+
 # the approximate height of the pressure levels, for the right-hand axis.
 # A standard atmosphere, not a table lifted from anywhere.
 def _height_km(p):
     import math
     return 0.288 * 1000.0 * math.log(1013.25 / p) / 0.0065 / 1000.0 * 10.0
+
+
+def _short_date(t):
+    """'13 Nov' - the full date is too wide when the run is short."""
+    t = str(t)
+    try:
+        import datetime as _dt
+        d = _dt.date.fromisoformat(t[:10])
+        return "%d %s" % (d.day, ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                  "Jul", "Aug", "Sep", "Oct", "Nov",
+                                  "Dec")[d.month - 1])
+    except Exception:
+        return t[:10]
 
 
 def _alt_label(km):
@@ -315,31 +337,26 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     ax = fig.add_axes([0.058, 0.165, 0.855, 0.645])
     ax.set_facecolor("white")
 
-    # The panel is drawn in three pieces so the reader can tell them apart:
-    # the reanalysis is what happened and is drawn at full strength, the
-    # model's own days that have already passed are drawn a little lighter,
-    # and the days the model is still forecasting are lighter still.
-    segs = []
+    # The panel is drawn in one piece.  It used to be drawn in three, each
+    # with its own shading, and a contourf only fills the columns it is
+    # given - so the day before the "now" line was never filled and the
+    # chart carried a white stripe down it.  The reanalysis is still picked
+    # out: it is drawn a second time, a little stronger, over the columns
+    # it covers.
+    mid = today if (today is not None and 0 < today < n) else n
     if split is not None and 0 < split < n:
-        segs.append((0, split, 1.0))
-        mid = today if (today is not None and split < today < n) else n
-        segs.append((split, mid, 0.82))
-        if mid < n:
-            segs.append((mid, n, 0.58))
+        # what happened, at full strength; what the model says, lighter.
+        # The last column is shared with the panel below it, so the two meet
+        # with no gap.
+        ax.contourf(x, lev, z, levels=edges, cmap=cmap,
+                    norm=norm_c, extend="both", alpha=0.62)
+        ax.contourf(x[:split + 1], lev, z[:, :split + 1], levels=edges,
+                    cmap=cmap, norm=norm_c, extend="both", alpha=1.0)
     else:
-        mid = today if (today is not None and 0 < today < n) else n
-        if mid < n:
-            segs.append((0, mid, 0.82))
-            segs.append((mid, n, 0.58))
-        else:
-            segs.append((0, n, 0.82))
-
-    p1 = None
-    for a, b, alpha in segs:
-        if b <= a:
-            continue
-        p1 = ax.contourf(x[a:b], lev, z[:, a:b], levels=edges, cmap=cmap,
-                         norm=norm_c, extend="both", alpha=alpha)  # the ends are drawn, the bar is not pointed
+        # no reanalysis in front of the run: the model's own forecast is
+        # the whole panel, and it is drawn at full strength.
+        ax.contourf(x, lev, z, levels=edges, cmap=cmap,
+                    norm=norm_c, extend="both", alpha=1.0)
 
     ax.set_yscale("log")
     ax.set_ylim(1000.0, 10.0)
@@ -371,7 +388,8 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
         else:
             del idx[j + 1]
     ax.set_xticks(idx)
-    ax.set_xticklabels([times[i][:10] for i in idx], fontsize=9, color=C_TEXT)
+    ax.set_xticklabels([_short_date(times[i]) for i in idx], fontsize=9,
+                        color=C_TEXT)
     ax.set_xlim(-0.5, n - 0.5)
 
     ax.grid(True, color=C_GRID, linestyle=(0, (1, 3)), lw=0.6, alpha=0.8)
@@ -404,8 +422,6 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     if split is not None and 0 < split < n:
         ax.axvline(split - 0.5, color=C_SPLIT, lw=1.3, ls=(0, (5, 3)),
                    zorder=6)
-    if today is not None and 0 <= today < n:
-        ax.axvline(today, color=C_TODAY, lw=1.1, ls=(0, (1.5, 2.5)), zorder=6)
 
     # the titles: left aligned, the way the rest of the site does it
     fig.text(0.058, 0.968, title, fontsize=15.5, fontweight="bold",
@@ -421,9 +437,6 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     if forecast_label:
         fig.text(0.908, 0.845, forecast_label, fontsize=10,
                  fontweight="bold", color=C_SPLIT, ha="right", va="bottom")
-    if today is not None and 0 <= today < n:
-        ax.text(today, 1.004, "now", transform=ax.get_xaxis_transform(),
-                fontsize=9, color=C_TODAY, ha="center", va="bottom")
 
     # the colour bar, below the panel.  It is drawn from a clean mappable so
     # that it always shows the colours at full strength, whatever the
@@ -441,7 +454,7 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     cb.outline.set_edgecolor("#c8c5c2")
     cb.outline.set_linewidth(0.8)
     cb.ax.tick_params(length=2, colors=C_TEXT)
-    fig.text(0.485, 0.040, "Normalised geopotential height anomaly (σ)",
+    fig.text(0.485, 0.040, "Geopotential height anomaly (m)",
              fontsize=10.5, ha="center", va="center", fontweight="bold",
              color=C_TEXT)
 

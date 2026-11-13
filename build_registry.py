@@ -91,6 +91,10 @@ MODELS = {
                         "\u00b7 weekly means out to 46 days \u00b7 read from ECMWF's own "
                         "climate store. A sub-seasonal system: its plume covers the "
                         "first six weeks of the run, not whole seasons."),
+    "gefsv12":         ("NOAA GEFSv12",
+                        "NOAA GEFS v12 sub-seasonal ensemble \u00b7 31 members "
+                        "\u00b7 16 days \u00b7 the polar cap's geopotential "
+                        "height anomaly on the same scale as the reanalysis"),
     "ec46":            ("ECMWF EC46",
                         "ECMWF sub-seasonal ensemble (EC46) \u00b7 51 members \u00b7 a "
                         "46-day run, so this section covers the first six weeks of "
@@ -412,14 +416,24 @@ def main():
             name, note = MODELS.get(tag, (tag.replace("-", " ").title(), ""))
             nmem = "?"
             init = "?"
-            zp = os.path.join(DATA, "polar_ec46_z.json")
-            if tag == "ec46" and os.path.exists(zp):
+            # the numbers come from the series cache itself, so a card is
+            # never published with a member count nobody checked
+            for zp in (os.path.join(HERE, "data", "polar_model_z.json"),
+                       os.path.join(HERE, "data", "polar_ec46_z.json")):
+                if not os.path.exists(zp):
+                    continue
                 try:
-                    z = json.load(open(zp)).get("ec46", {})
-                    nmem = z.get("members", "?")
-                    init = z.get("run", "?")
+                    z = json.load(open(zp)).get(tag) or {}
                 except Exception:
-                    pass
+                    continue
+                if not z:
+                    continue
+                nmem = z.get("members", "?")
+                init = z.get("run") or init
+                t = z.get("times") or []
+                if t:
+                    init = str(t[0])[:10]
+                break
             reg["models"].append({
                 "id": tag,
                 "name": name,
@@ -494,7 +508,7 @@ def main():
         shutil.copyfile(src, os.path.join(POLARDIR, fn))
         entry["polar"] = {
             "file": "assets/polar/" + fn,
-            "caption": "Polar cap (60-90N) normalised geopotential height "
+            "caption": "Polar cap (60-90N) geopotential height "
                        "anomaly - %s." % entry["name"],
         }
 

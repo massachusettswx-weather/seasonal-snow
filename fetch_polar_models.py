@@ -52,6 +52,8 @@ CENTRES = [
     ("dwd-gcfs2", "dwd", "22"),
     ("eccc-canesm5", "eccc", "4"),
     ("eccc-gem5", "eccc", "5"),
+    ("jma-jra3", "jma", "4"),
+    ("bom-access-s2", "bom", "2"),
 ]
 
 # the days per chunk: the archive caps the RESPONSE SIZE, and the S4S
@@ -206,7 +208,7 @@ def main():
     RUN_DAYS = {
         "ecmwf-seas5": 215, "ukmo-gloseas6": 215, "meteo-france-s9": 212,
         "cmcc-sps4": 184, "dwd-gcfs2": 181, "eccc-canesm5": 214,
-        "eccc-gem5": 214,
+        "eccc-gem5": 214, "jma-jra3": 215, "bom-access-s2": 215,
     }
 
     while True:

@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Home &middot; Seasonal Forecast Graphics</title>
-<link rel="stylesheet" href="assets/css/style.css?v=20261112224029">
+<link rel="stylesheet" href="assets/css/style.css?v=20261113210519">
 </head>
 <body>
 <header class="top">
   <h1>Seasonal Forecast Graphics</h1>
-  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; November 2026 init</span>
+  <span class="sub">ECMWF SEAS5 &amp; C3S seasonal systems &middot; November 2026 &amp; November 2026 inits</span>
   <span class="spacer"></span>
   <a href="https://github.com/massachusettswx-weather/seasonal-snow" target="_blank"
      rel="noopener">GitHub</a>
@@ -19,7 +19,7 @@
 <div class="card">
   <h2 class="sec">Step 1 &mdash; choose a seasonal model</h2>
   <p class="lead">Each model is shown from its own most recent init:
-  C3S Multi-Model Mean, NOAA CFSv2, CMCC SPS4, DWD GCFS2.2, ECCC canSIPS, ECMWF SEAS5, METFR System 9, NOAA SFSv1 and UKMO GloSeas6-GC5.1 from November 2026; BOM ACCESS-S2 and JMA CPS4 are on the November 2026 init with the ENSO plume, and publish no snowfall field.
+  C3S Multi-Model Mean, NOAA CFSv2, CMCC SPS4, DWD GCFS2.2, ECCC canSIPS, ECMWF SEAS5, METFR System 9, NOAA SFSv1 and UKMO GloSeas6-GC5.1 from November 2026; BOM ACCESS-S2, JMA CPS4 and NOAA GEFSv12 are on the November 2026 init with the ENSO plume, and publish no snowfall field.
   Pick a model and you will be taken to its list of variables &mdash;
   accumulated snowfall over the continental United States, ONI and RONI sea
   surface temperature plumes for the four ENSO regions, and the 10 hPa
@@ -71,6 +71,10 @@
   <h3>JMA CPS4</h3>
   <div class="meta">Japan Meteorological Agency CPS4 seasonal prediction system · ensemble · init 1 Nov 2026 · no snowfall — this centre publishes no snowfall field in the seasonal archive. The ENSO plume and the 10 hPa wind are published.</div>
   <div class="tags"><span class="tag no">Snowfall</span><span class="tag ok">10 hPa wind</span><span class="tag">155 members</span><span class="tag">init 2026-11</span></div>
+</a><a class="model" href="model.html?m=gefsv12">
+  <h3>NOAA GEFSv12</h3>
+  <div class="meta">NOAA GEFS v12 sub-seasonal ensemble · 31 members · 16 days · the polar cap's geopotential height anomaly on the same scale as the reanalysis</div>
+  <div class="tags"><span class="tag no">Snowfall</span><span class="tag no">10 hPa wind</span><span class="tag">31 members</span><span class="tag">init 2026-11-13</span></div>
 </a></div>
 <div class="card">
   <p class="note">Snowfall is accumulated snow in inches.

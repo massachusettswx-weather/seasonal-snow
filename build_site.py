@@ -427,7 +427,7 @@ function render(){
   });
   vars.push({
     title:'Polar cap geopotential height',
-    desc:'A time-height section of the polar cap (60-90N): the normalised geopotential height anomaly from 10 hPa down to the surface, with the analysis in front of the model&rsquo;s own forecast.',
+    desc:'A time-height section of the polar cap (60-90N): the geopotential height anomaly against ERA5&rsquo;s 1991-2020 climate, in metres, from 10 hPa down to the surface.',
     href:'spv.html?m='+m.id+'#polar',
     img:(m.polar&&m.polar.file)||'',
     on:!!m.polar_ok
