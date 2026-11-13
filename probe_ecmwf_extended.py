@@ -67,18 +67,19 @@ def request(system, lead_hours, day="01", month="11", year="2026"):
 
 
 def submit_and_wait(cds, req, tries=120):
-    r = cds.submit(DATASET, req)
-    if isinstance(r, str):
-        # the archive refuses a submission when the account's queue is full:
-        # it answers with a string, not a job record
-        print("   refused: %s" % r[:120])
-        return None, "refused", {"error": r}
-    jid = r.get("job_id") or r.get("id") or r.get("request_id")
+    try:
+        r = cds.submit(DATASET, req)
+    except Exception as e:
+        # QueueFull or NoData: the archive's answer, not a job
+        print("   refused: %s" % str(e)[:120])
+        return None, "refused", {"error": str(e)}
+    # cds_direct.submit returns the job id as a STRING
+    jid = r if isinstance(r, str) else (r.get("jobID") or r.get("id"))
     print("   submitted: %s" % str(jid)[:12])
     for _ in range(tries):
-        st = cds.status(jid)
-        s = (st or {}).get("status")
-        if s in ("successful", "failed", "rejected"):
+        st = cds.job_status(jid)
+        s = st if isinstance(st, str) else (st or {}).get("status")
+        if s in ("successful", "failed", "rejected", "dismissed"):
             return jid, s, st
         time.sleep(20)
     return jid, "timeout", None
@@ -107,7 +108,7 @@ def main():
     cds = cds_direct.CDSDirect()
     rec = {"probes": []}
 
-    for system, lead, label in ((1, [12], "system 1, lead 12 h"),
+    for system, lead, label in ((2, [12], "system 2, lead 12 h"),
                                 (1, [852], "system 1, lead 852 h (35 days)"),
                                 (2, [852], "system 2, lead 852 h (35 days)")):
         print("== probing: %s" % label, flush=True)
@@ -138,7 +139,8 @@ def main():
             except Exception as e:
                 entry["error"] = str(e)
         else:
-            entry["detail"] = (st or {}).get("error") or (st or {}).get("messages")
+            detail = cds._job_detail(jid) if jid else ""
+            entry["detail"] = detail or str(st)
             print("   status %s: %s" % (status, str(entry["detail"])[:200]))
         rec["probes"].append(entry)
         with open(OUT, "w") as f:

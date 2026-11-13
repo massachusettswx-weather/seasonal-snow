@@ -172,3 +172,63 @@ too cold. So:
 
 The rule that follows: *a climatology must be built from the same product and grid
 as the data it normalises* — and here, the same product means the same publisher.
+
+## The sub-seasonal side of the section (13 Nov 2026)
+
+### The chart's colours and its layout
+
+The user asked for the colour family of the reference figure (blue -> white ->
+yellow -> orange -> red) but not the reference's design.  The ladder in
+`polar_cap.py` is now nine blues, a white centre, then pale yellow, yellow,
+amber, orange, vermilion, the site's red and a deep crimson - seventeen
+colours over +/-600 m.  The layout is ours: a short figure (13.5 x 7.0 in)
+with the panel given most of it, the title and descriptor on the left, the two
+side labels just above the panel, the colour bar below it and the handle
+bottom right.  The first version was 7.6 in tall with a wide empty band above
+the panel; the user called that "too much space".
+
+### GEFSv12 - 16 days is the whole horizon
+
+NOAA publishes the GEFSv12 ensemble to **f384 = 16 days**, and no further.
+Verified in the 20261113 00Z run: the 0.5-degree control
+(`atmos/pgrb2ap5`) and the perturbations (`atmos/pgrb2bp5`) both stop at
+f384, and the 0.25-degree control (`atmos/pgrb2sp25`) stops at f240/f384.
+There is **no 35-day GEFSv12 to draw** - the 35-day window the user asked for
+is the ECMWF extended run's, not NOAA's.
+
+### EC46 - the licence is the only thing missing
+
+* The ECMWF **open-data bucket carries no extended range**.
+  `s3://ecmwf-forecasts` holds `YYYYMMDD/HH/{ifs,aifs-ens,aifs-single}` only;
+  the `ec46/` prefix exists but is empty, and the old ENFO stream is gone.
+  There is no GCS mirror and the Azure container is not `ecef`.
+* The **extended range runs on Mondays and Thursdays at 00Z**, 51 members,
+  leg B at ~36 km from day 15 to day 46.
+* The ECDS catalogue has exactly three datasets: `s2s-forecasts`,
+  `tigge-forecasts`, `s2s-reforecasts`.  The EC46 is `s2s-forecasts` with
+  `system: 46`, and it serves **ten levels only** (10, 50, 100, 200, 300, 500,
+  700, 850, 925, 1000 hPa - no 30 hPa and no 400 hPa), which is why
+  `fetch_polar_ec46.py` asks for those ten and not the chart's twelve.
+* The blocker is one click, and the data is free:
+  `https://ecds.ecmwf.int/datasets/s2s-forecasts?tab=download#manage-licences`.
+  Until it is ticked every POST answers **403 "required licences not
+  accepted"**.  The licence check runs BEFORE validation, so a malformed
+  request also answers 403 and never 422.
+
+### The ERA5 half
+
+`fetch_polar_era5_recent.py` pulls the CDS `reanalysis-era5-pressure-levels`
+for the polar cap, **one request per month** (the CDS shares the day list
+across the months in a request, so months of different lengths cannot be
+combined), into `data/polar_era5_recent.npz`.  The chart then shows 90 days
+of what happened before the run.
+
+### The queue
+
+The account can hold **two running jobs plus a couple more in the "accepted"
+state** - the admission gate counts the running ones, so a third submission
+is refused ("Maximum number queued requests for this dataset has been
+reached").  Jobs that will never be used should be **dismissed** (DELETE
+`/retrieve/v1/jobs/<full uuid>`) rather than left to hold the queue: two
+worthless UKMO daily chunks were dismissed on 13 Nov to let the ERA5 pull
+through.

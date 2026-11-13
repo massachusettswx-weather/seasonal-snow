@@ -44,14 +44,18 @@ LV = [str(x) for x in LEVELS]
 AREA = [90, -180, 60, 180]
 
 # tag, originating_centre, system
+# The order is the order the chunks are queued in, so it is a priority
+# list: every other centre gets its first chunk before the SEAS5 section
+# is taken out to the end of its run.  Breadth first - a section for a new
+# system is worth more than more days on the one we already have.
 CENTRES = [
-    ("ecmwf-seas5", "ecmwf", "51"),
-    ("ukmo-gloseas6", "ukmo", "610"),
     ("meteo-france-s9", "meteo_france", "9"),
     ("cmcc-sps4", "cmcc", "4"),
     ("dwd-gcfs2", "dwd", "22"),
     ("eccc-canesm5", "eccc", "4"),
     ("eccc-gem5", "eccc", "5"),
+    ("ecmwf-seas5", "ecmwf", "51"),
+    ("ukmo-gloseas6", "ukmo", "610"),
     ("jma-jra3", "jma", "4"),
     ("bom-access-s2", "bom", "2"),
 ]
@@ -265,6 +269,31 @@ def main():
                           flush=True)
                     j["status"] = "failed"
         save_state(st)
+
+        # 1b. the ECCC's two systems are one card on the site - the official
+        # canSIPS - so the polar-cap series is pooled the same way: the
+        # ensemble mean of the two systems, twenty members each.
+        if "eccc-canesm5" in out and "eccc-gem5" in out:
+            a, b = out["eccc-canesm5"], out["eccc-gem5"]
+            common = sorted(set(a["times"]) & set(b["times"]))
+            if len(common) >= 3:
+                ia = {t: i for i, t in enumerate(a["times"])}
+                ib = {t: i for i, t in enumerate(b["times"])}
+                rows = []
+                for t in common:
+                    ra = a["values"][ia[t]]
+                    rb = b["values"][ib[t]]
+                    rows.append([(x + y) / 2.0 for x, y in zip(ra, rb)])
+                pooled = {"times": common, "values": rows,
+                          "members": int(a.get("members", 20))
+                                     + int(b.get("members", 20)),
+                          "levels": list(LEVELS)}
+                if out.get("eccc-cansips") != pooled:
+                    out["eccc-cansips"] = pooled
+                    save_out(out)
+                    print("   the ECCC's two systems pooled into canSIPS: "
+                          "%d days, %d members" % (len(common),
+                                                  pooled["members"]), flush=True)
 
         # 2. submit
         n = account_inflight(cds)

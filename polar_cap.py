@@ -253,15 +253,18 @@ def normalise(times, values, levels, clim):
 BREAKS = [-600, -480, -380, -300, -230, -170, -115, -60, -20,
           20, 60, 115, 170, 230, 300, 380, 480, 600]
 COLORS = [
-    # nine blues: the site's own navy out to a pale tint
-    "#071a33", "#0d2a4d", "#17436f", "#215a91", "#2f74ad",
-    "#4b8fc4", "#6ba5d5", "#96c1e2", "#cfdfef",
+    # nine blues: a saturated royal blue out to a pale tint.  The deep end
+    # is a COLOURED blue, not a near-black navy - a dark, desaturated end
+    # reads as a hole in the chart rather than as a strong cold anomaly.
+    "#1017c4", "#101fda", "#1230ec", "#1c4cf1", "#3a77f4",
+    "#5c9cf7", "#87befa", "#b2d6fb", "#d9e9fc",
     # the white centre
     "#ffffff",
-    # seven warms: a pale yellow, then yellow, amber, orange, vermilion,
-    # the site's red and a deep crimson
-    "#fdf0bd", "#f8d979", "#f0b558", "#e28c49", "#d1663b",
-    "#bd432e", "#8e2318",
+    # seven warms: a bright yellow, then gold, orange, vermilion, a vivid
+    # red and a deep red.  These are the saturated colours, not the dusty
+    # ones - a muted ramp makes a strong anomaly look like a weak one.
+    "#fff45a", "#fdc742", "#f79030", "#ee6326", "#ea4220",
+    "#d52c1b", "#b22318",
 ]
 
 # the house colours, the same ones the zonal-wind panels use

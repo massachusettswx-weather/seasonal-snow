@@ -97,11 +97,10 @@ while true; do
             python3 -u plot_snow_models.py --unit snow >> logs_auto_publish.log 2>&1
             python3 -u plot_snow_multi.py >> logs_auto_publish.log 2>&1
             python3 -u plot_enso.py >> logs_auto_publish.log 2>&1
-            # the polar-cap time-height sections
-            python3 -u plot_polar_cap.py ecmwf-seas5 "ECMWF SEAS5" >> logs_auto_publish.log 2>&1
-            if [ -f data/polar_ec46_z.json ]; then
-                python3 -u plot_polar_cap.py ec46 "ECMWF EC46" >> logs_auto_publish.log 2>&1
-            fi
+            # the polar-cap time-height sections.  Every system that has a
+            # series on disk gets its chart rebuilt, so a new chunk, a new
+            # system or a new ERA5 half all land in one publish.
+            python3 -u build_polar_charts.py >> logs_auto_publish.log 2>&1
             # A revoked token would fail the push and leave a dead
             # credential behind, so it is checked once.  Either way the site
             # is rebuilt and committed locally; only the push is

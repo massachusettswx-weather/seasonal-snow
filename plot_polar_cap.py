@@ -30,6 +30,13 @@ OUT = os.path.join(HERE, "output", "polar_cap")
 PROFILES = os.path.join(DATA, "era5_polarcap_profiles.npz")
 RECENT = os.path.join(DATA, "polar_era5_recent.npz")
 MODEL_CACHE = os.path.join(DATA, "polar_model_z.json")
+# the EC46 is a separate product and lives in its own file
+EC46_CACHE = os.path.join(DATA, "polar_ec46_z.json")
+
+
+def cache_for(tag):
+    """The file that holds a system's own daily polar-cap series."""
+    return EC46_CACHE if tag == "ec46" else MODEL_CACHE
 CLIM = os.path.join(DATA, "polar_cap_clim.npz")
 # the climatology in the ARCO NATIVE store's own convention.  It is NOT
 # used: that store mutes the stratospheric variability (the January 2013
@@ -208,7 +215,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     rt, rv, d_recent = load_recent()
 
     # 3. the model's own forecast
-    mt, mv, ser_levels = load_series(MODEL_CACHE, tag)
+    mt, mv, ser_levels = load_series(cache_for(tag), tag)
     if mt is None:
         print("   no series for %s yet" % tag)
         # a chart left over from an earlier build would be published with
@@ -221,7 +228,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
 
     # the record behind it: the run time and the size of the ensemble
     try:
-        _all = json.load(open(MODEL_CACHE))
+        _all = json.load(open(cache_for(tag)))
     except Exception:
         _all = {}
     _rec = _all.get(tag) or {}

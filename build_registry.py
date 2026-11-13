@@ -93,8 +93,10 @@ MODELS = {
                         "first six weeks of the run, not whole seasons."),
     "gefsv12":         ("NOAA GEFSv12",
                         "NOAA GEFS v12 sub-seasonal ensemble \u00b7 31 members "
-                        "\u00b7 16 days \u00b7 the polar cap's geopotential "
-                        "height anomaly on the same scale as the reanalysis"),
+                        "\u00b7 16 days, which is the whole horizon NOAA "
+                        "publishes for the ensemble \u00b7 the polar cap's "
+                        "geopotential height anomaly on the same scale as the "
+                        "reanalysis"),
     "ec46":            ("ECMWF EC46",
                         "ECMWF sub-seasonal ensemble (EC46) \u00b7 51 members \u00b7 a "
                         "46-day run, so this section covers the first six weeks of "
