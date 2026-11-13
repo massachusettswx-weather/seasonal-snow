@@ -378,7 +378,8 @@ def main():
     # the sector means, where the members carried them
     sectors = {}
     if all(out[k].get("sectors") for k in keys):
-        sectors = {name: [out[k]["sectors"][name][i] for k in keys]
+        # each lead carries the twelve level values for that sector
+        sectors = {name: [out[k]["sectors"][name] for k in keys]
                    for name in out[keys[0]]["sectors"]}
     rec = {"times": times, "values": values, "members": nmem,
            "levels": list(LEVELS),

@@ -238,3 +238,31 @@ reached").  Jobs that will never be used should be **dismissed** (DELETE
 `/retrieve/v1/jobs/<full uuid>`) rather than left to hold the queue: two
 worthless UKMO daily chunks were dismissed on 13 Nov to let the ERA5 pull
 through.
+
+## THE SCOPE (13 Nov 2026, restated after I drifted)
+
+**What the EC46 is for — and nothing else:**
+
+1. the **polar-cap geopotential height anomaly** section, 60-90N, in metres,
+   the same field and the same colours as every other section on the page;
+2. **potentially** the same section split into the **North Pacific and the
+   North Atlantic** sectors, 60-90N, as we discussed.
+
+**What it is NOT:**
+
+* **no 10 hPa wind panel for the EC46** - the deliverable is the height
+  anomaly, not a wind chart (the user corrected this on 13 Nov);
+* **no lagged ensemble** for the UKMO/JMA/BoM daily wind - cancelled, and
+  those three keep their monthly wind charts;
+* **not the ECDS API** - the EC46 comes from the **free and open** route
+  (ECMWF's open portal, CC-BY, ~48 h after the run).
+
+**Where the other products stand (13 Nov 2026):**
+
+* the seasonal daily 10 hPa zonal-mean zonal wind is **done and on the
+  1 November 2026 init** for CMCC (184 d, 50 members), DWD (181 d, 50),
+  ECCC canSIPS (214 d, 40), METFR (212 d, 51) and SEAS5;
+* the UKMO, JMA and BoM keep their full-ensemble **monthly** wind charts;
+* the sector means (North Pacific 120-240E, North Atlantic 300-60E) come out
+  of the same pass over the GRIB as the polar-cap mean, and the sector's own
+  1991-2020 climate comes from the CDS 30-year monthly means.

@@ -48,16 +48,14 @@ AREA = [90, -180, 60, 180]
 # list: every other centre gets its first chunk before the SEAS5 section
 # is taken out to the end of its run.  Breadth first - a section for a new
 # system is worth more than more days on the one we already have.
+# The centres the section is drawn for.
+#
+# 13 Nov 2026: the user asked for three systems only - the seasonal run, the
+# sub-seasonal GEFS and the ECMWF extended range.  The other centres are not
+# to be given a section, so they are not fetched either: the CDS queue is
+# scarce and their chunks would only be thrown away.
 CENTRES = [
-    ("meteo-france-s9", "meteo_france", "9"),
-    ("cmcc-sps4", "cmcc", "4"),
-    ("dwd-gcfs2", "dwd", "22"),
-    ("eccc-canesm5", "eccc", "4"),
-    ("eccc-gem5", "eccc", "5"),
     ("ecmwf-seas5", "ecmwf", "51"),
-    ("ukmo-gloseas6", "ukmo", "610"),
-    ("jma-jra3", "jma", "4"),
-    ("bom-access-s2", "bom", "2"),
 ]
 
 # the days per chunk: the archive caps the RESPONSE SIZE, and the S4S

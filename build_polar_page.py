@@ -32,14 +32,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = os.path.join(HERE, "docs")
 OUT = os.path.join(HERE, "output")
 
-# the models the section has been rendered for, in the order they are shown
+# The models the section is for, in the order they are shown.
+#
+# 13 Nov 2026: the user asked for exactly three - the seasonal run, the
+# sub-seasonal GEFS and the ECMWF extended range.  The other centres are
+# NOT to be given a section, so the list here is the whole of it.
 MODELS = [
     ("ecmwf-seas5", "ECMWF SEAS5"),
-    ("ukmo-gloseas6", "UKMO GloSeas6"),
-    ("meteo-france-s9", "METFR System 9"),
-    ("cmcc-sps4", "CMCC SPS4"),
-    ("dwd-gcfs2", "DWD GCFS2.2"),
-    ("eccc-cansips", "ECCC canSIPS"),
+    ("gefsv12", "NOAA GEFSv12"),
+    ("ec46", "ECMWF EC46"),
 ]
 
 def available(reg=None):

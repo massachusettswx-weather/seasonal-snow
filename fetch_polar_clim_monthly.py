@@ -77,7 +77,9 @@ def build(path):
     times, vals, sec = read_grib_levels_sectors(path)
     by_month = defaultdict(dict)
     by_month_s = defaultdict(dict)
-    for t, levels in times.items():
+    # `vals` is the {time: {level: value}} dictionary; `times` is only the
+    # list of time strings
+    for t, levels in vals.items():
         by_month[t[:7]][t] = levels
     for t, sdict in sec.items():
         by_month_s[t[:7]][t] = sdict
