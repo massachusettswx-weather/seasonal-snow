@@ -59,6 +59,14 @@ def main():
         if r.returncode != 0:
             print("   the %s section failed: %s"
                   % (t, (r.stderr or "").strip().splitlines()[-1][:160]))
+        # the same section split into the North Pacific and the North
+        # Atlantic, when the sector means are on disk
+        r2 = subprocess.run([sys.executable, "-u", "plot_polar_sectors.py",
+                             t, label], cwd=HERE, capture_output=True,
+                            text=True)
+        out2 = (r2.stdout or "").strip().splitlines()
+        for line in out2[-2:]:
+            print("   %s" % line)
 
 
 if __name__ == "__main__":

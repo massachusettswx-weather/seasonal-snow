@@ -513,6 +513,19 @@ def main():
             "caption": "Polar cap (60-90N) geopotential height "
                        "anomaly - %s." % entry["name"],
         }
+        # the same section split into the North Pacific and the North
+        # Atlantic: the two do not warm together, and the polar-cap mean
+        # hides the difference between them
+        ssrc = os.path.join(OUT, "polar_cap", "polar_sectors_%s.png"
+                            % entry["id"])
+        if os.path.exists(ssrc):
+            sfn = "polar_sectors_%s.png" % entry["id"]
+            shutil.copyfile(ssrc, os.path.join(POLARDIR, sfn))
+            entry["polar_sectors"] = {
+                "file": "assets/polar/" + sfn,
+                "caption": "North Pacific and North Atlantic (60-90N) "
+                           "geopotential height anomaly - %s." % entry["name"],
+            }
 
     # Cache-bust every asset URL.  GitHub Pages serves the PNGs with a long
     # cache lifetime, so without a version query the browser keeps showing the

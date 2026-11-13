@@ -78,6 +78,48 @@ def zonal_mean(field, lat):
     return float((field[used, :] * ww[:, None]).sum() / (nlon * ww.sum()))
 
 
+def sector_mean(field, lat, lon, lon0, lon1):
+    """The area-weighted zonal mean of a 2-D field over ONE longitude sector.
+
+    field: (nlat, nlon); lat: (nlat,); lon: (nlon,) in degrees east
+    lon0 -> lon1, going east; the sector wraps if lon1 < lon0.
+
+    The same reduction as the full cap mean, but only over the longitudes
+    of the sector: the field is averaged east-west over the sector at every
+    latitude of the band, and then weighted by cos(lat).
+    """
+    w = cap_weights(lat)
+    used = w > 0
+    if not used.any():
+        return np.nan
+    lons = np.asarray(lon, float) % 360.0
+    if lon1 >= lon0:
+        m = (lons >= lon0) & (lons < lon1)
+    else:
+        m = (lons >= lon0) | (lons < lon1)
+    if not m.any():
+        return np.nan
+    f = field[used, :][:, m]
+    ww = w[used][:, None]
+    return float((f * ww).sum() / (float(m.sum()) * ww.sum()))
+
+
+# The polar cap split into two sectors, so that a warming over one ocean
+# can be told from a warming over the other - the Atlantic and the Pacific
+# do not warm together, and the difference between them is the story.
+# The sectors are 120 degrees wide and do not overlap: the Atlantic runs
+# from 300E to 60E, the Pacific from 120E to 240E, and the Arctic sector
+# (240E to 300E) is left out.
+SECTORS = {
+    "natl": (300.0, 60.0),
+    "npac": (120.0, 240.0),
+}
+SECTOR_LABELS = {
+    "natl": "North Atlantic",
+    "npac": "North Pacific",
+}
+
+
 def read_grib_levels(path, levels=None):
     """-> (times, {level: polar cap mean geopotential height}).
 
@@ -89,10 +131,24 @@ def read_grib_levels(path, levels=None):
     so the member values are averaged: the section shows the ensemble mean,
     and a file with one member (a control run) comes through unchanged.
     """
+    times, cap, _sector = read_grib_levels_sectors(path, levels)
+    return times, cap
+
+
+def read_grib_levels_sectors(path, levels=None):
+    """-> (times, cap, sectors).
+
+    cap:    {time: {level: the polar cap mean}}
+    sectors: {time: {sector: {level: the sector mean}}}
+
+    The same reduction as read_grib_levels, plus the sector means, so one
+    pass over the file serves both.
+    """
     import eccodes
     from datetime import datetime, timedelta
     from collections import defaultdict
     acc = defaultdict(lambda: defaultdict(list))
+    sacc = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     with open(path, "rb") as f:
         while True:
             try:
@@ -109,6 +165,7 @@ def read_grib_levels(path, levels=None):
                 nj = int(eccodes.codes_get(gid, "Nj", 0) or 0)
                 if ni and nj and v.size == ni * nj:
                     lat2d = la.reshape(nj, ni)
+                    lon2d = lo.reshape(nj, ni)
                     v = v.reshape(nj, ni)
                 else:
                     lats = np.unique(la)[::-1]
@@ -117,7 +174,9 @@ def read_grib_levels(path, levels=None):
                         continue
                     v = v.reshape(len(lats), len(lons))
                     lat2d = np.repeat(lats[:, None], len(lons), axis=1)
+                    lon2d = np.repeat(lons[None, :], len(lats), axis=0)
                 lats = lat2d[:, 0]
+                lons = lon2d[0, :]
                 # the valid time: eccodes' own validityDate/validityTime
                 # already carry the reference time plus the forecast step,
                 # and they are the same for a reanalysis (12Z, step 0) and
@@ -139,14 +198,20 @@ def read_grib_levels(path, levels=None):
                 lev = int(eccodes.codes_get(gid, "level"))
                 key = valid.strftime("%Y-%m-%d %H")
                 acc[key][lev].append(zonal_mean(v, lats))
+                for name, (a, b) in SECTORS.items():
+                    sacc[key][name][lev].append(
+                        sector_mean(v, lats, lons, a, b))
             except Exception:
                 pass
             finally:
                 eccodes.codes_release(gid)
     out = {t: {lev: float(np.mean(vals)) for lev, vals in d.items()}
            for t, d in acc.items()}
+    sout = {t: {name: {lev: float(np.mean(vals)) for lev, vals in ld.items()}
+                for name, ld in sd.items()}
+            for t, sd in sacc.items()}
     times = sorted(out)
-    return times, out
+    return times, out, sout
 
 
 # ---------------------------------------------------------------- the climatology
@@ -481,3 +546,172 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
 if __name__ == "__main__":
     print("the levels:", LEVELS)
     print("the module is meant to be imported")
+
+
+def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
+                         split=None, credit=None, handle="@Massachusettswx",
+                         order=("npac", "natl"), forecast_alpha=0.62):
+    """Draw the polar cap split into two sectors, side by side.
+
+    times:   (n,)    ISO strings
+    sectors: {name: (n, nlev)} the geopotential height ANOMALY in metres,
+             one array per sector
+    levels:  (nlev,) the pressure levels, hPa
+
+    The same figure as the polar-cap section - the same colours, the same
+    log pressure axis, the same height axis on the right - with one panel
+    per sector.  The Atlantic and the Pacific do not warm together, and the
+    difference between them is the story the polar-cap mean hides.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import BoundaryNorm, ListedColormap
+    from matplotlib.cm import ScalarMappable
+
+    cmap = ListedColormap(COLORS)
+    edges = np.array(BREAKS, float)
+    norm_c = BoundaryNorm(edges, cmap.N, clip=False)
+
+    lev = np.asarray(levels, float)
+    order_l = np.argsort(lev)
+    lev = lev[order_l]
+
+    names = [n for n in order if n in sectors]
+    if not names:
+        raise ValueError("no sector series to draw")
+
+    n = len(times)
+    x = np.arange(n)
+
+    fig_w = 13.5
+    fig_h = 6.4
+    fig = plt.figure(figsize=(fig_w, fig_h), facecolor="white")
+
+    # the panels: two axes side by side, with a gap between them
+    left0, width = 0.062, 0.405
+    gap = 0.055
+    axes = []
+    for i in range(len(names)):
+        ax = fig.add_axes([left0 + i * (width + gap), 0.175, width, 0.635])
+        axes.append(ax)
+
+    for i, name in enumerate(names):
+        ax = axes[i]
+        ax.set_facecolor("white")
+        z = np.asarray(sectors[name], float)[:, order_l].T     # (nlev, ntime)
+
+        mid = n
+        if split is not None and 0 < split < n:
+            ax.contourf(x, lev, z, levels=edges, cmap=cmap,
+                        norm=norm_c, extend="both", alpha=forecast_alpha)
+            ax.contourf(x[:split + 1], lev, z[:, :split + 1], levels=edges,
+                        cmap=cmap, norm=norm_c, extend="both", alpha=1.0)
+        else:
+            ax.contourf(x, lev, z, levels=edges, cmap=cmap,
+                        norm=norm_c, extend="both", alpha=1.0)
+
+        ax.set_yscale("log")
+        ax.set_ylim(1000.0, 10.0)
+
+        have = set(int(v) for v in lev)
+        shown = [p for p in (1000, 700, 500, 400, 300, 200, 100, 50, 30, 10)
+                 if p in have]
+        ax.set_yticks(shown)
+        ax.set_yticklabels(["%d" % p for p in shown], fontsize=9.5,
+                           color=C_TEXT)
+        ax.set_ylabel("Pressure (hPa)", fontsize=10.5, color=C_TEXT, labelpad=6)
+
+        step = max(1, n // 8)
+        idx = list(range(0, n, step))
+        if idx[-1] != n - 1:
+            if (n - 1) - idx[-1] >= step * 0.6:
+                idx.append(n - 1)
+            else:
+                idx[-1] = n - 1
+        while len(idx) > 2:
+            gaps = [(idx[j + 1] - idx[j]) for j in range(len(idx) - 1)]
+            if min(gaps) >= step * 0.75:
+                break
+            j = int(np.argmin(gaps))
+            if j == 0:
+                del idx[1]
+            elif j == len(gaps) - 1:
+                del idx[-2]
+            else:
+                del idx[j + 1]
+        ax.set_xticks(idx)
+        ax.set_xticklabels([_short_date(times[k]) for k in idx], fontsize=8.5,
+                           color=C_TEXT)
+        ax.set_xlim(-0.5, n - 0.5)
+
+        ax.grid(True, color=C_GRID, linestyle=(0, (1, 3)), lw=0.6, alpha=0.8)
+        ax.xaxis.grid(True)
+        ax.yaxis.grid(True)
+
+        ax.spines["top"].set_visible(False)
+        for sname in ("left", "bottom"):
+            ax.spines[sname].set_color("#9ca3af")
+            ax.spines[sname].set_linewidth(0.9)
+        ax.tick_params(length=3, colors=C_TEXT)
+
+        if split is not None and 0 < split < n:
+            ax.axvline(split - 0.5, color=C_SPLIT, lw=1.2, ls=(0, (5, 3)),
+                       zorder=6)
+
+        # the panel's own name, above it
+        fig.text(left0 + i * (width + gap), 0.822,
+                 "%s (%.0f°E-%.0f°E)" % (SECTOR_LABELS.get(name, name),
+                                         SECTORS[name][0],
+                                         SECTORS[name][1]),
+                 fontsize=11, fontweight="bold", color=C_TEXT,
+                 ha="left", va="bottom")
+
+    # the height axis, on the far right only
+    ax2 = axes[-1].twinx()
+    ax2.set_yscale("linear")
+    ax2.set_ylim(0.0, 33.0)
+    hticks = [(0, 0), (8, 5), (16, 10), (24, 15), (32, 20)]
+    ax2.set_yticks([t[0] for t in hticks])
+    ax2.set_yticklabels([_alt_label(t[0]) for t in hticks], fontsize=8.5,
+                        color=C_MUTED)
+    ax2.set_ylabel("Approximate height", fontsize=9.5, color=C_MUTED,
+                   labelpad=8)
+    ax2.tick_params(axis="y", length=3, colors=C_MUTED)
+    ax2.spines["top"].set_visible(False)
+    ax2.spines["left"].set_visible(False)
+    ax2.spines["right"].set_color("#9ca3af")
+    ax2.spines["right"].set_linewidth(0.9)
+
+    fig.text(0.052, 0.968, title, fontsize=15.5, fontweight="bold",
+             ha="left", va="top", color=C_TEXT)
+    if subtitle:
+        fig.text(0.052, 0.918, subtitle, fontsize=9.5, color=C_MUTED,
+                 ha="left", va="top")
+
+    sm = ScalarMappable(norm=norm_c, cmap=cmap)
+    sm.set_array([])
+    cax = fig.add_axes([0.245, 0.082, 0.48, 0.018])
+    cb = fig.colorbar(sm, cax=cax, orientation="horizontal",
+                      boundaries=edges, ticks=edges[1:-1], extend="neither",
+                      spacing="uniform")
+    cb.ax.set_xticklabels(["%g" % e for e in edges[1:-1]], fontsize=8,
+                          color=C_TEXT)
+    cb.outline.set_visible(True)
+    cb.outline.set_edgecolor("#c8c5c2")
+    cb.outline.set_linewidth(0.8)
+    cb.ax.tick_params(length=2, colors=C_TEXT)
+    fig.text(0.485, 0.034, "Geopotential height anomaly (m)",
+             fontsize=10.5, ha="center", va="center", fontweight="bold",
+             color=C_TEXT)
+
+    if credit:
+        fig.text(0.985, 0.007, credit, fontsize=6.0, color="#777777",
+                 ha="right", va="bottom", linespacing=1.35)
+    if handle:
+        fig.text(0.985, 0.032, handle, fontsize=9.5, fontweight="bold",
+                 color=C_TEXT, ha="right", va="bottom")
+
+    fig.savefig(out_path, dpi=150, facecolor="white")
+    plt.close(fig)
+    return out_path

@@ -52,7 +52,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import LEVELS, read_grib_levels  # noqa: E402
+from polar_cap import LEVELS, read_grib_levels_sectors  # noqa: E402
 
 # the shared cache the plotter reads; this script only ever touches its own
 # key in it and never rewrites another model's record
@@ -297,13 +297,19 @@ def lead_members(members, fstep):
 
 
 def read_cap_mean(path):
-    """-> ({level: polar cap mean in m2/s2}, time) for the file's fields."""
-    times, vals = read_grib_levels(path)
+    """-> ({level: polar cap mean in m2/s2}, {sector: {level: mean}}, time).
+
+    The sector means are the same reduction over one longitude sector, so
+    the Atlantic and the Pacific can be drawn separately.
+    """
+    times, vals, sec = read_grib_levels_sectors(path)
     if not times:
-        return {}, None
+        return {}, {}, None
     t = times[0]
     row = {int(l): float(v) * G0 for l, v in vals[t].items()}
-    return row, t
+    srow = {name: {int(l): float(v) * G0 for l, v in ld.items()}
+            for name, ld in sec.get(t, {}).items()}
+    return row, srow, t
 
 
 # ------------------------------------------------------------------ the main
@@ -342,14 +348,17 @@ def main():
             for m in sorted(got):
                 for lev in LEVELS:
                     f.write(got[m][lev])
-        row, t = read_cap_mean(tmp)
+        row, srow, t = read_cap_mean(tmp)
         os.remove(tmp)
         if not row or any(l not in row for l in LEVELS):
             print("      the lead f%03d did not carry the twelve levels"
                   % fstep, flush=True)
             continue
         out[key] = {"time": t, "values": [row[l] for l in LEVELS],
-                     "members": len(got)}
+                     "members": len(got),
+                     "sectors": {name: [sd[l] for l in LEVELS]
+                                 for name, sd in srow.items()
+                                 if all(l in sd for l in LEVELS)}}
         st["leads"][key] = dict(out[key], status="decoded")
         with open(STATE + ".tmp", "w") as f:
             json.dump(st, f, indent=1)
@@ -366,11 +375,18 @@ def main():
     times = [out[k]["time"] for k in keys]
     values = [out[k]["values"] for k in keys]
     nmem = max(out[k]["members"] for k in keys)
+    # the sector means, where the members carried them
+    sectors = {}
+    if all(out[k].get("sectors") for k in keys):
+        sectors = {name: [out[k]["sectors"][name][i] for k in keys]
+                   for name in out[keys[0]]["sectors"]}
     rec = {"times": times, "values": values, "members": nmem,
            "levels": list(LEVELS),
            "run": "%s %sZ" % (date, hour),
            "source": "NOAA GEFS v12 (0.50 deg pgrb2a+pgrb2b), the ensemble "
                      "mean of %d members" % nmem}
+    if sectors:
+        rec["sectors"] = sectors
 
     # into the shared cache, under this script's own key only: the file is
     # written whole, but every other model's record is left exactly as it

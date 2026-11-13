@@ -178,14 +178,20 @@ as the data it normalises* — and here, the same product means the same publish
 ### The chart's colours and its layout
 
 The user asked for the colour family of the reference figure (blue -> white ->
-yellow -> orange -> red) but not the reference's design.  The ladder in
-`polar_cap.py` is now nine blues, a white centre, then pale yellow, yellow,
-amber, orange, vermilion, the site's red and a deep crimson - seventeen
-colours over +/-600 m.  The layout is ours: a short figure (13.5 x 7.0 in)
-with the panel given most of it, the title and descriptor on the left, the two
-side labels just above the panel, the colour bar below it and the handle
-bottom right.  The first version was 7.6 in tall with a wide empty band above
-the panel; the user called that "too much space".
+yellow -> orange -> red) but not the reference's design, and then rejected a
+first attempt as too muted.  The ramp in `polar_cap.py` is now FULLY SATURATED
+in the reference's family: nine blues from a royal blue out to a pale tint, a
+white centre, then a bright yellow, gold, orange, vermilion, a vivid red and a
+deep red.  The lesson: a dark, desaturated end reads as a hole in the chart and
+a dusty warm side makes a strong anomaly look weak - the reference's colours
+are electric (its deepest blue is #0000c4 and its brightest red #ea3323) and
+that brightness is the point.
+
+The layout is ours: a short figure (13.5 x 7.0 in) with the panel given most
+of it, the title and descriptor on the left, the two side labels just above
+the panel, the colour bar below it and the handle bottom right.  The first
+version was 7.6 in tall with a wide empty band above the panel; the user
+called that "too much space".
 
 ### GEFSv12 - 16 days is the whole horizon
 

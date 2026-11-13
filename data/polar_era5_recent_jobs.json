@@ -10,7 +10,7 @@
   {
    "key": "2026-08-11-2026-08-31",
    "job": "fbda9258-95fa-449b-ab71-bf8e37c2cc7b",
-   "status": "accepted",
+   "status": "gone",
    "first": "2026-08-11",
    "last": "2026-08-31"
   },
@@ -20,6 +20,13 @@
    "status": "accepted",
    "first": "2026-09-01",
    "last": "2026-09-30"
+  },
+  {
+   "key": "2026-08-11-2026-08-31",
+   "job": "f7cbd8f5-65a9-4f9e-a2f7-1a59192a821a",
+   "status": "accepted",
+   "first": "2026-08-11",
+   "last": "2026-08-31"
   }
  ]
 }

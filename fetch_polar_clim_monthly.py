@@ -37,7 +37,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import read_grib_levels   # noqa: E402
+from polar_cap import read_grib_levels_sectors   # noqa: E402
 
 LEVELS = [10, 30, 50, 100, 200, 300, 400, 500, 700, 850, 925, 1000]
 AREA = [90, -180, 60, 180]
@@ -67,12 +67,22 @@ def submit(cds):
 
 
 def build(path):
-    """The GRIB -> the per-month mean and sigma over the 30 years."""
-    times, vals = read_grib_levels(path)
+    """The GRIB -> the per-month mean and sigma over the 30 years.
+
+    The same climate is built for the two sectors of the cap, so a sector
+    section is judged against the sector's OWN climate - the Atlantic and
+    the Pacific do not have the same mean height, and they do not have the
+    same day to day spread.
+    """
+    times, vals, sec = read_grib_levels_sectors(path)
     by_month = defaultdict(dict)
+    by_month_s = defaultdict(dict)
     for t, levels in times.items():
         by_month[t[:7]][t] = levels
+    for t, sdict in sec.items():
+        by_month_s[t[:7]][t] = sdict
     rows = []
+    srows = []
     for ym in sorted(by_month):
         # one month can carry more than one field (the monthly mean product
         # writes the month on its first day); take the first that has every
@@ -81,12 +91,17 @@ def build(path):
             lv = by_month[ym][t]
             if all(l in lv for l in LEVELS):
                 rows.append((ym, [lv[l] for l in LEVELS]))
+                sd = by_month_s.get(ym, {}).get(t, {})
+                srows.append((ym, {name: [d[l] for l in LEVELS]
+                                   for name, d in sd.items()
+                                   if all(l in d for l in LEVELS)}))
                 break
     if not rows:
         raise SystemExit("the GRIB has no complete month")
     print("   %d months read" % len(rows), flush=True)
 
     out = {}
+    sout = {}
     for m in range(1, 13):
         a = np.array([r[1] for r in rows if int(r[0][5:7]) == m], float)
         good = np.isfinite(a).all(axis=1)
@@ -100,13 +115,36 @@ def build(path):
         print("   %-10s %2d years   the 10 hPa mean %10.1f  sigma %8.1f"
               % (MONTH_NAMES[m - 1], a.shape[0], out[m]["mean"][0],
                  out[m]["sigma"][0]), flush=True)
+        # the sectors
+        names = sorted({n for _, sd in srows for n in sd})
+        for name in names:
+            b = np.array([sd[name] for ym, sd in srows
+                          if int(ym[5:7]) == m and name in sd], float)
+            if b.ndim != 2 or b.shape[0] < 2:
+                continue
+            b = b[np.isfinite(b).all(axis=1)]
+            if b.shape[0] < 2:
+                continue
+            sout.setdefault(name, {})[m] = {
+                "n": int(b.shape[0]),
+                "mean": b.mean(axis=0).tolist(),
+                "sigma": b.std(axis=0, ddof=1).tolist()}
 
     np.savez_compressed(OUT,
                         levels=np.array(LEVELS),
                         months=np.array(sorted(out)),
                         mean=np.array([out[m]["mean"] for m in sorted(out)], float),
                         sigma=np.array([out[m]["sigma"] for m in sorted(out)], float),
-                        count=np.array([out[m]["n"] for m in sorted(out)], int))
+                        count=np.array([out[m]["n"] for m in sorted(out)], int),
+                        sector_names=np.array(sorted(sout)),
+                        sector_data=np.array(
+                            [{name: {int(m): {"mean": sout[name][m]["mean"],
+                                             "sigma": sout[name][m]["sigma"],
+                                             "n": sout[name][m]["n"]}
+                                     for m in sout[name]}
+                              for name in sorted(sout)}], dtype=object))
+    print("   the sector climates: %s" % ", ".join(
+        "%s (%d months)" % (n, len(sout[n])) for n in sorted(sout)), flush=True)
     print("   -> %s" % OUT)
     return OUT
 
@@ -120,6 +158,15 @@ def main():
         if j.get("status") not in ("rejected", "failed", "dismissed"):
             job = j["job"]          # the live one, if there is one
     if job is None:
+        # the account holds two requests at a time; wait for a slot rather
+        # than be refused
+        for _ in range(240):
+            n = sum(1 for j in cds.live_jobs()
+                    if j.get("status") in ("accepted", "running", "queued"))
+            if n < 2:
+                break
+            print("   the account's queue is full - waiting", flush=True)
+            time.sleep(30)
         job = submit(cds)
     else:
         print("   the request already in flight: %s" % job, flush=True)

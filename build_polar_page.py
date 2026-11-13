@@ -74,11 +74,27 @@ def items(reg=None):
     return out
 
 
+def sector_items(reg=None):
+    """The same section split into the North Pacific and the North Atlantic."""
+    out = []
+    for mid, name in available(reg):
+        info = None
+        for m in reg.get("models", []):
+            if m["id"] == mid:
+                info = m.get("polar_sectors")
+        if not info:
+            continue
+        out.append({"id": mid, "name": name, "file": info["file"],
+                    "caption": info.get("caption", "")})
+    return out
+
+
 def polar_block(reg=None):
     """The HTML for the polar-cap section, or "" when there is nothing."""
     its = items(reg)
     if not its:
         return ""
+    secs = {i["id"]: i for i in sector_items(reg)}
 
     default = its[0]["id"]
     sel = "".join('<option value="%s"%s>%s</option>'
@@ -104,6 +120,11 @@ def polar_block(reg=None):
   <div class="picker">
     <label for="polarSel">Model</label>
     <select id="polarSel" class="ctrl">%s</select>
+    <label for="polarView">View</label>
+    <select id="polarView" class="ctrl">
+      <option value="cap">Whole polar cap</option>
+      <option value="sectors">North Pacific &amp; North Atlantic</option>
+    </select>
   </div>
 </div>
 
@@ -115,22 +136,33 @@ def polar_block(reg=None):
     js = """
 <script>
 const POLARMODELS=__POLARMODELS__;
+const POLARSECTORS=__POLARSECTORS__;
 const psel=document.getElementById('polarSel');
+const pview=document.getElementById('polarView');
 function pq(p){const m=new URLSearchParams(location.search);return m.get(p);}
 if(pq('m') && POLARMODELS[pq('m')]) psel.value=pq('m');
 function renderPolar(){
-  const m=POLARMODELS[psel.value];
+  const id=psel.value;
+  const m=POLARMODELS[id];
+  const s=POLARSECTORS[id];
+  const wantSector=pview.value==='sectors' && s;
   const img=document.getElementById('polarImg');
+  const cap=document.getElementById('polarCap');
+  if(wantSector){
+    img.src=s.file; img.alt=s.caption; cap.textContent=s.caption; return;
+  }
   if(!m){img.removeAttribute('src');img.alt='';
-    document.getElementById('polarCap').textContent='No section for this model.';return;}
-  img.src=m.file; img.alt=m.caption;
-  document.getElementById('polarCap').textContent=m.caption;
+    cap.textContent='No section for this model.';return;}
+  img.src=m.file; img.alt=m.caption; cap.textContent=m.caption;
 }
 psel.addEventListener('change',renderPolar);
+pview.addEventListener('change',renderPolar);
 renderPolar();
 </script>"""
-    return block + js.replace("__POLARMODELS__",
-                               json.dumps({i["id"]: i for i in its}))
+    return (block
+            + js.replace("__POLARMODELS__", json.dumps({i["id"]: i for i in its}))
+                   .replace("__POLARSECTORS__",
+                            json.dumps({i["id"]: i for i in sector_items(reg)})))
 
 
 def remove_old_page():

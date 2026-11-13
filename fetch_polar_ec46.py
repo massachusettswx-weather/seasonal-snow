@@ -57,7 +57,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import zonal_mean  # noqa: E402
+from polar_cap import SECTORS, sector_mean, zonal_mean  # noqa: E402
 
 ECDS = "https://ecds.ecmwf.int/api"
 EXEC = "%s/retrieve/v1/processes/s2s-forecasts/execute" % ECDS
@@ -73,7 +73,11 @@ TAG = "ec46"
 LEVELS = [10, 50, 100, 200, 300, 500, 700, 850, 925, 1000]
 AREA = [90.0, -180.0, 60.0, 180.0]
 
-# the system: 46 is ECMWF's 46-day sub-seasonal ensemble
+# The catalogue has no `system` parameter: the product is picked by the RUN
+# DATE, so the 46-day extended range is what the archive serves on the days
+# it runs (Mondays and Thursdays, 00Z) and the 15-day ensemble on the others.
+# The lead times are 24-hour blocks, so the series that comes back is a daily
+# one.
 SYSTEM = 46
 
 # the weekly lead time ranges, 24_48 up to 456_480 (twenty weeks)
@@ -109,7 +113,7 @@ def latest_run(s, tries=6):
         if d.day > 20:
             continue
         for t in ("00:00", "12:00"):
-            req = {"origin": "ecmwf", "system": SYSTEM,
+            req = {"origin": "ecmwf",
                    "year": "%04d" % d.year, "month": "%02d" % d.month,
                    "day": "%02d" % d.day, "time": t,
                    "level_type": "pressure",
@@ -138,9 +142,14 @@ def licence_refusal(r):
 
 
 def read_grib(path):
-    """-> {valid_time: {level: polar cap mean geopotential height}}."""
+    """-> ({valid_time: {level: polar cap mean}}, {valid_time: {sector: {...}}}).
+
+    The sector means are the same reduction over one longitude sector, so
+    the Atlantic and the Pacific can be drawn separately.
+    """
     import eccodes
     out = {}
+    sout = {}
     with open(path, "rb") as f:
         while True:
             try:
@@ -166,6 +175,9 @@ def read_grib(path):
                     v = v.reshape(len(lats), len(lons))
                     lat2d = np.repeat(lats[:, None], len(lons), axis=1)
                 lats = lat2d[:, 0]
+                lon2d = lo.reshape(nj, ni) if (ni and nj
+                                               and v.size == ni * nj) else \
+                    np.repeat(np.unique(lo)[None, :], len(lats), axis=0)
                 # the VALIDITY time, not the data time: the S2S fields are
                 # initialised at 00Z or 12Z and carry the lead time as the
                 # step, so validityDate/validityTime is the only pair that
@@ -177,6 +189,9 @@ def read_grib(path):
                 lev = int(eccodes.codes_get(gid, "level"))
                 key = valid.strftime("%Y-%m-%d %H")
                 out.setdefault(key, {})[lev] = zonal_mean(v, lats)
+                for name, (a, b) in SECTORS.items():
+                    sout.setdefault(key, {}).setdefault(name, {})[lev] = \
+                        sector_mean(v, lats, lon2d[0, :], a, b)
             except Exception:                         # noqa: BLE001
                 pass
             finally:
@@ -185,7 +200,7 @@ def read_grib(path):
 
 
 def submit(s, run_date, run_time, weeks):
-    req = {"origin": "ecmwf", "system": SYSTEM,
+    req = {"origin": "ecmwf",
            "year": "%04d" % run_date.year, "month": "%02d" % run_date.month,
            "day": "%02d" % run_date.day, "time": run_time,
            "level_type": "pressure",
@@ -238,8 +253,7 @@ def main():
     if run_date is None:
         print("   no ECMWF S4S run found in the last week")
         return
-    print("   the S4S run: %s %s (system %d)" % (run_date, run_time, SYSTEM),
-          flush=True)
+    print("   the S4S run: %s %s" % (run_date, run_time), flush=True)
 
     st = json.load(open(STATE)) if os.path.exists(STATE) else {"jobs": []}
     out = json.load(open(OUT)) if os.path.exists(OUT) else {}
@@ -263,16 +277,21 @@ def main():
             continue
         path = os.path.join(DATA, "_ec46_%d.grib" % i)
         download(s, jid, path)
-        vals = read_grib(path)
+        vals, svals = read_grib(path)
         os.remove(path)
         rec = out.setdefault(TAG, {"times": [], "values": [],
-                                   "levels": list(LEVELS)})
+                                   "sectors": {}, "levels": list(LEVELS)})
         for t in sorted(vals):
             row = [vals[t].get(l) for l in LEVELS]
             if any(x is None for x in row):
                 continue
             rec["times"].append(t)
             rec["values"].append(row)
+            for name, sd in svals.get(t, {}).items():
+                srow = [sd.get(l) for l in LEVELS]
+                if any(x is None for x in srow):
+                    continue
+                rec.setdefault("sectors", {}).setdefault(name, []).append(srow)
         rec["run"] = "%s %s" % (run_date, run_time)
         rec["members"] = 51
         with open(OUT + ".tmp", "w") as f:
@@ -286,6 +305,8 @@ def main():
         cache[TAG] = {"times": rec["times"], "values": rec["values"],
                       "levels": list(LEVELS), "run": rec["run"],
                       "members": 51}
+        if rec.get("sectors"):
+            cache[TAG]["sectors"] = rec["sectors"]
         with open(CACHE + ".tmp", "w") as f:
             json.dump(cache, f)
         os.replace(CACHE + ".tmp", CACHE)

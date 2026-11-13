@@ -109,6 +109,17 @@
    "status": "decoded",
    "init": "2026-11",
    "members": 51
+  },
+  {
+   "tag": "meteo-france-s9",
+   "centre": "meteo_france",
+   "system": "9",
+   "chunk": 0,
+   "end": 15,
+   "job": "4151b066-3903-4b41-941b-eb854f143a20",
+   "status": "decoded",
+   "init": "2026-11",
+   "members": 51
   }
  ]
 }
