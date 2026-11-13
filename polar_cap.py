@@ -239,9 +239,10 @@ def normalise(times, values, levels, clim):
 
 
 # ---------------------------------------------------------------- the drawing
-# The colour ladder is this site's own: a blue-to-white-to-red diverging
-# ramp.  It is NOT the ramp of any published figure, and it is not the
-# yellow-orange ramp of the first version of this chart.
+# The colour ladder is a diverging ramp: the site's navy through the blues
+# to a pale tint, a white centre, then pale yellow into yellow, amber,
+# orange and the site's own deep red.  The colours are this site's own;
+# the LAYOUT is ours too - nothing here is lifted from a published figure.
 #
 # The field is the geopotential height ANOMALY IN METRES, not a normalised
 # one.  A normalised anomaly needs a climatology of its own for every system
@@ -252,14 +253,15 @@ def normalise(times, values, levels, clim):
 BREAKS = [-600, -480, -380, -300, -230, -170, -115, -60, -20,
           20, 60, 115, 170, 230, 300, 380, 480, 600]
 COLORS = [
-    # nine blues, from the site's navy out to a pale tint
-    "#071a33", "#0b2545", "#123a63", "#1a4f7d", "#27659a",
-    "#3d80b6", "#5f9dcd", "#8bb9de", "#cfe3f2",
+    # nine blues: the site's own navy out to a pale tint
+    "#071a33", "#0d2a4d", "#17436f", "#215a91", "#2f74ad",
+    "#4b8fc4", "#6ba5d5", "#96c1e2", "#cfdfef",
     # the white centre
     "#ffffff",
-    # seven reds, into the site's own deep red
-    "#fbdcd9", "#f5b3ad", "#ec8580", "#df5a55", "#cc3a35",
-    "#a92825", "#7d1a18",
+    # seven warms: a pale yellow, then yellow, amber, orange, vermilion,
+    # the site's red and a deep crimson
+    "#fdf0bd", "#f8d979", "#f0b558", "#e28c49", "#d1663b",
+    "#bd432e", "#8e2318",
 ]
 
 # the house colours, the same ones the zonal-wind panels use
@@ -331,10 +333,13 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     n = len(times)
     x = np.arange(n)
 
+    # The figure is kept short and the panel is given most of it: the first
+    # version of this chart carried a wide band of empty white above the
+    # panel and a deep band under it, and the panel itself was squashed.
     fig_w = 13.5
-    fig_h = 7.6
+    fig_h = 7.0
     fig = plt.figure(figsize=(fig_w, fig_h), facecolor="white")
-    ax = fig.add_axes([0.058, 0.165, 0.855, 0.645])
+    ax = fig.add_axes([0.052, 0.148, 0.876, 0.700])
     ax.set_facecolor("white")
 
     # The panel is drawn in one piece.  It used to be drawn in three, each
@@ -424,18 +429,18 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
                    zorder=6)
 
     # the titles: left aligned, the way the rest of the site does it
-    fig.text(0.058, 0.968, title, fontsize=15.5, fontweight="bold",
+    fig.text(0.052, 0.968, title, fontsize=15.5, fontweight="bold",
              ha="left", va="top", color=C_TEXT)
     if subtitle:
-        fig.text(0.058, 0.921, subtitle, fontsize=9.5, color=C_MUTED,
+        fig.text(0.052, 0.921, subtitle, fontsize=9.5, color=C_MUTED,
                  ha="left", va="top")
 
-    # the two sides are named above the panel
+    # the two sides are named just above the panel
     if analysis_label and split:
-        fig.text(0.062, 0.845, analysis_label, fontsize=10,
+        fig.text(0.056, 0.858, analysis_label, fontsize=10,
                  fontweight="bold", color=C_SPLIT, ha="left", va="bottom")
     if forecast_label:
-        fig.text(0.908, 0.845, forecast_label, fontsize=10,
+        fig.text(0.924, 0.858, forecast_label, fontsize=10,
                  fontweight="bold", color=C_SPLIT, ha="right", va="bottom")
 
     # the colour bar, below the panel.  It is drawn from a clean mappable so
@@ -444,7 +449,7 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     from matplotlib.cm import ScalarMappable
     sm = ScalarMappable(norm=norm_c, cmap=cmap)
     sm.set_array([])
-    cax = fig.add_axes([0.245, 0.082, 0.48, 0.019])
+    cax = fig.add_axes([0.245, 0.076, 0.48, 0.018])
     cb = fig.colorbar(sm, cax=cax, orientation="horizontal",
                       boundaries=edges, ticks=edges[1:-1], extend="neither",
                       spacing="uniform")
@@ -454,15 +459,15 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     cb.outline.set_edgecolor("#c8c5c2")
     cb.outline.set_linewidth(0.8)
     cb.ax.tick_params(length=2, colors=C_TEXT)
-    fig.text(0.485, 0.040, "Geopotential height anomaly (m)",
+    fig.text(0.485, 0.030, "Geopotential height anomaly (m)",
              fontsize=10.5, ha="center", va="center", fontweight="bold",
              color=C_TEXT)
 
     if credit:
-        fig.text(0.985, 0.016, credit, fontsize=6.0, color="#777777",
+        fig.text(0.985, 0.007, credit, fontsize=6.0, color="#777777",
                  ha="right", va="bottom", linespacing=1.35)
     if handle:
-        fig.text(0.985, 0.044, handle, fontsize=9.5, fontweight="bold",
+        fig.text(0.985, 0.032, handle, fontsize=9.5, fontweight="bold",
                  color=C_TEXT, ha="right", va="bottom")
 
     fig.savefig(out_path, dpi=150, facecolor="white")

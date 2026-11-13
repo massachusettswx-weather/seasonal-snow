@@ -7,15 +7,18 @@
 # one of those.  The published site is not affected - it lives on GitHub.
 cd /workspace/seas5 || exit 1
 
-# the toolchain
-if ! python3 -c "import requests, eccodes, xarray, h5netcdf, zarr, s3fs, numpy" \
-        >/dev/null 2>&1; then
-    echo "reinstalling the python packages"
-    pip install --break-system-packages -q -i https://pypi.org/simple \
-        requests eccodes numcodecs cdsapi zarr xarray h5netcdf fsspec s3fs \
-        h5py >/dev/null 2>&1
+# The toolchain.  It goes into the USER site, which lives under the
+# workspace (/workspace/.home) and therefore survives the rebuild - the
+# system site does not.  The user site is only on sys.path once the
+# directory exists, so it is created first.
+SITE="$HOME/.local/lib/python3.11/site-packages"
+mkdir -p "$SITE"
+if ! python3 -c "import requests, eccodes" >/dev/null 2>&1; then
+    echo "reinstalling the python packages into $SITE"
+    pip install --break-system-packages -q --index-url https://pypi.org/simple \
+        --target "$SITE" requests eccodes numcodecs >/dev/null 2>&1
 fi
-python3 -c "import requests, eccodes, xarray, h5netcdf, zarr, s3fs, numpy" \
+python3 -c "import requests, eccodes" \
     || { echo "the toolchain did not come back"; exit 1; }
 
 # the request pool
@@ -26,6 +29,15 @@ running() { ps -eo stat,cmd | grep -v "^Z" | grep -F "$1" | grep -v grep >/dev/n
 if ! running "run_nov_queue.py"; then
     echo "starting the request pool"
     setsid nohup bash run_nov_pool.sh >/dev/null 2>&1 </dev/null &
+    sleep 3
+fi
+
+# the polar-cap puller: the daily polar-cap geopotential for the seasonal
+# systems, out to each model's own end of run
+if ! running "fetch_polar_models.py"; then
+    echo "starting the polar-cap puller"
+    setsid nohup python3 -u fetch_polar_models.py \
+        >>data/polar_models.log 2>&1 </dev/null &
     sleep 3
 fi
 

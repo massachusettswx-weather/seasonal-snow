@@ -219,6 +219,25 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
             print("   the stale chart removed: %s" % stale)
         return None
 
+    # the record behind it: the run time and the size of the ensemble
+    try:
+        _all = json.load(open(MODEL_CACHE))
+    except Exception:
+        _all = {}
+    _rec = _all.get(tag) or {}
+    members = _rec.get("members")
+    run = str(_rec.get("run") or "")
+    # a sub-seasonal run is a different kind of product from a seasonal one,
+    # and the chart has to say which it is
+    sub_seasonal = bool(mt) and len(mt) <= 90
+    kind_word = "sub-seasonal" if sub_seasonal else "seasonal"
+    if run:
+        run_txt = "%s run" % run.replace("Z", "Z")
+        if members:
+            run_txt += " · %s members" % members
+    else:
+        run_txt = "%s members" % members if members else ""
+
     # the levels actually present: the seasonal archive carries all twelve
     # of the reference's levels, but a series built from another source may
     # not, and the climatology has to be subset to match
@@ -298,11 +317,15 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
                 "daily": "ERA5 1991-2020 climatology"}[kind]
     if ana_days:
         subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "
-                    "seasonal forecast from %s to %s · %d levels (%s hPa) · %s"
-                    % (len(ana_days), label, init_day, end_day, nlev, lev_txt, clim_txt))
+                    "%s forecast from %s to %s%s · %d levels (%s hPa) · %s"
+                    % (len(ana_days), label, kind_word, init_day, end_day,
+                       (" · " + run_txt) if run_txt else "", nlev, lev_txt,
+                       clim_txt))
     else:
-        subtitle = ("the %s seasonal forecast from %s to %s · %d levels (%s hPa) · %s"
-                    % (label, init_day, end_day, nlev, lev_txt, clim_txt))
+        subtitle = ("the %s %s forecast from %s to %s%s · %d levels (%s hPa) · %s"
+                    % (label, kind_word, init_day, end_day,
+                       (" · " + run_txt) if run_txt else "", nlev, lev_txt,
+                       clim_txt))
     os.makedirs(OUT, exist_ok=True)
     p = os.path.join(OUT, "polar_cap_%s.png" % tag)
     plot_section(days, norm, levs, p, title, subtitle,
@@ -310,8 +333,7 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
                  credit=credit_for(tag),
                  analysis_label="ERA5 reanalysis" if ana_days else None,
                  forecast_label="%s %s forecast" % (
-                     label, "sub-seasonal" if (mt and len(mt) <= 90)
-                     else "seasonal"),
+                     label, "sub-seasonal" if sub_seasonal else "seasonal"),
                  today=today)
     print("   the figure: %s" % p)
     return p

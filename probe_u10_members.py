@@ -29,7 +29,13 @@ def main():
     centre = CENTRE.get(tag, tag)
 
     days = ["%02d" % d for d in range(1, 1 + ndays)]
-    hs = ["%d" % (12 + 24 * k) for k in range(ndays)]
+    if os.environ.get("PROBE_LEAD"):
+        days = ["01"]
+    lead = os.environ.get("PROBE_LEAD")
+    if lead:
+        hs = [lead]
+    else:
+        hs = ["%d" % (12 + 24 * k) for k in range(ndays)]
     req = {"originating_centre": centre, "system": str(system),
            "variable": "u_component_of_wind", "pressure_level": "10",
            "year": "2026", "month": "11", "day": days,

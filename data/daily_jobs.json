@@ -1796,6 +1796,96 @@
    "init": "2026-11",
    "status": "accepted",
    "_t0": 1794453492.7538874
+  },
+  {
+   "job": "29b7e338-d7f2-4f74-ae3d-90f94fea15d7",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604212.4514601
+  },
+  {
+   "job": "04a59885-f851-4564-b62f-7e1bc62a1728",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604342.700486
+  },
+  {
+   "job": "ef0e9daa-13b4-4189-aad6-bc0f7242883f",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604482.2517881
+  },
+  {
+   "job": "3af13cc3-3bdd-4bcf-ad56-c93c607c0a5b",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604612.1624355
+  },
+  {
+   "job": "86cf0f8b-8912-4b7a-9205-89ba9a34231f",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604740.5459685
+  },
+  {
+   "job": "4ba6fc65-876a-469a-8e08-068697369f93",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794604873.743644
+  },
+  {
+   "job": "f6bf4b39-1ae1-49b4-b6d2-9f9a0b058e29",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794605002.295719
+  },
+  {
+   "job": "58d05d80-be46-4083-a059-e32b002c226b",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794605131.4052622
+  },
+  {
+   "job": "b4bcb55a-efe5-40a7-8c28-5a03a8630678",
+   "tag": "ukmo-gloseas6",
+   "chunk": 0,
+   "centre": "ukmo",
+   "system": "610",
+   "init": "2026-11",
+   "status": "accepted",
+   "_t0": 1794605259.8585489
   }
  ],
  "stall": false,
