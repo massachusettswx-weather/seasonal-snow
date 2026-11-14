@@ -23,7 +23,8 @@ DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
 from polar_cap import (CAP_N, CAP_S, G0, LEVELS, build_climatology,  # noqa: E402
-                       load_climatology, normalise, plot_section)
+                       daily_climate, load_climatology, normalise,
+                       plot_section)
 from ecmwf_credit import credit_for  # noqa: E402
 
 OUT = os.path.join(HERE, "output", "polar_cap")
@@ -70,29 +71,28 @@ def load_clim_monthly():
 
 
 def normalise_monthly(times, values, levels, clim):
-    """The normalised anomaly against the monthly climatology.
+    """The anomaly against the monthly climatology, put on the day.
 
-    The monthly climate is the scale a seasonal forecast is judged against,
-    and it is also the scale that does not blow the summer up: the day to
-    day spread of the polar cap in July is a few tens of metres, so a daily
-    standard deviation there is meaningless.
+    The monthly climate is the scale a seasonal forecast is judged
+    against, and it is also the scale that does not blow the summer up:
+    the day to day spread of the polar cap in July is a few tens of
+    metres, so a daily standard deviation there is meaningless.
+
+    The monthly means are interpolated onto the days of the series, so the
+    anomaly does not step at every month boundary.
     """
     months, clevels, cmean, csigma = clim
     cidx = {l: i for i, l in enumerate(clevels)}
-    mean = np.full((len(times), len(levels)), np.nan)
-    sigma = np.full((len(times), len(levels)), np.nan)
-    for i, t in enumerate(times):
-        m = int(t[5:7])
-        if m not in months:
-            continue
-        j = months.index(m)
-        for k, l in enumerate(levels):
-            if l in cidx:
-                mean[i, k] = cmean[j, cidx[l]]
-                sigma[i, k] = csigma[j, cidx[l]]
-    anom = values - mean
+    cols = [cidx[l] for l in levels if l in cidx]
+    keep = [k for k, l in enumerate(levels) if l in cidx]
+    if len(cols) != len(levels):
+        print("   the climatology carries %d of the %d levels" % (len(cols),
+                                                                 len(levels)))
+        return values - values, values - values
+    mmean, msig = daily_climate(times, months, cmean[:, cols], csigma[:, cols])
+    anom = values - mmean
     with np.errstate(invalid="ignore", divide="ignore"):
-        norm = np.where(sigma > 0, anom / sigma, np.nan)
+        norm = np.where(msig > 0, anom / msig, np.nan)
     return anom, norm
 
 

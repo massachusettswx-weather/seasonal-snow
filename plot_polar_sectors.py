@@ -26,7 +26,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import (G0, SECTOR_LABELS, plot_sector_sections)  # noqa: E402
+from polar_cap import (G0, SECTOR_LABELS, daily_climate,  # noqa: E402
+                       plot_sector_sections)
 from ecmwf_credit import credit_for  # noqa: E402
 
 OUT = os.path.join(HERE, "output", "polar_cap")
@@ -89,16 +90,17 @@ def main(tag="gefsv12", label="NOAA GEFSv12"):
         vals = vals[keep]
         if len(times_s) < 3:
             continue
-        rows = []
-        for i, t in enumerate(times_s):
-            m = int(t[5:7])
-            if m not in clim[name]:
-                rows.append([np.nan] * len(levels))
-                continue
-            mean, _sig = clim[name][m]
-            # the climate and the model are both geopotential (m2/s2); the
-            # chart is in METRES, so the anomaly is divided by G0
-            rows.append((vals[i] - mean[:len(levels)]) / G0)
+        # the monthly sector climate, as arrays, and then put on the days
+        # of the series: a monthly climate applied to a daily series steps
+        # at every month boundary and the step draws a seam across the
+        # chart
+        mlist = sorted(clim[name])
+        mmean = np.array([np.asarray(clim[name][m][0], float)[:len(levels)]
+                          for m in mlist])
+        daily = daily_climate(times_s, mlist, mmean)
+        # the climate and the model are both geopotential (m2/s2); the
+        # chart is in METRES, so the anomaly is divided by G0
+        rows = [(vals[i] - daily[i]) / G0 for i in range(len(times_s))]
         anom[name] = np.array(rows, float)
         times = times_s
         vals = None

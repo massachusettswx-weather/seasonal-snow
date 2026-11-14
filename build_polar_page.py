@@ -114,10 +114,10 @@ def polar_block(reg=None):
   bottom.</p>
   <p class="lead">The left of the dashed line is <strong>ERA5
   reanalysis</strong> &mdash; what actually happened, up to the model&rsquo;s
-  own run. The right is the <strong>seasonal forecast</strong> &mdash; what
-  might happen, running to the end of that model&rsquo;s run. The dotted
-  &ldquo;now&rdquo; line marks today, so the model&rsquo;s own days that have
-  already passed and the days it is still forecasting are told apart.</p>
+  own run. The right is the <strong>forecast</strong> &mdash; what might
+  happen, running to the end of that model&rsquo;s own run. The reanalysis
+  and the forecast are on the same scale and the same colour bar, so the
+  two halves can be read against each other.</p>
   <div class="picker">
     <label for="polarSel">Model</label>
     <select id="polarSel" class="ctrl">%s</select>
@@ -142,6 +142,16 @@ const psel=document.getElementById('polarSel');
 const pview=document.getElementById('polarView');
 function pq(p){const m=new URLSearchParams(location.search);return m.get(p);}
 if(pq('m') && POLARMODELS[pq('m')]) psel.value=pq('m');
+// The sector option is only offered for a model that HAS a sector chart.
+// A control that does nothing when it is chosen is worse than no control.
+function syncView(){
+  const has=!!POLARSECTORS[psel.value];
+  const opt=pview.querySelector('option[value="sectors"]');
+  opt.disabled=!has;
+  opt.textContent=has?'North Pacific & North Atlantic'
+                     :'North Pacific & North Atlantic (not for this model)';
+  if(!has && pview.value==='sectors') pview.value='cap';
+}
 function renderPolar(){
   const id=psel.value;
   const m=POLARMODELS[id];
@@ -156,8 +166,9 @@ function renderPolar(){
     cap.textContent='No section for this model.';return;}
   img.src=m.file; img.alt=m.caption; cap.textContent=m.caption;
 }
-psel.addEventListener('change',renderPolar);
+psel.addEventListener('change',()=>{syncView();renderPolar();});
 pview.addEventListener('change',renderPolar);
+syncView();
 renderPolar();
 </script>"""
     return (block

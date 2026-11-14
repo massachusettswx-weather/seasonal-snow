@@ -268,6 +268,42 @@ def load_climatology(path=None):
     return days, [int(x) for x in d["levels"]], d["mean"], d["sigma"]
 
 
+def daily_climate(times, months, mean, sigma=None):
+    """The monthly climate put on each day of a series.
+
+    mean: (nmonths, ...) the monthly means; sigma the same shape.
+
+    The monthly means are turned into a smooth cycle: each month's mean
+    sits at the middle of its month and the days in between are
+    interpolated.  A monthly climate applied to a daily series steps at
+    every month boundary, and the step draws a vertical seam across the
+    whole section - which reads as a fault in the chart rather than as a
+    change in the weather.
+    """
+    import datetime as dt
+    nmonths = len(months)
+    mid = []
+    for m in months:
+        nxt = dt.date(2001 + (m == 12), m % 12 + 1, 1)
+        ndays = (nxt - dt.date(2001, m, 1)).days
+        mid.append((ndays + 1) / 2.0)
+    mean = np.asarray(mean, float)
+    xs = np.array([-mid[-1] + 365.0] + mid + [365.0 + mid[0]])
+    ys = np.concatenate([mean[-1:], mean, mean[:1]], axis=0)
+    shape = mean.shape[1:]
+    out = np.empty((len(times),) + shape, float)
+    for i, t in enumerate(times):
+        doy = dt.datetime.strptime(t[:10], "%Y-%m-%d").timetuple().tm_yday
+        if shape:
+            out[i] = np.array([np.interp(doy, xs, ys[:, k])
+                               for k in range(shape[0])]).reshape(shape)
+        else:
+            out[i] = np.interp(doy, xs, ys)
+    if sigma is None:
+        return out
+    return out, daily_climate(times, months, sigma)
+
+
 def normalise(times, values, levels, clim):
     """Turn polar cap means into the normalised anomaly.
 

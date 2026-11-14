@@ -18,7 +18,7 @@ SITE="$HOME/.local/lib/python3.11/site-packages"
 mkdir -p "$SITE"
 # the Aliyun mirror in PIP_INDEX_URL is not reachable from here; pypi.org is
 pip install --break-system-packages --index-url https://pypi.org/simple \
-    --target "$SITE" requests eccodes 2>&1 | tail -3
+    --target "$SITE" requests eccodes numcodecs 2>&1 | tail -3
 python3 - <<'PY'
 import requests, eccodes
 print("requests %s and eccodes %s are in place" % (requests.__version__,
