@@ -62,3 +62,6 @@ data/polar_ec46_jobs.json
 data/polar_ec46_z.json
 data/_aifs.lock
 data/_aifs_step.grib2
+
+# in-flight downloads (the fetchers write these while the queue runs)
+*.part

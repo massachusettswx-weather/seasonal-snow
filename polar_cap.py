@@ -343,7 +343,14 @@ def load_clim_native(path=None):
         arrs = d["sectors"]
         sec = {}
         for k, name in enumerate(names):
-            a = np.asarray(arrs[k], float)
+            a = arrs[k]
+            if getattr(a, "dtype", None) == object and getattr(a, "ndim", 0) == 0:
+                a = a.item()          # numpy saves an object array of arrays
+            a = np.asarray(a, float)  # as one zero-dimensional object each
+            if a.ndim == 1 and a.size == len(times) * len(levels):
+                # numpy saves an object array of same-shaped arrays as one
+                # flat object array; the values are all there
+                a = a.reshape(len(times), len(levels))
             if a.ndim != 2 or a.shape[0] != len(times):
                 continue
             sec[name] = {}
