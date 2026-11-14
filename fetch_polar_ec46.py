@@ -127,7 +127,8 @@ def latest_run(s, tries=6):
                    "leadtime_hour": ["24_48"], "area": AREA,
                    "data_format": "grib"}
             r = s.post(EXEC, json={"inputs": req}, timeout=180)
-            if r.status_code == 200:
+            # the Data Store answers 201 Created for a new job, not 200
+            if r.status_code in (200, 201):
                 return d, t, r.json()
             if r.status_code == 403:
                 raise SystemExit(licence_refusal(r))
