@@ -315,8 +315,14 @@ def normalise(times, values, levels, clim):
 # height anomaly in metres can be put straight next to the reanalysis.  The
 # trade-off is that the anomaly is much larger in the stratosphere than in
 # the troposphere, so the scale is set by the stratosphere.
-BREAKS = [-600, -480, -380, -300, -230, -170, -115, -60, -20,
-          20, 60, 115, 170, 230, 300, 380, 480, 600]
+#
+# The scale runs to +/-2000 m: the stratospheric warming of early November
+# 2026 put the polar cap about 1700 m above its 1991-2020 mean at 10 hPa,
+# so a +/-600 m scale showed nothing but a solid red.  The steps are fine
+# near zero and coarse at the ends, the same shape as the reference's
+# normalised ladder, so an ordinary day's anomaly still reads.
+BREAKS = [-2000, -1600, -1270, -1000, -770, -570, -380, -200, -60,
+          60, 200, 380, 570, 770, 1000, 1270, 1600, 2000]
 COLORS = [
     # nine blues: a saturated royal blue out to a pale tint.  The deep end
     # is a COLOURED blue, not a near-black navy - a dark, desaturated end

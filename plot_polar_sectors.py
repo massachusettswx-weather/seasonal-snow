@@ -96,7 +96,9 @@ def main(tag="gefsv12", label="NOAA GEFSv12"):
                 rows.append([np.nan] * len(levels))
                 continue
             mean, _sig = clim[name][m]
-            rows.append(vals[i] - mean[:len(levels)])
+            # the climate and the model are both geopotential (m2/s2); the
+            # chart is in METRES, so the anomaly is divided by G0
+            rows.append((vals[i] - mean[:len(levels)]) / G0)
         anom[name] = np.array(rows, float)
         times = times_s
         vals = None
