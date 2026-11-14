@@ -644,6 +644,110 @@ if __name__ == "__main__":
     print("the module is meant to be imported")
 
 
+def plot_domain_map(ax):
+    """Draw the domains on a polar map: the polar cap and the two sectors.
+
+    The North Pole is at the centre, Greenwich at the bottom, so the Pacific
+    sector (120E-240E) sits at the top of the map and the Atlantic sector
+    (300E-60E) at the bottom - the same arrangement as the panels beside it.
+    The azimuthal-equidistant projection is scaled so that 30N is the outer
+    ring of the map, which leaves the polar cap itself filling the middle
+    half of it.
+    """
+    import matplotlib.patches as mpatches
+    from matplotlib.path import Path
+
+    cap_r = (90.0 - 60.0) / 60.0            # the 60N edge, as a fraction
+    edge_r = (90.0 - 30.0) / 60.0           # the outer ring of the map
+
+    def pt(lon, lat):
+        r = (90.0 - lat) / 60.0
+        a = np.radians(lon)
+        return r * np.sin(a), -r * np.cos(a)
+
+    # the whole cap, in a pale grey
+    ax.add_patch(mpatches.Circle((0, 0), cap_r, facecolor="#eef1f5",
+                                  edgecolor="none", zorder=1))
+    # the Arctic sector that is left out (240E-300E), a touch darker
+    ax.add_patch(_wedge(240.0, 300.0, cap_r, "#dfe4ea"))
+
+    for name, colour in (("npac", "#f4b740"), ("natl", "#3d7fd1")):
+        lon0, lon1 = SECTORS[name]
+        ax.add_patch(_wedge(lon0, lon1, cap_r, colour))
+
+    # the graticule: the latitude circles and the longitude spokes
+    for lat in (70.0, 80.0):
+        r = (90.0 - lat) / 60.0
+        th = np.linspace(0, 2 * np.pi, 361)
+        ax.plot(r * np.sin(th), -r * np.cos(th), color="#9ca3af",
+                lw=0.7, ls=(0, (2, 3)), zorder=3)
+    for lon in range(0, 360, 30):
+        x0, y0 = pt(lon, 60.0)
+        x1, y1 = pt(lon, 90.0)
+        ax.plot([x0, x1], [y0, y1], color="#9ca3af", lw=0.6,
+                ls=(0, (2, 3)), zorder=3)
+    # the edge of the cap, drawn solid
+    th = np.linspace(0, 2 * np.pi, 361)
+    ax.plot(cap_r * np.sin(th), -cap_r * np.cos(th), color="#6b7280",
+            lw=1.1, zorder=4)
+    # the outer ring of the map, at 30N
+    ax.add_patch(mpatches.Circle((0, 0), edge_r, facecolor="none",
+                                  edgecolor="#c8c5c2", lw=0.9, zorder=3))
+
+    # the latitude and longitude labels, on the outer ring
+    for lat, text in ((60.0, "60°N"), (30.0, "30°N")):
+        x, y = pt(0.0, lat)
+        ax.text(x * 1.10, y * 1.10, text, fontsize=8.0, color=C_MUTED,
+                ha="center", va="center", zorder=5)
+    for lon, text in ((0, "0°"), (90, "90°E"), (180, "180°"), (270, "90°W")):
+        x, y = pt(lon, 30.0)
+        ax.text(x * 1.10, y * 1.10, text, fontsize=8.0, color=C_MUTED,
+                ha="center", va="center", zorder=5)
+
+    ax.set_xlim(-1.30, 1.30)
+    ax.set_ylim(-1.30, 1.30)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    # the legend
+    handles = [
+        mpatches.Patch(facecolor="#f4b740", edgecolor="none",
+                       label="North Pacific (120°E-240°E)"),
+        mpatches.Patch(facecolor="#3d7fd1", edgecolor="none",
+                       label="North Atlantic (300°E-60°E)"),
+        mpatches.Patch(facecolor="#dfe4ea", edgecolor="none",
+                       label="the rest of the polar cap"),
+    ]
+    leg = ax.legend(handles=handles, loc="lower center",
+                    bbox_to_anchor=(0.5, -0.13), fontsize=8.5, frameon=False,
+                    handlelength=1.1, handleheight=1.0, labelspacing=0.45)
+    for t in leg.get_texts():
+        t.set_color(C_TEXT)
+    return ax
+
+
+def _wedge(lon0, lon1, rmax, colour):
+    """A wedge of the polar map: lon0 to lon1 (degrees east), pole to rmax."""
+    import matplotlib.patches as mpatches
+    from matplotlib.path import Path
+
+    def pt(lon):
+        r = rmax
+        a = np.radians(lon)
+        return r * np.sin(a), -r * np.cos(a)
+
+    n = 60
+    lons = np.linspace(lon0, lon1, n)
+    if lon1 < lon0:                      # a wedge that crosses 360
+        lons = np.concatenate([np.linspace(lon0, 360.0, n),
+                                np.linspace(0.0, lon1, n)])
+    verts = [(0.0, 0.0)] + [pt(l) for l in lons]
+    codes = [Path.MOVETO] + [Path.LINETO] * len(lons)
+    patch = mpatches.PathPatch(Path(verts, codes), facecolor=colour,
+                               edgecolor="none", zorder=2)
+    return patch
+
+
 def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
                          split=None, credit=None, handle="@Massachusettswx",
                          order=("npac", "natl"), forecast_alpha=0.62):
@@ -680,17 +784,23 @@ def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
     n = len(times)
     x = np.arange(n)
 
-    fig_w = 13.5
+    fig_w = 17.6
     fig_h = 6.4
     fig = plt.figure(figsize=(fig_w, fig_h), facecolor="white")
 
-    # the panels: two axes side by side, with a gap between them
-    left0, width = 0.062, 0.405
-    gap = 0.055
+    # the panels: the two sectors side by side, then the map of the domains
+    left0, width = 0.045, 0.315
+    gap = 0.022
     axes = []
     for i in range(len(names)):
         ax = fig.add_axes([left0 + i * (width + gap), 0.175, width, 0.635])
         axes.append(ax)
+
+    # the map of the domains the panels cover
+    map_ax = fig.add_axes([0.775, 0.115, 0.205, 0.695])
+    plot_domain_map(map_ax)
+    fig.text(0.775, 0.822, "the domains", fontsize=11, fontweight="bold",
+             color=C_TEXT, ha="left", va="bottom")
 
     for i, name in enumerate(names):
         ax = axes[i]
@@ -787,7 +897,7 @@ def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
 
     sm = ScalarMappable(norm=norm_c, cmap=cmap)
     sm.set_array([])
-    cax = fig.add_axes([0.245, 0.082, 0.48, 0.018])
+    cax = fig.add_axes([0.135, 0.082, 0.45, 0.018])
     cb = fig.colorbar(sm, cax=cax, orientation="horizontal",
                       boundaries=edges, ticks=edges[1:-1], extend="neither",
                       spacing="uniform")
@@ -797,7 +907,7 @@ def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
     cb.outline.set_edgecolor("#c8c5c2")
     cb.outline.set_linewidth(0.8)
     cb.ax.tick_params(length=2, colors=C_TEXT)
-    fig.text(0.485, 0.034, "Normalized geopotential height anomaly (\u03c3)",
+    fig.text(0.36, 0.034, "Normalized geopotential height anomaly (\u03c3)",
              fontsize=10.5, ha="center", va="center", fontweight="bold",
              color=C_TEXT)
 

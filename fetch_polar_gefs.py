@@ -78,7 +78,10 @@ for _l in (30, 400):
 PARTS = {"a": "pgrb2ap5/", "b": "pgrb2bp5/"}
 
 # the forecast length: the S2S product runs out to 16 days
-MAX_LEAD_H = 16 * 24
+# The 00Z cycle of the GEFS v12 carries the FULL extended range - 840 hours,
+# 35 days. The 06Z, 12Z and 18Z cycles of the same day are cut at 384 hours
+# (16 days), so the cycle that is chosen decides how long the chart can run.
+MAX_LEAD_H = 35 * 24
 
 # how many requests at a time
 THREADS = 10
@@ -194,7 +197,9 @@ def find_cycle():
                 hours = [h for h in subdirs(root) if re.fullmatch(r"\d{2}", h)]
             except Exception:                        # noqa: BLE001
                 continue
-            for h in sorted(hours, reverse=True):
+            # the 00Z cycle first: it is the one with the full 35-day range
+            for h in ["00"] + sorted((x for x in hours if x != "00"),
+                                     reverse=True):
                 if has_members(tmpl, d, h):
                     return d, h
     raise RuntimeError("no GEFS cycle with member files found")

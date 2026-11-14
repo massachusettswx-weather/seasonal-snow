@@ -65,3 +65,5 @@ data/_aifs_step.grib2
 
 # in-flight downloads (the fetchers write these while the queue runs)
 *.part
+data/_gefs_*.grib2
+data/_polz_*.grib
