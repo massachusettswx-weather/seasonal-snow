@@ -282,11 +282,16 @@ def daily_climate(times, months, mean, sigma=None):
     """
     import datetime as dt
     nmonths = len(months)
+    # the middle of each month, as a day of the year.  The months are
+    # counted from January, so December's mid-point lands near the end of
+    # the year rather than back at 16 January.
     mid = []
+    total = 0
     for m in months:
         nxt = dt.date(2001 + (m == 12), m % 12 + 1, 1)
         ndays = (nxt - dt.date(2001, m, 1)).days
-        mid.append((ndays + 1) / 2.0)
+        mid.append(total + (ndays + 1) / 2.0)
+        total += ndays
     mean = np.asarray(mean, float)
     xs = np.array([-mid[-1] + 365.0] + mid + [365.0 + mid[0]])
     ys = np.concatenate([mean[-1:], mean, mean[:1]], axis=0)
@@ -302,6 +307,50 @@ def daily_climate(times, months, mean, sigma=None):
     if sigma is None:
         return out
     return out, daily_climate(times, months, sigma)
+
+
+def load_clim_native(path=None):
+    """The climatology built from ARCO's native ERA5 store.
+
+    -> (months, levels, mean, sigma) and, when the file carries them, the
+    sector climate in the same shape: {sector: {month: (mean, sigma)}}.
+
+    This is the climate the chart is measured against: the same product and
+    the same grid as the reanalysis half, so the anomaly means what it
+    says.  The CDS's monthly means came out about 10 K colder than the
+    store in the stratosphere, which inflated every anomaly by about
+    1200 m.
+    """
+    p = path or os.path.join(DATA, "polar_cap_clim_native_daily.npz")
+    if not os.path.exists(p):
+        return None
+    d = np.load(p, allow_pickle=True)
+    times = [str(t) for t in d["times"]]
+    vals = np.asarray(d["values"], float)
+    levels = [int(x) for x in d["levels"]]
+    months = sorted({int(t[5:7]) for t in times})
+    mean = np.zeros((len(months), len(levels)))
+    sigma = np.zeros_like(mean)
+    idx_of = {}
+    for j, m in enumerate(months):
+        idx = [i for i, t in enumerate(times) if int(t[5:7]) == m]
+        idx_of[m] = idx
+        mean[j] = vals[idx].mean(axis=0)
+        sigma[j] = vals[idx].std(axis=0, ddof=1)
+    sec = None
+    if "sectors" in d:
+        names = [str(x) for x in d["sector_names"]]
+        arrs = d["sectors"]
+        sec = {}
+        for k, name in enumerate(names):
+            a = np.asarray(arrs[k], float)
+            if a.ndim != 2 or a.shape[0] != len(times):
+                continue
+            sec[name] = {}
+            for m in months:
+                idx = idx_of[m]
+                sec[name][m] = (a[idx].mean(axis=0), a[idx].std(axis=0, ddof=1))
+    return (months, levels, mean, sigma), sec
 
 
 def normalise(times, values, levels, clim):
@@ -345,20 +394,18 @@ def normalise(times, values, levels, clim):
 # orange and the site's own deep red.  The colours are this site's own;
 # the LAYOUT is ours too - nothing here is lifted from a published figure.
 #
-# The field is the geopotential height ANOMALY IN METRES, not a normalised
-# one.  A normalised anomaly needs a climatology of its own for every system
-# - and the subseasonal guidance has no hindcast to build one from - while a
-# height anomaly in metres can be put straight next to the reanalysis.  The
-# trade-off is that the anomaly is much larger in the stratosphere than in
-# the troposphere, so the scale is set by the stratosphere.
+# The field is the NORMALISED geopotential height anomaly, in standard
+# deviations of the ERA5 1991-2020 climatology.  The reanalysis and the
+# forecast are measured against the same climate and the same standard
+# deviation, so the two halves of the section are directly comparable.
 #
-# The scale runs to +/-2000 m: the stratospheric warming of early November
-# 2026 put the polar cap about 1700 m above its 1991-2020 mean at 10 hPa,
-# so a +/-600 m scale showed nothing but a solid red.  The steps are fine
-# near zero and coarse at the ends, the same shape as the reference's
-# normalised ladder, so an ordinary day's anomaly still reads.
-BREAKS = [-2000, -1600, -1270, -1000, -770, -570, -380, -200, -60,
-          60, 200, 380, 570, 770, 1000, 1270, 1600, 2000]
+# The anomaly is NORMALISED - in standard deviations of the 1991-2020
+# climatology - so every level is on the same footing: the stratosphere
+# moves by kilometres and the troposphere by tens of metres.  The ladder
+# runs to +/-5 sigma with fine steps near zero, the same shape as the
+# reference's, so an ordinary day's anomaly still reads.
+BREAKS = [-5, -4, -3, -2, -1.5, -1, -0.7, -0.4, -0.2,
+          0.2, 0.5, 1, 1.5, 2, 3, 4, 5]
 COLORS = [
     # nine blues: a saturated royal blue out to a pale tint.  The deep end
     # is a COLOURED blue, not a near-black navy - a dark, desaturated end
@@ -569,7 +616,7 @@ def plot_section(times, norm, levels, out_path, title, subtitle,
     cb.outline.set_edgecolor("#c8c5c2")
     cb.outline.set_linewidth(0.8)
     cb.ax.tick_params(length=2, colors=C_TEXT)
-    fig.text(0.485, 0.030, "Geopotential height anomaly (m)",
+    fig.text(0.485, 0.030, "Normalized geopotential height anomaly (\u03c3)",
              fontsize=10.5, ha="center", va="center", fontweight="bold",
              color=C_TEXT)
 
@@ -743,7 +790,7 @@ def plot_sector_sections(times, sectors, levels, out_path, title, subtitle,
     cb.outline.set_edgecolor("#c8c5c2")
     cb.outline.set_linewidth(0.8)
     cb.ax.tick_params(length=2, colors=C_TEXT)
-    fig.text(0.485, 0.034, "Geopotential height anomaly (m)",
+    fig.text(0.485, 0.034, "Normalized geopotential height anomaly (\u03c3)",
              fontsize=10.5, ha="center", va="center", fontweight="bold",
              color=C_TEXT)
 

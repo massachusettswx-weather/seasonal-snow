@@ -28,7 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
-from polar_cap import LEVELS  # noqa: E402
+from polar_cap import LEVELS, SECTORS  # noqa: E402
 from fetch_polar_era5_native import cap_and_sectors, chunk, latitude  # noqa: E402
 
 OUT = os.path.join(DATA, "polar_cap_clim_native_daily.npz")
@@ -43,6 +43,7 @@ def main(out=OUT):
     jrows = {lv: LEV37.index(lv) for lv in LEVELS}
 
     times, rows = [], []
+    sec = {k: [] for k in SECTORS}
     for yr in YEARS:
         for m in range(1, 13):
             day = dt.date(yr, m, DAY)
@@ -52,8 +53,10 @@ def main(out=OUT):
                 continue
             caps = []
             for lv in LEVELS:
-                c, _s = cap_and_sectors(a[jrows[lv]].astype(float), lat)
+                c, s = cap_and_sectors(a[jrows[lv]].astype(float), lat)
                 caps.append(c)
+                for k in SECTORS:
+                    sec[k].append(s[k])
             times.append("%s 12" % day.isoformat())
             rows.append(caps)
         print("   %d: %d months so far" % (yr, len(rows)))
@@ -62,7 +65,10 @@ def main(out=OUT):
         return 1
     np.savez_compressed(out, times=np.array(times),
                         values=np.array(rows, float),
-                        levels=np.array(LEVELS))
+                        levels=np.array(LEVELS),
+                        sectors=np.array([np.array(sec[k], float)
+                                          for k in SECTORS], dtype=object),
+                        sector_names=np.array(list(SECTORS)))
     print("   wrote %s: %d samples, %d levels" % (out, len(times), len(LEVELS)))
     return 0
 

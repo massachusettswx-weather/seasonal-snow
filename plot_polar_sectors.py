@@ -27,7 +27,7 @@ DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
 from polar_cap import (G0, SECTOR_LABELS, daily_climate,  # noqa: E402
-                       plot_sector_sections)
+                       load_clim_native, plot_sector_sections)
 from ecmwf_credit import credit_for  # noqa: E402
 
 OUT = os.path.join(HERE, "output", "polar_cap")
@@ -43,6 +43,11 @@ def cache_for(tag):
 
 def load_sector_clim():
     """-> {sector: {month: (mean, sigma)}}, or None."""
+    # the climate built from the same store as the reanalysis half comes
+    # first; the CDS's monthly means are the fallback
+    nat = load_clim_native()
+    if nat is not None and nat[1]:
+        return nat[1]
     if not os.path.exists(CLIM_MONTHLY):
         return None
     d = np.load(CLIM_MONTHLY, allow_pickle=True)
@@ -97,10 +102,12 @@ def main(tag="gefsv12", label="NOAA GEFSv12"):
         mlist = sorted(clim[name])
         mmean = np.array([np.asarray(clim[name][m][0], float)[:len(levels)]
                           for m in mlist])
-        daily = daily_climate(times_s, mlist, mmean)
-        # the climate and the model are both geopotential (m2/s2); the
-        # chart is in METRES, so the anomaly is divided by G0
-        rows = [(vals[i] - daily[i]) / G0 for i in range(len(times_s))]
+        msig = np.array([np.asarray(clim[name][m][1], float)[:len(levels)]
+                          for m in mlist])
+        daily, dsig = daily_climate(times_s, mlist, mmean, msig)
+        # the anomaly is NORMALISED: the climate's own standard deviation
+        # for the day, so the two sectors and every level are on one scale
+        rows = [(vals[i] - daily[i]) / dsig[i] for i in range(len(times_s))]
         anom[name] = np.array(rows, float)
         times = times_s
         vals = None

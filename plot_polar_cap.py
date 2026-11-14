@@ -23,8 +23,8 @@ DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
 from polar_cap import (CAP_N, CAP_S, G0, LEVELS, build_climatology,  # noqa: E402
-                       daily_climate, load_climatology, normalise,
-                       plot_section)
+                       daily_climate, load_clim_native, load_climatology,
+                       normalise, plot_section)
 from ecmwf_credit import credit_for  # noqa: E402
 
 OUT = os.path.join(HERE, "output", "polar_cap")
@@ -198,18 +198,27 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     # 1. the climatology.  The monthly one, in the native ERA5 convention,
     # is the one that matches the data; the daily one built from ARCO's
     # reduced store is kept only as a fallback.
-    clim_m = load_clim_monthly()
-    if clim_m is not None:
-        clim = clim_m
-        kind = "monthly"
+    # the climate the chart is measured against: the one built from the
+    # same store as the reanalysis half.  The CDS's monthly means are the
+    # fallback - they are the same ERA5 on the same grid, but they came out
+    # about 10 K colder in the stratosphere.
+    nat = load_clim_native()
+    if nat is not None:
+        clim = nat[0]
+        kind = "native"
     else:
-        if not os.path.exists(CLIM):
-            if not os.path.exists(PROFILES):
-                print("   no ERA5 polar-cap profiles yet")
-                return
-            build_clim()
-        clim = load_climatology(CLIM)
-        kind = "daily"
+        clim_m = load_clim_monthly()
+        if clim_m is not None:
+            clim = clim_m
+            kind = "monthly"
+        else:
+            if not os.path.exists(CLIM):
+                if not os.path.exists(PROFILES):
+                    print("   no ERA5 polar-cap profiles yet")
+                    return
+                build_clim()
+            clim = load_climatology(CLIM)
+            kind = "daily"
 
     # 2. the analysis (the recent past, up to the model's init)
     rt, rv, d_recent = load_recent()
@@ -298,10 +307,10 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
     if today is not None and split and today < split:
         today = None
 
-    if kind == "monthly":
+    if kind in ("monthly", "native"):
         cmonths, clevs, cmean, csigma = clim
         keep = [clevs.index(l) for l in levs]
-        anom, _sig = normalise_monthly(days, values, levs,
+        anom, norm = normalise_monthly(days, values, levs,
                                        (cmonths, levs, cmean[:, keep],
                                         csigma[:, keep]))
     else:
@@ -309,18 +318,18 @@ def main(tag="ecmwf-seas5", label="ECMWF SEAS5"):
         keep = [clevs.index(l) for l in levs]
         anom, _sig = normalise(days, values, levs,
                                (cdays, levs, cmean[:, keep], csigma[:, keep]))
-    # The field is the geopotential height ANOMALY IN METRES.  A normalised
-    # anomaly would need a climatology of its own for every system - and the
-    # subseasonal guidance has no hindcast to build one from - while a height
-    # anomaly in metres can be put straight beside the reanalysis.
-    norm = anom / G0
+    # The field is the NORMALISED anomaly: the geopotential height anomaly
+    # in standard deviations of the ERA5 1991-2020 climatology.  The
+    # reanalysis and the forecast are measured against the same climate, so
+    # the two halves of the section are directly comparable.
     init_day = fc_days[0] if fc_days else ""
     end_day = fc_days[-1] if fc_days else ""
     nlev = len(levs)
     lev_txt = "%d-%d" % (min(levs), max(levs))
-    title = ("%s · Polar Cap (60-90°N) Geopotential Height Anomaly"
+    title = ("%s · Polar Cap (60-90°N) Normalized Geopotential Height Anomaly"
              % label)
-    clim_txt = {"monthly": "ERA5 1991-2020 monthly climatology",
+    clim_txt = {"native": "ERA5 1991-2020 climatology",
+                "monthly": "ERA5 1991-2020 monthly climatology",
                 "daily": "ERA5 1991-2020 climatology"}[kind]
     if ana_days:
         subtitle = ("%d days of ERA5 reanalysis to the run's init · the %s "

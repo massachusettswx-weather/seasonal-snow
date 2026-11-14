@@ -120,6 +120,26 @@
    "status": "decoded",
    "init": "2026-11",
    "members": 51
+  },
+  {
+   "tag": "ecmwf-seas5",
+   "centre": "ecmwf",
+   "system": "51",
+   "chunk": 135,
+   "end": 150,
+   "job": "673d1dc8-6f1b-44e6-b5c3-d2be3c229e42",
+   "status": "running",
+   "init": "2026-11"
+  },
+  {
+   "tag": "ecmwf-seas5",
+   "centre": "ecmwf",
+   "system": "51",
+   "chunk": 150,
+   "end": 165,
+   "job": "47a14d66-0784-4c6f-acb2-61cc7450d8a8",
+   "status": "accepted",
+   "init": "2026-11"
   }
  ]
 }
